@@ -1,0 +1,50 @@
+{
+  "name": "fullstack",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=local mwtsc --watch --project tsconfig.server.json --run @midwayjs/mock/app.js",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "commit": "git add . && git-cz"
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-git",
+      "czConfig": "./commitlint.config.js"
+    }
+  },
+  "dependencies": {
+    "@midwayjs/bootstrap": "^3.20.0",
+    "@midwayjs/core": "^3.20.0",
+    "@midwayjs/info": "^3.20.0",
+    "@midwayjs/koa": "^3.20.0",
+    "@midwayjs/logger": "^3.4.2",
+    "@midwayjs/validate": "^3.20.0",
+    "antd": "^5.23.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "ts-node": "^10.9.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@midwayjs/mock": "^3.20.0",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react-swc": "^3.5.0",
+    "commitizen": "^4.3.1",
+    "cross-env": "^7.0.3",
+    "cz-git": "^1.11.0",
+    "eslint": "^9.17.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.16",
+    "globals": "^15.14.0",
+    "koa-connect": "^2.1.0",
+    "mwtsc": "^1.15.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "~5.6.2",
+    "typescript-eslint": "^8.18.2",
+    "vite": "^6.0.5"
+  }
+}
