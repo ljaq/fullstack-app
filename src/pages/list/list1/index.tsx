@@ -1,10 +1,10 @@
 import { HomeOutlined } from '@ant-design/icons'
 
-export default function Home() {
-  return <div>Home</div>
+export default function List1() {
+  return <div>list1</div>
 }
 
 export const pageConfig = {
-  name: 'Home',
+  name: 'list1',
   icon: <HomeOutlined />
 }

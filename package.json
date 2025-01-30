@@ -16,6 +16,8 @@
     }
   },
   "dependencies": {
+    "@ant-design/icons": "^5.6.0",
+    "@ant-design/pro-layout": "^7.22.1",
     "@midwayjs/bootstrap": "^3.20.0",
     "@midwayjs/core": "^3.20.0",
     "@midwayjs/info": "^3.20.0",
