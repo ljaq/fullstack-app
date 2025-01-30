@@ -7,20 +7,7 @@ interface IProps {
   children: ReactNode
 }
 
-console.log(routes)
-
 export default function Layout(props: IProps) {
-  // const routes = [
-  //   {
-  //     path: '/home',
-  //     name: 'Home'
-  //   },
-  //   {
-  //     path: '/about',
-  //     name: 'About'
-  //   }
-  // ]
-
   const layoutRoutes = useMemo(() => {
     const parse = route => {
       const { path, children } = route
@@ -30,22 +17,20 @@ export default function Layout(props: IProps) {
       if (children.length === 1) {
         return {
           path,
-          ...children[0].meta
+          ...children[0].meta,
         }
       }
       if (children.length > 1) {
         return {
           path,
           ...children[0].meta,
-          children: children.map(parse)
+          children: children.map(parse),
         }
       }
     }
 
     return routes.map(parse)
   }, [routes])
-
-  console.log(layoutRoutes)
 
   return (
     <ProLayout

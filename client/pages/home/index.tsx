@@ -6,5 +6,5 @@ export default function Home() {
 
 export const pageConfig = {
   name: 'Home',
-  icon: <HomeOutlined />
+  icon: <HomeOutlined />,
 }

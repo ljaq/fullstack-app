@@ -1,10 +1,18 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 import pages from 'vite-plugin-pages'
+import { readFileSync } from 'fs'
+import path from 'path'
 
 export default defineConfig({
   build: {
     outDir: './dist/public',
+  },
+  server: {
+    https: {
+      key: readFileSync(path.resolve(__dirname, process.env.SSL_KEY_FILE)),
+      cert: readFileSync(path.resolve(__dirname, process.env.SSL_CRT_FILE)),
+    },
   },
   resolve: {
     alias: {
