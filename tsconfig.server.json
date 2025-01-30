@@ -1,36 +1,22 @@
 {
-  "compileOnSave": true,
   "compilerOptions": {
-    "target": "es2018",
+    "target": "esnext",
     "module": "commonjs",
-    "moduleResolution": "node",
     "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "dist",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "inlineSourceMap": true,
-    "noImplicitThis": true,
-    "noUnusedLocals": true,
-    "stripInternal": true,
-    "skipLibCheck": true,
-    "pretty": true,
-    "declaration": true,
-    "forceConsistentCasingInFileNames": true,
-    "typeRoots": [
-      "./typings",
-      "./node_modules/@types"
-    ],
-    "outDir": "dist",
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true
   },
-  "include": [
-    "server/**/*"
-  ],
   "exclude": [
-    "*.js",
-    "*.ts",
-    "dist",
-    "node_modules",
-    "test",
-    "client",
-    "types"
+    "src"
+  ],
+  "include": [
+    "server",
+    "types",
+    "scripts",
+    "app.ts"
   ]
 }
