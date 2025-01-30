@@ -3,13 +3,16 @@ import react from '@vitejs/plugin-react-swc'
 import pages from 'vite-plugin-pages'
 
 export default defineConfig({
+  build: {
+    outDir: './dist/public',
+  },
   resolve: {
     alias: {
       '@/client': './client',
       '@/server': './server',
       '@/utils': './utils',
-      '@/types': './types'
-    }
+      '@/types': './types',
+    },
   },
   plugins: [
     react(),
@@ -24,7 +27,7 @@ export default defineConfig({
           .replace(/"element":React\.createElement\((.*?)\)/g, (match, pageName) => {
             return `${match}, meta: ${pageName}meta`
           })
-      }
-    })
-  ]
+      },
+    }),
+  ],
 })

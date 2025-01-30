@@ -1,3 +1,5 @@
+require('dotenv').config({ path: `.env.${process.env.NODE_ENV}`, override: true })
+
 import { DarukServer } from 'daruk'
 import https from 'https'
 import { readFileSync } from 'fs-extra'
@@ -8,8 +10,6 @@ import { createProxyMiddleware } from 'http-proxy-middleware'
 import k2c from 'koa-connect'
 import proxy from './proxy'
 import chalk from 'chalk'
-
-require('dotenv').config({ path: `.env.${process.env.NODE_ENV}`, override: true })
 
 const isDev = process.env.NODE_ENV === 'dev'
 const PORT = process.env.PORT

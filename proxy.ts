@@ -1,6 +1,6 @@
 export default {
   '/api': {
-    target: 'https://service.zhongboboye.com:5000',
+    target: process.env.SERVER_API,
     changeOrigin: true,
   },
 }
