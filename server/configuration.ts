@@ -8,6 +8,14 @@ import { DefaultErrorFilter } from './filter/default.filter'
 import { NotFoundFilter } from './filter/notfound.filter'
 import { ReportMiddleware } from './middleware/report.middleware'
 import { ViteMiddleware } from './middleware/vite.middlewate'
+import { PageConfig } from './types'
+
+const page: PageConfig = {
+  name: 'Midway Vite React',
+  icon: 'https://img.alicdn.com/imgextra/i4/O1CN01KX5Rfv1Z5kq5KYqyH_!!6000000001499-2-tps-64-64.png'
+}
+
+console.log(page)
 
 @Configuration({
   imports: [

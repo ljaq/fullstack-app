@@ -20,14 +20,17 @@
       "./node_modules/@types"
     ],
     "outDir": "dist",
-    "rootDir": "server"
   },
+  "include": [
+    "server/**/*"
+  ],
   "exclude": [
     "*.js",
     "*.ts",
     "dist",
     "node_modules",
     "test",
-    "src"
+    "client",
+    "types"
   ]
 }

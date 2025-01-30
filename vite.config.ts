@@ -1,15 +1,21 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
-import Pages from 'vite-plugin-pages'
+import pages from 'vite-plugin-pages'
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@/client': './client',
+      '@/server': './server',
+      '@/utils': './utils',
+      '@/types': './types'
+    }
+  },
   plugins: [
     react(),
-    Pages({
+    pages({
+      dirs: 'client/pages',
       importMode: 'async',
-      onRoutesGenerated(routes) {
-        console.log(routes)
-      },
       onClientGenerated(clientCode) {
         return clientCode
           .replace(/const (.*?) = React\.lazy\(\(\) => import\((.*?)\)\);/g, (match, pageName, comPath) => {
