@@ -3,6 +3,12 @@ import { API_REQ_FUNCTION } from './types'
 import * as serverApi from './serverApi'
 import * as api from './api'
 
+type API<T> = {
+  [X in keyof T]: {
+    [K in keyof T[X]]: API_REQ_FUNCTION
+  }
+}
+
 const request = {
   ...Object.keys(serverApi).reduce(
     (prev, next) => {

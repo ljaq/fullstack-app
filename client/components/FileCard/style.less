@@ -1,0 +1,32 @@
+.file-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  background-color: rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transition: 0.2s;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+  }
+  &-name {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 24px;
+    img {
+      width: 20px;
+      height: 20px;
+      object-fit: cover;
+    }
+  }
+  &-icon {
+    margin-right: 8px;
+    font-size: 0;
+  }
+}

@@ -1,3 +1,4 @@
+import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
 import { ProLayout, PageContainer, ProBreadcrumb } from '@ant-design/pro-layout'
 import { ReactNode, useMemo } from 'react'
 import { Link } from 'react-router'
@@ -39,6 +40,12 @@ export default function Layout(props: IProps) {
       menuItemRender={(item, dom) => {
         return <Link to={item.redirect && item.redirect.startsWith(item.path) ? item.redirect : item.path}>{dom}</Link>
       }}
+      avatarProps={{
+        src: 'https://gw.alipayobjects.com/zos/antfincdn/efFD%24IOql2/weixintupian_20170331104822.jpg',
+        title: '七妮妮',
+        icon: <UserOutlined />,
+      }}
+      actionsRender={() => [<LogoutOutlined />]}
     >
       <ProBreadcrumb />
       <PageContainer>{props.children}</PageContainer>
