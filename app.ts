@@ -9,14 +9,10 @@ import k2c from 'koa-connect'
 import proxy from './proxy'
 import chalk from 'chalk'
 
-require('dotenv').config({ path: '.env', override: true })
+require('dotenv').config({ path: `.env.${process.env.NODE_ENV}`, override: true })
 
-const isDev = process.env.NODE_ENV === 'development'
+const isDev = process.env.NODE_ENV === 'dev'
 const PORT = process.env.PORT
-
-if (isDev) {
-  require('dotenv').config({ path: '.env.local', override: true })
-}
 
 async function createServer() {
   const darukServer = DarukServer({

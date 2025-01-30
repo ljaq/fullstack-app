@@ -3,9 +3,10 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "dev": "NODE_ENV=development tsnd --respawn --project ./tsconfig.server.json app.ts",
+    "dev": "NODE_ENV=dev tsnd --respawn --project ./tsconfig.server.json app.ts",
     "build": "rm -rf ./dist && yarn generate && vite build && cp -f ./private_key.pem ./dist/private_key.pem && tsc --project tsconfig.server.json",
-    "start": "NODE_ENV=production node ./dist/app.js",
+    "start:prod": "NODE_ENV=prod node ./dist/app.js",
+    "start:test": "NODE_ENV=test node ./dist/app.js",
     "commit": "git add . && git-cz",
     "generate": "ts-node --project ./tsconfig.server.json ./scripts/generateServerApi.ts -with-bind"
   },
