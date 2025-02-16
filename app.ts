@@ -1,3 +1,4 @@
+require('module-alias/register')
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}`, override: true })
 
 import { DarukServer } from 'daruk'
@@ -38,8 +39,8 @@ async function createServer() {
     },
   })
   const options = {
-    key: readFileSync(process.env.SSL_KEY_FILE!),
-    cert: readFileSync(process.env.SSL_CRT_FILE!),
+    key: readFileSync(process.env.VITE_SSL_KEY_FILE!),
+    cert: readFileSync(process.env.VITE_SSL_CRT_FILE!),
   }
   try {
     await darukServer.loadFile('./server/services')

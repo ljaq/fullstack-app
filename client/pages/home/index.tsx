@@ -1,6 +1,6 @@
 import { HomeOutlined } from '@ant-design/icons'
-import CommonTable from '../../components/CommonTable'
-import { IFormItem } from '../../utils/getFormItem'
+import CommonTable from 'client/components/CommonTable'
+import { IFormItem } from 'client/utils/getFormItem'
 import { ColumnsType } from 'antd/es/table'
 
 const toolList: IFormItem[] = [
