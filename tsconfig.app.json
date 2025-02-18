@@ -17,6 +17,8 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
     /* Linting */
     "strict": false,
     "noUnusedLocals": true,
