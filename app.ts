@@ -14,6 +14,7 @@ import chalk from 'chalk'
 
 const isDev = process.env.NODE_ENV === 'dev'
 const PORT = process.env.PORT
+const isHttps = process.env.VITE_SSL_KEY_FILE && process.env.VITE_SSL_CRT_FILE
 
 async function createServer() {
   const darukServer = DarukServer({
@@ -38,10 +39,7 @@ async function createServer() {
       },
     },
   })
-  const options = {
-    key: readFileSync(process.env.VITE_SSL_KEY_FILE!),
-    cert: readFileSync(process.env.VITE_SSL_CRT_FILE!),
-  }
+
   try {
     await darukServer.loadFile('./server/services')
     await darukServer.loadFile('./server/controllers')
@@ -64,10 +62,18 @@ async function createServer() {
     (app, [api, conf]) => app.use(k2c(createProxyMiddleware(api, conf) as any)),
     darukServer.app,
   )
-  ;(darukServer.app as any).httpServer = https.createServer(options, darukServer.app.callback()).listen(PORT)
-  darukServer.emit('serverReady')
+  if (isHttps) {
+    const options = {
+      key: readFileSync(process.env.VITE_SSL_KEY_FILE!),
+      cert: readFileSync(process.env.VITE_SSL_CRT_FILE!),
+    }
+    ;(darukServer.app as any).httpServer = https.createServer(options, darukServer.app.callback()).listen(PORT)
+    darukServer.emit('serverReady')
+  } else {
+    darukServer.app.listen(PORT)
+  }
 
-  console.log(chalk.green(`[✓] running at https://localhost:${PORT}`))
+  console.log(chalk.green(`[✓] running at http${isHttps ? 's' : ''}://localhost:${PORT}`))
 }
 
 createServer()

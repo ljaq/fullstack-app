@@ -5,19 +5,19 @@ import { readFileSync } from 'fs'
 import path from 'path'
 
 export default defineConfig(({ command }) => {
+  const isHttps = process.env.VITE_SSL_KEY_FILE && process.env.VITE_SSL_CRT_FILE
   return {
     build: {
       outDir: './dist/public',
     },
-    server:
-      command === 'build'
-        ? undefined
-        : {
-            https: {
-              key: readFileSync(path.resolve(__dirname, process.env.VITE_SSL_KEY_FILE || '')),
-              cert: readFileSync(path.resolve(__dirname, process.env.VITE_SSL_CRT_FILE || '')),
-            },
+    server: isHttps
+      ? {
+          https: {
+            key: readFileSync(path.resolve(__dirname, process.env.VITE_SSL_KEY_FILE || '')),
+            cert: readFileSync(path.resolve(__dirname, process.env.VITE_SSL_CRT_FILE || '')),
           },
+        }
+      : undefined,
     resolve: {
       alias: {
         client: path.resolve(__dirname, './client'),
