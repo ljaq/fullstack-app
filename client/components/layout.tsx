@@ -1,37 +1,40 @@
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
 import { ProLayout, PageContainer, ProBreadcrumb } from '@ant-design/pro-layout'
 import { ReactNode, useMemo } from 'react'
-import { Link } from 'react-router'
-import routes from '~react-pages'
+import { routeTree } from 'client/routeTree.gen'
+import { Link, useLocation } from '@tanstack/react-router'
 
 interface IProps {
   children: ReactNode
 }
 
 export default function Layout(props: IProps) {
+  const location = useLocation()
   const layoutRoutes = useMemo(() => {
     const parse = route => {
-      const { path, children } = route
-      if (!children) {
-        return { path }
+      const {
+        options: { meta },
+        id: path,
+        children,
+      } = route
+
+      console.log(meta)
+
+      if (!children || children.length === 1) {
+        return { path, ...meta }
       }
-      if (children.length === 1) {
-        return {
-          path,
-          ...children[0].meta,
-        }
-      }
-      if (children.length > 1) {
-        return {
-          path,
-          ...children[0].meta,
-          children: children.map(parse),
-        }
+
+      return {
+        path,
+        ...meta,
+        routes: children.map(parse),
       }
     }
 
-    return routes.map(parse)
-  }, [routes])
+    return (routeTree.children as any)?.map(parse)
+  }, [routeTree])
+
+  console.log(layoutRoutes, location)
 
   return (
     <ProLayout

@@ -25,6 +25,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
+    "strictNullChecks": true,
     "baseUrl": "./"
   },
   "include": [

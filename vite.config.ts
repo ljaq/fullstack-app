@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
+import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import pages from 'vite-plugin-pages'
 import { readFileSync } from 'fs'
 import path from 'path'
@@ -28,19 +29,20 @@ export default defineConfig(({ command }) => {
     },
     plugins: [
       react(),
-      pages({
-        dirs: 'client/pages',
-        importMode: 'async',
-        onClientGenerated(clientCode) {
-          return clientCode
-            .replace(/const (.*?) = React\.lazy\(\(\) => import\((.*?)\)\);/g, (match, pageName, comPath) => {
-              return `${match}\r\nimport { pageConfig as ${pageName}meta } from ${comPath}`
-            })
-            .replace(/"element":React\.createElement\((.*?)\)/g, (match, pageName) => {
-              return `${match}, meta: ${pageName}meta`
-            })
-        },
-      }),
+      TanStackRouterVite({ routesDirectory: 'client/routes', generatedRouteTree: 'client/routeTree.gen.ts' }),
+      // pages({
+      //   dirs: 'client/pages',
+      //   importMode: 'async',
+      //   onClientGenerated(clientCode) {
+      //     return clientCode
+      //       .replace(/const (.*?) = React\.lazy\(\(\) => import\((.*?)\)\);/g, (match, pageName, comPath) => {
+      //         return `${match}\r\nimport { pageConfig as ${pageName}meta } from ${comPath}`
+      //       })
+      //       .replace(/"element":React\.createElement\((.*?)\)/g, (match, pageName) => {
+      //         return `${match}, meta: ${pageName}meta`
+      //       })
+      //   },
+      // }),
     ],
   }
 })
