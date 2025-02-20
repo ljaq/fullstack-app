@@ -1,9 +1,8 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
-import pages from 'vite-plugin-pages'
+import react from '@vitejs/plugin-react-swc'
 import { readFileSync } from 'fs'
 import path from 'path'
+import { defineConfig } from 'vite'
 
 export default defineConfig(({ command }) => {
   const isHttps = process.env.VITE_SSL_KEY_FILE && process.env.VITE_SSL_CRT_FILE

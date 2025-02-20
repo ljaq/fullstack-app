@@ -43,8 +43,6 @@
     "koa2-connect-history-api-fallback": "^0.1.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router": "^7.1.3",
-    "react-router-dom": "^7.1.3",
     "react-use": "^17.6.0",
     "ts-node": "^10.9.2",
     "xlsx": "^0.18.5"
@@ -71,7 +69,6 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.18.2",
-    "vite": "^6.0.5",
-    "vite-plugin-pages": "^0.32.4"
+    "vite": "^6.0.5"
   }
 }
