@@ -11,41 +11,41 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as HomeImport } from './routes/home'
-import { Route as AboutImport } from './routes/about'
-import { Route as ListIndexImport } from './routes/list/index'
-import { Route as ListList2IndexImport } from './routes/list/list2/index'
-import { Route as ListList1IndexImport } from './routes/list/list1/index'
+import { Route as R3listIndexImport } from './routes/3_list/index'
+import { Route as R2aboutIndexImport } from './routes/2_about/index'
+import { Route as R1homeIndexImport } from './routes/1_home/index'
+import { Route as R3listList2IndexImport } from './routes/3_list/list2/index'
+import { Route as R3listList1IndexImport } from './routes/3_list/list1/index'
 
 // Create/Update Routes
 
-const HomeRoute = HomeImport.update({
-  id: '/home',
-  path: '/home',
+const R3listIndexRoute = R3listIndexImport.update({
+  id: '/3_list/',
+  path: '/3_list/',
   getParentRoute: () => rootRoute,
 } as any)
 
-const AboutRoute = AboutImport.update({
-  id: '/about',
-  path: '/about',
+const R2aboutIndexRoute = R2aboutIndexImport.update({
+  id: '/2_about/',
+  path: '/2_about/',
   getParentRoute: () => rootRoute,
 } as any)
 
-const ListIndexRoute = ListIndexImport.update({
-  id: '/list/',
-  path: '/list/',
+const R1homeIndexRoute = R1homeIndexImport.update({
+  id: '/1_home/',
+  path: '/1_home/',
   getParentRoute: () => rootRoute,
 } as any)
 
-const ListList2IndexRoute = ListList2IndexImport.update({
-  id: '/list/list2/',
-  path: '/list/list2/',
+const R3listList2IndexRoute = R3listList2IndexImport.update({
+  id: '/3_list/list2/',
+  path: '/3_list/list2/',
   getParentRoute: () => rootRoute,
 } as any)
 
-const ListList1IndexRoute = ListList1IndexImport.update({
-  id: '/list/list1/',
-  path: '/list/list1/',
+const R3listList1IndexRoute = R3listList1IndexImport.update({
+  id: '/3_list/list1/',
+  path: '/3_list/list1/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -53,39 +53,39 @@ const ListList1IndexRoute = ListList1IndexImport.update({
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutImport
+    '/1_home/': {
+      id: '/1_home/'
+      path: '/1_home'
+      fullPath: '/1_home'
+      preLoaderRoute: typeof R1homeIndexImport
       parentRoute: typeof rootRoute
     }
-    '/home': {
-      id: '/home'
-      path: '/home'
-      fullPath: '/home'
-      preLoaderRoute: typeof HomeImport
+    '/2_about/': {
+      id: '/2_about/'
+      path: '/2_about'
+      fullPath: '/2_about'
+      preLoaderRoute: typeof R2aboutIndexImport
       parentRoute: typeof rootRoute
     }
-    '/list/': {
-      id: '/list/'
-      path: '/list'
-      fullPath: '/list'
-      preLoaderRoute: typeof ListIndexImport
+    '/3_list/': {
+      id: '/3_list/'
+      path: '/3_list'
+      fullPath: '/3_list'
+      preLoaderRoute: typeof R3listIndexImport
       parentRoute: typeof rootRoute
     }
-    '/list/list1/': {
-      id: '/list/list1/'
-      path: '/list/list1'
-      fullPath: '/list/list1'
-      preLoaderRoute: typeof ListList1IndexImport
+    '/3_list/list1/': {
+      id: '/3_list/list1/'
+      path: '/3_list/list1'
+      fullPath: '/3_list/list1'
+      preLoaderRoute: typeof R3listList1IndexImport
       parentRoute: typeof rootRoute
     }
-    '/list/list2/': {
-      id: '/list/list2/'
-      path: '/list/list2'
-      fullPath: '/list/list2'
-      preLoaderRoute: typeof ListList2IndexImport
+    '/3_list/list2/': {
+      id: '/3_list/list2/'
+      path: '/3_list/list2'
+      fullPath: '/3_list/list2'
+      preLoaderRoute: typeof R3listList2IndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -94,59 +94,64 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
-  '/about': typeof AboutRoute
-  '/home': typeof HomeRoute
-  '/list': typeof ListIndexRoute
-  '/list/list1': typeof ListList1IndexRoute
-  '/list/list2': typeof ListList2IndexRoute
+  '/1_home': typeof R1homeIndexRoute
+  '/2_about': typeof R2aboutIndexRoute
+  '/3_list': typeof R3listIndexRoute
+  '/3_list/list1': typeof R3listList1IndexRoute
+  '/3_list/list2': typeof R3listList2IndexRoute
 }
 
 export interface FileRoutesByTo {
-  '/about': typeof AboutRoute
-  '/home': typeof HomeRoute
-  '/list': typeof ListIndexRoute
-  '/list/list1': typeof ListList1IndexRoute
-  '/list/list2': typeof ListList2IndexRoute
+  '/1_home': typeof R1homeIndexRoute
+  '/2_about': typeof R2aboutIndexRoute
+  '/3_list': typeof R3listIndexRoute
+  '/3_list/list1': typeof R3listList1IndexRoute
+  '/3_list/list2': typeof R3listList2IndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/about': typeof AboutRoute
-  '/home': typeof HomeRoute
-  '/list/': typeof ListIndexRoute
-  '/list/list1/': typeof ListList1IndexRoute
-  '/list/list2/': typeof ListList2IndexRoute
+  '/1_home/': typeof R1homeIndexRoute
+  '/2_about/': typeof R2aboutIndexRoute
+  '/3_list/': typeof R3listIndexRoute
+  '/3_list/list1/': typeof R3listList1IndexRoute
+  '/3_list/list2/': typeof R3listList2IndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/about' | '/home' | '/list' | '/list/list1' | '/list/list2'
+  fullPaths:
+    | '/1_home'
+    | '/2_about'
+    | '/3_list'
+    | '/3_list/list1'
+    | '/3_list/list2'
   fileRoutesByTo: FileRoutesByTo
-  to: '/about' | '/home' | '/list' | '/list/list1' | '/list/list2'
+  to: '/1_home' | '/2_about' | '/3_list' | '/3_list/list1' | '/3_list/list2'
   id:
     | '__root__'
-    | '/about'
-    | '/home'
-    | '/list/'
-    | '/list/list1/'
-    | '/list/list2/'
+    | '/1_home/'
+    | '/2_about/'
+    | '/3_list/'
+    | '/3_list/list1/'
+    | '/3_list/list2/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  AboutRoute: typeof AboutRoute
-  HomeRoute: typeof HomeRoute
-  ListIndexRoute: typeof ListIndexRoute
-  ListList1IndexRoute: typeof ListList1IndexRoute
-  ListList2IndexRoute: typeof ListList2IndexRoute
+  R1homeIndexRoute: typeof R1homeIndexRoute
+  R2aboutIndexRoute: typeof R2aboutIndexRoute
+  R3listIndexRoute: typeof R3listIndexRoute
+  R3listList1IndexRoute: typeof R3listList1IndexRoute
+  R3listList2IndexRoute: typeof R3listList2IndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  AboutRoute: AboutRoute,
-  HomeRoute: HomeRoute,
-  ListIndexRoute: ListIndexRoute,
-  ListList1IndexRoute: ListList1IndexRoute,
-  ListList2IndexRoute: ListList2IndexRoute,
+  R1homeIndexRoute: R1homeIndexRoute,
+  R2aboutIndexRoute: R2aboutIndexRoute,
+  R3listIndexRoute: R3listIndexRoute,
+  R3listList1IndexRoute: R3listList1IndexRoute,
+  R3listList2IndexRoute: R3listList2IndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -159,27 +164,27 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/about",
-        "/home",
-        "/list/",
-        "/list/list1/",
-        "/list/list2/"
+        "/1_home/",
+        "/2_about/",
+        "/3_list/",
+        "/3_list/list1/",
+        "/3_list/list2/"
       ]
     },
-    "/about": {
-      "filePath": "about.tsx"
+    "/1_home/": {
+      "filePath": "1_home/index.tsx"
     },
-    "/home": {
-      "filePath": "home.tsx"
+    "/2_about/": {
+      "filePath": "2_about/index.tsx"
     },
-    "/list/": {
-      "filePath": "list/index.tsx"
+    "/3_list/": {
+      "filePath": "3_list/index.tsx"
     },
-    "/list/list1/": {
-      "filePath": "list/list1/index.tsx"
+    "/3_list/list1/": {
+      "filePath": "3_list/list1/index.tsx"
     },
-    "/list/list2/": {
-      "filePath": "list/list2/index.tsx"
+    "/3_list/list2/": {
+      "filePath": "3_list/list2/index.tsx"
     }
   }
 }

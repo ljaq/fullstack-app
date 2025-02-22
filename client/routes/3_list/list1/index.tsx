@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/list/list1/')({
+export const Route = createFileRoute('/3_list/list1/')({
   meta: {
     name: 'list1',
   },

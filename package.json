@@ -34,6 +34,7 @@
     "@tanstack/router-plugin": "^1.106.0",
     "antd": "^5.23.2",
     "antd-img-crop": "^4.24.0",
+    "antd-style": "^3.7.1",
     "canvas-datagrid": "^0.4.6",
     "daruk": "^2.4.13",
     "docx-preview": "^0.1.20",
