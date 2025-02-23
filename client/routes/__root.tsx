@@ -12,7 +12,7 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   return (
-    <ConfigProvider locale={zh_CN}>
+    <ConfigProvider locale={zh_CN} theme={{ token: { colorPrimary: '#1677ff' } }}>
       <EasyModal.Provider>
         <Layout>
           <Suspense fallback={<Spin spinning />}>

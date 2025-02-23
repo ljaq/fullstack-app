@@ -1,16 +1,15 @@
-import { LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { useLocation, useNavigate } from '@tanstack/react-router'
-import { Button, ConfigProvider, Layout, Menu } from 'antd'
+import { ConfigProvider, Layout, Menu } from 'antd'
 import { routeTree } from 'client/routeTree.gen'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import logo from './logo.svg'
 import { useStyle } from './style'
 
-export default function Sider() {
+export default function Sider(props: { width: number; collapsed: boolean; onCollapse?: (collapsed: boolean) => void }) {
+  const { collapsed } = props
   const { styles } = useStyle()
   const location = useLocation()
   const navigate = useNavigate()
-  const [collapsed, setCollapsed] = useState(false)
 
   const layoutRoutes = useMemo(() => {
     const root: any = { path: '', children: [] }
@@ -55,16 +54,11 @@ export default function Sider() {
   }, [routeTree])
 
   return (
-    <Layout.Sider theme='light' className={styles.sider} collapsed={collapsed} collapsedWidth={64}>
+    <Layout.Sider theme='light' className={styles.sider} collapsed={collapsed} collapsedWidth={64} width={'100%'}>
       <div className={styles.logo} style={{ justifyContent: collapsed ? 'center' : 'flex-start' }}>
         <img src={logo} />
         {!collapsed && <span>Fullstack App</span>}
       </div>
-      <Button
-        className='action'
-        icon={collapsed ? <RightOutlined /> : <LeftOutlined />}
-        onClick={() => setCollapsed(!collapsed)}
-      />
       <ConfigProvider
         theme={{
           components: {

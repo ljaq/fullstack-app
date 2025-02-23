@@ -1,12 +1,13 @@
-import { HomeOutlined } from '@ant-design/icons'
+import { HomeOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
 import { Link, useLocation } from '@tanstack/react-router'
-import { Breadcrumb, Space } from 'antd'
+import { Breadcrumb, Button, Space } from 'antd'
 import { BreadcrumbItemType } from 'antd/es/breadcrumb/Breadcrumb'
 import { routeTree } from 'client/routeTree.gen'
 import { useMemo } from 'react'
 import { useStyle } from './style'
 
-export default function Header() {
+export default function Header(props: { collapsed: boolean; setCollapsed: (collapsed: boolean) => void }) {
+  const { collapsed, setCollapsed } = props
   const { styles } = useStyle()
   const { pathname } = useLocation()
 
@@ -40,7 +41,6 @@ export default function Header() {
       const title = matchedRoute?.options?.meta?.name || segment
 
       breadcrumbs.push({
-        path: currentPath,
         title: currentPath === pathname ? title : <Link to={currentPath}>{title}</Link>, // 优先使用配置的name，否则使用路径段
       })
     }
@@ -53,6 +53,11 @@ export default function Header() {
   return (
     <div className={styles.header}>
       <Space>
+        <Button
+          icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+          type='text'
+          onClick={() => setCollapsed(!props.collapsed)}
+        />
         <Breadcrumb items={breadcrumbs} />
       </Space>
     </div>
