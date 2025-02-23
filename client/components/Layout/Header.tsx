@@ -16,15 +16,7 @@ export default function Header(props: { collapsed: boolean; setCollapsed: (colla
     const cleanPath = pathname.replace(/\/+/g, '/').replace(/\/$/, '')
     const pathSegments = cleanPath.split('/').filter(p => p)
 
-    const breadcrumbs: BreadcrumbItemType[] = [
-      {
-        title: (
-          <Link to='/'>
-            <HomeOutlined />
-          </Link>
-        ),
-      },
-    ]
+    const breadcrumbs: BreadcrumbItemType[] = []
     let currentPath = ''
 
     for (const segment of pathSegments) {

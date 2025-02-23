@@ -1,9 +1,11 @@
 import { useLocation, useNavigate } from '@tanstack/react-router'
-import { ConfigProvider, Layout, Menu } from 'antd'
+import { Button, ConfigProvider, Flex, Layout, Menu, Row, Space } from 'antd'
+import Avatar from 'boring-avatars'
 import { routeTree } from 'client/routeTree.gen'
 import { useMemo } from 'react'
 import logo from './logo.svg'
 import { useStyle } from './style'
+import { LogoutOutlined } from '@ant-design/icons'
 
 export default function Sider(props: { width: number; collapsed: boolean; onCollapse?: (collapsed: boolean) => void }) {
   const { collapsed } = props
@@ -79,6 +81,22 @@ export default function Sider(props: { width: number; collapsed: boolean; onColl
           />
         </div>
       </ConfigProvider>
+
+      <Flex
+        className='user'
+        justify='space-between'
+        align='center'
+        style={{ flexDirection: collapsed ? 'column-reverse' : 'row' }}
+        gap={4}
+      >
+        <Flex align='center' className='user-info'>
+          <Avatar name='Admin' variant='beam' size={28} />
+          {!collapsed && <span style={{ marginLeft: 8 }}>Admin</span>}
+        </Flex>
+        <Space direction={collapsed ? 'vertical' : 'horizontal'}>
+          <Button type='text' icon={<LogoutOutlined />} />
+        </Space>
+      </Flex>
     </Layout.Sider>
   )
 }

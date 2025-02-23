@@ -41,8 +41,12 @@ export const useStyle = createStyles(({ token, css }) => {
       max-width: unset !important;
       min-width: unset !important;
       flex: unset !important;
-      padding: 0 8px;
       background-color: transparent;
+      height: 100vh;
+      .ant-layout-sider-children {
+        display: flex;
+        flex-direction: column;
+      }
       .action {
         position: absolute;
         right: -12px;
@@ -54,13 +58,33 @@ export const useStyle = createStyles(({ token, css }) => {
         z-index: 10;
         transform: translateZ(0);
       }
+      .menu {
+        flex-grow: 1;
+        padding: 0 8px;
+        overflow: auto;
+      }
       .ant-menu,
       .ant-menu-sub {
         background-color: transparent !important;
         border: none !important;
       }
+      .user {
+        flex-shrink: 0;
+        height: 56px;
+        padding: 0 8px;
+        user-select: none;
+        .user-info {
+          padding: 8px 16px;
+          border-radius: ${token.borderRadius}px;
+          cursor: pointer;
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+          }
+        }
+      }
     `,
     logo: css`
+      flex-shrink: 0;
       display: flex;
       align-items: center;
       font-size: 18px;
@@ -69,6 +93,7 @@ export const useStyle = createStyles(({ token, css }) => {
       border-bottom: 1px solid rgba(0, 0, 0, 0.06);
       white-space: nowrap;
       padding: 0 16px;
+      margin: 0 8px;
       img {
         width: 36px;
         height: 36px;
