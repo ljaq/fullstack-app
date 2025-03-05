@@ -1,10 +1,11 @@
-import { HomeOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
+import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
 import { Link, useLocation } from '@tanstack/react-router'
-import { Breadcrumb, Button, Space } from 'antd'
+import { Breadcrumb, Button, Space, Typography } from 'antd'
 import { BreadcrumbItemType } from 'antd/es/breadcrumb/Breadcrumb'
 import { routeTree } from 'client/routeTree.gen'
 import { useMemo } from 'react'
 import { useStyle } from './style'
+import Translate from '../Animation/Translate'
 
 export default function Header(props: { collapsed: boolean; setCollapsed: (collapsed: boolean) => void }) {
   const { collapsed, setCollapsed } = props
@@ -28,12 +29,16 @@ export default function Header(props: { collapsed: boolean; setCollapsed: (colla
         return routePath === currentPath
       })
 
-      console.log(matchedRoute, currentPath)
-
       const title = matchedRoute?.options?.meta?.name || segment
 
       breadcrumbs.push({
-        title: currentPath === pathname ? title : <Link to={currentPath}>{title}</Link>, // 优先使用配置的name，否则使用路径段
+        title: (
+          <Translate direction='right'>
+            <div key={currentPath} style={{ whiteSpace: 'nowrap' }}>
+              {currentPath === pathname ? title : <Link to={currentPath}>{title}</Link>}
+            </div>
+          </Translate>
+        ),
       })
     }
 
@@ -50,7 +55,7 @@ export default function Header(props: { collapsed: boolean; setCollapsed: (colla
           type='text'
           onClick={() => setCollapsed(!props.collapsed)}
         />
-        <Breadcrumb items={breadcrumbs} />
+        <Breadcrumb style={{ height: 22 }} items={breadcrumbs} separator={<Translate direction='right'>/</Translate>} />
       </Space>
     </div>
   )

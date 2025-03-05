@@ -7,13 +7,8 @@ export const Route = createFileRoute('/3_list/')({
     icon: <OrderedListOutlined />,
   },
   component: RouteComponent,
-  beforeLoad: () => {
-    return redirect({
-      to: '/list/list1',
-    })
-  },
 })
 
-function RouteComponent() {
-  return <div></div>
+function RouteComponent(props) {
+  return <div>123{props.children}</div>
 }

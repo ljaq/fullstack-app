@@ -33,6 +33,7 @@ export const useStyle = createStyles(({ token, css }) => {
       align-items: center;
       height: 64px;
       padding: 0 40px;
+      margin-left: -8px;
     `,
     content: css`
       padding: 0 40px 32px;
