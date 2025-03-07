@@ -1,15 +1,17 @@
-import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
+import { MenuFoldOutlined, MenuOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
 import { Link, useLocation } from '@tanstack/react-router'
-import { Breadcrumb, Button, Space, Typography } from 'antd'
+import { Breadcrumb, Button, Space } from 'antd'
 import { BreadcrumbItemType } from 'antd/es/breadcrumb/Breadcrumb'
 import { routeTree } from 'client/routeTree.gen'
-import { useMemo } from 'react'
+import { Fragment, useMemo } from 'react'
 import { useStyle } from './style'
 import Translate from '../Animation/Translate'
+import { useLayoutState } from './context'
+import logo from './logo.svg'
 
-export default function Header(props: { collapsed: boolean; setCollapsed: (collapsed: boolean) => void }) {
-  const { collapsed, setCollapsed } = props
-  const { styles } = useStyle()
+export default function Header() {
+  const { collapsed, setCollapsed, isMobile } = useLayoutState()
+  const { styles, cx } = useStyle()
   const { pathname } = useLocation()
 
   const breadcrumbs = useMemo<BreadcrumbItemType[]>(() => {
@@ -48,15 +50,29 @@ export default function Header(props: { collapsed: boolean; setCollapsed: (colla
   console.log(breadcrumbs)
 
   return (
-    <div className={styles.header}>
-      <Space>
-        <Button
-          icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-          type='text'
-          onClick={() => setCollapsed(!props.collapsed)}
-        />
-        <Breadcrumb style={{ height: 22 }} items={breadcrumbs} separator={<Translate direction='right'>/</Translate>} />
-      </Space>
-    </div>
+    <Fragment>
+      {isMobile && (
+        <div className={styles.logo}>
+          <Button icon={<MenuOutlined />} type='text' onClick={() => setCollapsed(!collapsed)} />
+          <img src={logo} style={{ marginLeft: 8 }} />
+        </div>
+      )}
+      <div className={cx(styles.header, isMobile && 'mobile')}>
+        <Space>
+          {!isMobile && (
+            <Button
+              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              type='text'
+              onClick={() => setCollapsed(!collapsed)}
+            />
+          )}
+          <Breadcrumb
+            style={{ height: 22 }}
+            items={breadcrumbs}
+            separator={<Translate direction='right'>/</Translate>}
+          />
+        </Space>
+      </div>
+    </Fragment>
   )
 }

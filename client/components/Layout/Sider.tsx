@@ -1,14 +1,15 @@
 import { useLocation, useNavigate } from '@tanstack/react-router'
-import { Button, ConfigProvider, Flex, Layout, Menu, Row, Space } from 'antd'
+import { Button, ConfigProvider, Flex, Layout, Menu, Space } from 'antd'
 import Avatar from 'boring-avatars'
 import { routeTree } from 'client/routeTree.gen'
 import { useMemo } from 'react'
 import logo from './logo.svg'
 import { useStyle } from './style'
 import { LogoutOutlined } from '@ant-design/icons'
+import { useLayoutState } from './context'
 
-export default function Sider(props: { width: number; collapsed: boolean; onCollapse?: (collapsed: boolean) => void }) {
-  const { collapsed } = props
+export default function Sider() {
+  const { collapsed } = useLayoutState()
   const { styles } = useStyle()
   const location = useLocation()
   const navigate = useNavigate()

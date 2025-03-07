@@ -34,6 +34,9 @@ export const useStyle = createStyles(({ token, css }) => {
       height: 64px;
       padding: 0 40px;
       margin-left: -8px;
+      &.mobile {
+        margin-left: 0px;
+      }
     `,
     content: css`
       padding: 0 40px 32px;

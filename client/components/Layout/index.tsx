@@ -3,15 +3,16 @@ import Header from './Header'
 import Sider from './Sider'
 import { useStyle } from './style'
 import { Splitter } from 'antd'
+import { LayoutProvider, useLayoutState } from './context'
 
 interface IProps {
   children: ReactNode
 }
 
-export default function (props: IProps) {
-  const { styles } = useStyle()
+function Layout(props: IProps) {
+  const { styles, cx } = useStyle()
+  const { collapsed, setCollapsed, isMobile } = useLayoutState()
   const [siderWidth, setSiderWidth] = useState(200)
-  const [collapsed, setCollapsed] = useState(false)
 
   useEffect(() => {
     if (collapsed) {
@@ -29,19 +30,36 @@ export default function (props: IProps) {
     setCollapsed(size < 128)
   }
 
-  return (
-    <div className={styles.layout}>
-      <Splitter onResize={handleSpliterSizeChange}>
-        <Splitter.Panel size={siderWidth} defaultSize={200} min={64} max={360}>
-          <Sider width={siderWidth} collapsed={collapsed} />
-        </Splitter.Panel>
-        <Splitter.Panel>
-          <div style={{ height: '100vh', flexGrow: 1 }}>
-            <Header collapsed={collapsed} setCollapsed={setCollapsed} />
-            <div className={styles.content}>{props.children}</div>
-          </div>
-        </Splitter.Panel>
-      </Splitter>
+  const pcLayout = (
+    <Splitter onResize={handleSpliterSizeChange}>
+      <Splitter.Panel size={siderWidth} defaultSize={200} min={64} max={360}>
+        <Sider />
+      </Splitter.Panel>
+      <Splitter.Panel>
+        <div style={{ height: '100vh', flexGrow: 1 }}>
+          <Header />
+          <div className={styles.content}>{props.children}</div>
+        </div>
+      </Splitter.Panel>
+    </Splitter>
+  )
+
+  const mobileLayout = (
+    <div style={{ width: '100%' }}>
+      <Header />
+      <div style={{ height: '100vh', flexGrow: 1 }}>
+        <div className={styles.content}>{props.children}</div>
+      </div>
     </div>
+  )
+
+  return <div className={cx(styles.layout)}>{isMobile ? mobileLayout : pcLayout}</div>
+}
+
+export default function (props: IProps) {
+  return (
+    <LayoutProvider>
+      <Layout {...props} />
+    </LayoutProvider>
   )
 }
