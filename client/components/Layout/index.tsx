@@ -18,7 +18,7 @@ function Layout(props: IProps) {
     if (collapsed) {
       setSiderWidth(65)
       setTimeout(() => {
-        setSiderWidth(64)
+        setSiderWidth(66)
       }, 300)
     } else {
       setSiderWidth(200)
@@ -26,13 +26,13 @@ function Layout(props: IProps) {
   }, [collapsed])
 
   const handleSpliterSizeChange = ([size]) => {
-    setSiderWidth(size > 128 ? size : 64)
+    setSiderWidth(size > 128 ? size : 66)
     setCollapsed(size < 128)
   }
 
   const pcLayout = (
     <Splitter onResize={handleSpliterSizeChange}>
-      <Splitter.Panel size={siderWidth} defaultSize={200} min={64} max={360}>
+      <Splitter.Panel size={siderWidth} defaultSize={200} min={66} max={360} style={{ overflow: 'hidden' }}>
         <Sider />
       </Splitter.Panel>
       <Splitter.Panel>
@@ -46,6 +46,7 @@ function Layout(props: IProps) {
 
   const mobileLayout = (
     <div style={{ width: '100%' }}>
+      <Sider />
       <Header />
       <div style={{ height: '100vh', flexGrow: 1 }}>
         <div className={styles.content}>{props.children}</div>
