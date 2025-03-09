@@ -3,10 +3,10 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "dev": "NODE_ENV=dev tsnd --respawn --project ./tsconfig.server.json app.ts",
+    "dev": "MODE=dev tsnd --respawn --project ./tsconfig.server.json app.ts",
     "build": "rm -rf ./dist && yarn generate && vite build && tsc --project tsconfig.server.json",
-    "start:prod": "NODE_ENV=prod node ./dist/app.js",
-    "start:test": "NODE_ENV=test node ./dist/app.js",
+    "start:prod": "MODE=prod node ./dist/app.js",
+    "start:test": "MODE=test node ./dist/app.js",
     "commit": "git add . && git-cz",
     "generate": "ts-node --project ./tsconfig.server.json ./scripts/generateServerApi.ts -with-bind"
   },
@@ -30,6 +30,8 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@ljaq/editor": "^0.0.6",
     "@react-spring/web": "^9.7.5",
+    "@tanstack/react-query": "^5.67.2",
+    "@tanstack/react-query-devtools": "^5.67.2",
     "@tanstack/react-router": "^1.106.0",
     "@tanstack/router-devtools": "^1.106.0",
     "@tanstack/router-plugin": "^1.106.0",

@@ -1,5 +1,5 @@
 require('module-alias/register')
-require('dotenv').config({ path: `.env.${process.env.NODE_ENV}`, override: true })
+require('dotenv').config({ path: `.env.${process.env.MODE}`, override: true })
 
 import { DarukServer } from 'daruk'
 import https from 'https'
@@ -12,7 +12,7 @@ import k2c from 'koa-connect'
 import proxy from './proxy'
 import chalk from 'chalk'
 
-const isDev = process.env.NODE_ENV === 'dev'
+const isDev = process.env.MODE === 'dev'
 const PORT = process.env.PORT
 const isHttps = process.env.VITE_SSL_KEY_FILE && process.env.VITE_SSL_CRT_FILE
 
