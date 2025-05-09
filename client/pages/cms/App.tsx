@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { useLocation, useRoutes } from 'react-router'
 import routes from '~react-page-cms'
-import Layout from '../../components/layout copy'
+import Layout from './components/Layout/index'
 import { Spin, ConfigProvider } from 'antd'
 import zh_CN from 'antd/locale/zh_CN'
 import EasyModal from '../../utils/easyModal'

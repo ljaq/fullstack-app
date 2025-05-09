@@ -9,10 +9,7 @@ interface IProps {
 }
 
 export default function Layout(props: IProps) {
-  const layoutRoutes = useMemo(() => {
-
-    console.log(routes);
-    
+  const layoutRoutes = useMemo(() => {    
     const parse = route => {
       const { path, children } = route
       if (!children) {
@@ -36,12 +33,12 @@ export default function Layout(props: IProps) {
     return routes.map(parse)
   }, [routes])
 
-  console.log(layoutRoutes);
+  console.log(routes, layoutRoutes);
   
 
   return (
     <ProLayout
-      route={{ routes: layoutRoutes }}
+      route={{ routes: layoutRoutes[0].children}}
       menu={{ type: 'sub', autoClose: false, ignoreFlatMenu: true }}
       menuItemRender={(item, dom) => {
         return <Link to={item.redirect && item.redirect.startsWith(item.path) ? item.redirect : item.path}>{dom}</Link>
