@@ -1,23 +1,43 @@
-import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import react from '@vitejs/plugin-react-swc'
-import { readFileSync } from 'fs'
+import Page from 'vite-plugin-pages'
+import { readFileSync, readdirSync } from 'fs'
 import path from 'path'
-import { defineConfig } from 'vite'
+import { defineConfig, ServerOptions } from 'vite'
 
 export default defineConfig(({ command }) => {
   const isHttps = process.env.VITE_SSL_KEY_FILE && process.env.VITE_SSL_CRT_FILE
+  const pages = readdirSync(path.resolve(__dirname, 'client/pages'))
+
+  const server: ServerOptions = {
+    proxy: pages.reduce((acc, page) => {
+      acc[`/${page}`] = {
+        target: `http${isHttps ? 's' : ''}://localhost:${process.env.PORT}`,
+        changeOrigin: true,
+        rewrite: () => `/client/pages/${page}/index.html`,
+      }
+      // console.log(`regester page: http${isHttps ? 's' : ''}://localhost:${process.env.PORT}/${page}`);
+      return acc
+    }, {}),
+  }
+
+  if (isHttps) {
+    server.https = {
+      key: readFileSync(process.env.VITE_SSL_KEY_FILE),
+      cert: readFileSync(process.env.VITE_SSL_CRT_FILE),
+    }
+  }
+
   return {
+    server,
     build: {
       outDir: './dist/public',
+      rollupOptions: {
+        input: pages.reduce((acc, page) => {
+          acc[page] = path.resolve(__dirname, `./client/pages/${page}/index.html`)
+          return acc
+        }, {}),
+      },
     },
-    server: isHttps
-      ? {
-          https: {
-            key: readFileSync(path.resolve(__dirname, process.env.VITE_SSL_KEY_FILE || '')),
-            cert: readFileSync(path.resolve(__dirname, process.env.VITE_SSL_CRT_FILE || '')),
-          },
-        }
-      : undefined,
     resolve: {
       alias: {
         client: path.resolve(__dirname, './client'),
@@ -28,20 +48,26 @@ export default defineConfig(({ command }) => {
     },
     plugins: [
       react(),
-      TanStackRouterVite({ routesDirectory: 'client/routes', generatedRouteTree: 'client/routeTree.gen.ts' }),
-      // pages({
-      //   dirs: 'client/pages',
-      //   importMode: 'async',
-      //   onClientGenerated(clientCode) {
-      //     return clientCode
-      //       .replace(/const (.*?) = React\.lazy\(\(\) => import\((.*?)\)\);/g, (match, pageName, comPath) => {
-      //         return `${match}\r\nimport { pageConfig as ${pageName}meta } from ${comPath}`
-      //       })
-      //       .replace(/"element":React\.createElement\((.*?)\)/g, (match, pageName) => {
-      //         return `${match}, meta: ${pageName}meta`
-      //       })
-      //   },
-      // }),
+      ...pages.map(page =>
+        Page({
+          dirs: [{ dir: `client/pages/${page}/routes`, baseRoute: `/${page}` }],
+          moduleId: `~react-page-${page}`,
+          importMode: 'sync',
+          onClientGenerated(clientCode) {
+            return (
+              clientCode
+                // /const (.*?) = React\.lazy\(\(\) => import\((.*?)\)\);/g
+                .replace(/import (.*?) from (.*?);/g, (match, pageName, comPath) => {
+                  if (comPath === 'react') return match
+                  return `${match}\r\nimport { pageConfig as ${pageName}meta } from ${comPath}`
+                })
+                .replace(/"element":React\.createElement\((.*?)\)/g, (match, pageName) => {
+                  return `${match}, meta: ${pageName}meta`
+                })
+            )
+          },
+        }),
+      ),
     ],
   }
 })
