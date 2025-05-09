@@ -3,7 +3,7 @@ require('dotenv').config({ path: `.env.${process.env.MODE}`, override: true })
 
 import { DarukServer } from 'daruk'
 import https from 'https'
-import { readFileSync } from 'fs-extra'
+import { readFileSync, readdirSync } from 'fs'
 import historyApiFallback from 'koa2-connect-history-api-fallback'
 import koaStatic from 'koa-static'
 import path from 'path'
@@ -49,15 +49,26 @@ async function createServer() {
   }
 
   await darukServer.binding()
+
   if (isDev) {
     const vite = await (await import('vite')).createServer({ server: { middlewareMode: true } })
     darukServer.app.use(koaStatic(path.join(__dirname, './public'), {}) as any).use(k2c(vite.middlewares))
     require('./scripts/generateServerApi')
   } else {
+    const pages = readdirSync(path.join(__dirname, './public/client/pages'))
     darukServer.app
-      .use(historyApiFallback({ whiteList: ['/api', '/coze'], index: '/' }))
+      .use(
+        historyApiFallback({
+          whiteList: ['/api', '/coze', '/assets'],
+          index: 'index.html',
+          htmlAcceptHeaders: ['text/html', 'application/xhtml+xml'],
+          disableDotRule: false,
+          rewrites: pages.map(page => ({ from: `^/${page}`, to: `/client/pages/${page}/index.html` })),
+        }),
+      )
       .use(koaStatic(path.join(__dirname, './public'), { maxAge: 2592000 }) as any)
   }
+
   Object.entries(proxy).reduce(
     (app, [api, conf]) => app.use(k2c(createProxyMiddleware(api, conf) as any)),
     darukServer.app,
