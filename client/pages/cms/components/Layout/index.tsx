@@ -1,9 +1,9 @@
+import { Splitter } from 'antd'
 import { ReactNode, useEffect, useState } from 'react'
+import { LayoutProvider, useLayoutState } from './context'
 import Header from './Header'
 import Sider from './Sider'
 import { useStyle } from './style'
-import { Splitter } from 'antd'
-import { LayoutProvider, useLayoutState } from './context'
 
 interface IProps {
   children: ReactNode

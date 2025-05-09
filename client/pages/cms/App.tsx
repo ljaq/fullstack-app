@@ -1,11 +1,11 @@
+import { ConfigProvider, Spin } from 'antd'
+import zh_CN from 'antd/locale/zh_CN'
+import Translate from 'client/components/Animation/Translate'
+import EasyModal from 'client/utils/easyModal'
 import { Suspense } from 'react'
 import { useLocation, useRoutes } from 'react-router'
 import routes from '~react-page-cms'
 import Layout from './components/Layout/index'
-import { Spin, ConfigProvider } from 'antd'
-import zh_CN from 'antd/locale/zh_CN'
-import EasyModal from '../../utils/easyModal'
-import Translate from '../../components/Animation/Translate'
 function App() {
   const { pathname } = useLocation()
   return (

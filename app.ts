@@ -1,16 +1,16 @@
 require('module-alias/register')
 require('dotenv').config({ path: `.env.${process.env.MODE}`, override: true })
 
-import { DarukServer } from 'daruk'
-import https from 'https'
-import { readFileSync, readdirSync } from 'fs'
-import historyApiFallback from 'koa2-connect-history-api-fallback'
-import koaStatic from 'koa-static'
-import path from 'path'
-import { createProxyMiddleware } from 'http-proxy-middleware'
-import k2c from 'koa-connect'
-import proxy from './proxy'
 import chalk from 'chalk'
+import { DarukServer } from 'daruk'
+import { readFileSync, readdirSync } from 'fs'
+import { createProxyMiddleware } from 'http-proxy-middleware'
+import https from 'https'
+import k2c from 'koa-connect'
+import koaStatic from 'koa-static'
+import historyApiFallback from 'koa2-connect-history-api-fallback'
+import path from 'path'
+import proxy from './proxy'
 
 const isDev = process.env.MODE === 'dev'
 const PORT = process.env.PORT

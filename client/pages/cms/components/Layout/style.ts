@@ -5,7 +5,7 @@ export const useStyle = createStyles(({ token, css }) => {
     layout: css`
       display: flex;
       flex-wrap: nowrap;
-      background-color: ${token.colorBgLayout};
+      background: linear-gradient( #ffffff, #f5f5f5 28%);
       .ant-splitter-bar-dragger {
         &::before,
         &::after {

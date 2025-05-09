@@ -1,12 +1,12 @@
+import { LogoutOutlined } from '@ant-design/icons'
 import { Button, ConfigProvider, Drawer, Flex, Layout, Menu, Space } from 'antd'
 import Avatar from 'boring-avatars'
-import routes from '~react-page-cms'
 import { useMemo } from 'react'
+import { useLocation, useNavigate } from 'react-router'
+import routes from '~react-page-cms'
+import { useLayoutState } from './context'
 import logo from './logo.svg'
 import { useStyle } from './style'
-import { LogoutOutlined } from '@ant-design/icons'
-import { useLayoutState } from './context'
-import { useLocation, useNavigate } from 'react-router'
 
 export default function Sider() {
   const { collapsed, isMobile, setCollapsed } = useLayoutState()
