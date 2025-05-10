@@ -1,15 +1,13 @@
-import { Suspense } from 'react'
-import { Link, useLocation, useRoutes } from 'react-router'
-import routes from '~react-page-login'
-import { Spin, ConfigProvider } from 'antd'
+import { ConfigProvider, Spin } from 'antd'
 import zh_CN from 'antd/locale/zh_CN'
-
-console.log('routes', routes)
+import { Suspense } from 'react'
+import { useLocation, useRoutes } from 'react-router'
+import routes from '~react-page-login'
 
 function App() {
   const { pathname } = useLocation()
   return (
-    <ConfigProvider locale={zh_CN}>
+    <ConfigProvider locale={zh_CN} theme={{ token: { colorPrimary: '#333' } }}>
       <Suspense fallback={<Spin spinning />}>
         <div key={pathname}>{useRoutes(routes)}</div>
       </Suspense>

@@ -1,0 +1,49 @@
+.login {
+  display: flex;
+  height: 100vh;
+
+  .bg {
+    flex: 1;
+    height: 100vh;
+    background: url('./bg.jpg') no-repeat center center / cover;
+  }
+
+  &-content {
+    position: relative;
+    width: 43.75%;
+    min-width: 438px;
+    background-color: #fff;
+    padding-top: 120px;
+
+    @media (min-width: 1600px) {
+      padding-top: 200px;
+    }
+
+    &-title {
+      font-size: 36px;
+      font-weight: bold;
+      margin-bottom: 60px;
+      text-align: center;
+    }
+
+    .desc {
+      color: #8f98b7;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 60px;
+    }
+  }
+
+  .account-login {
+    margin: 0 auto;
+    width: 61.25%;
+    &-btn {
+      margin-top: 16px;
+    }
+  }
+}
+
+.login-msg {
+  margin-left: 56.25%;
+}
