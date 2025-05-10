@@ -20,7 +20,7 @@ export const querystring = {
     return result
   },
   stringify: (obj: { [k: string]: any } = {}) => {
-    let result = []
+    let result: string[] = []
     Object.keys(obj).forEach(key => {
       const value = obj[key]
       if (null === value || undefined === value) {
@@ -35,7 +35,7 @@ export const querystring = {
 
 /** 防抖 */
 export const debounce = (fn: { apply: (arg0: any, arg1: any[]) => void }, t?: number) => {
-  let timer = null
+  let timer: any = null
   const timeout = t || 500
   return function (this: any, ...args: any) {
     if (timer) {
@@ -55,7 +55,7 @@ export const nameTran = (str: string) => str.replace(/([A-Z|0-9]+)/g, (_, p1) =>
 export const randomInArr = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)]
 
 /** 返回登陆页面 */
-export const toLogin = () => (location.href = location.pathname.split('#')[0] + '#/login')
+export const toLogin = () => (location.href = location.href.split('?')[0] + '?redirect=' + location.href)
 
 /** 格式化时间 */
 export const formatTime = (time, formats = 'YYYY-MM-DD HH:mm:ss') => dayjs(time).format(formats)
@@ -82,7 +82,7 @@ export function arrToTree(arr: { text: string; level: number }[]) {
       current = current.parent
     }
     obj.parent = current
-    obj.parent.children.push(obj)
+    (obj.parent as any)!.children.push(obj)
     current = obj
   })
 
@@ -98,7 +98,7 @@ export const extract = (doc: any) => {
 
 export const getBase64 = (file: RcFile): Promise<string> =>
   new Promise((resolve, reject) => {
-    if (!file) resolve(null)
+    if (!file) resolve('')
     const reader = new FileReader()
     reader.readAsDataURL(file)
     reader.onload = () => resolve(reader.result as string)

@@ -39,6 +39,7 @@
     "boring-avatars": "^1.11.2",
     "canvas-datagrid": "^0.4.6",
     "daruk": "^2.4.13",
+    "dayjs": "^1.11.13",
     "docx-preview": "^0.1.20",
     "echarts": "^5.6.0",
     "http-proxy-middleware": "^2.0.6",

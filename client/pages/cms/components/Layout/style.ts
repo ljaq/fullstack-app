@@ -31,7 +31,7 @@ export const useStyle = createStyles(({ token, css }) => {
       position: sticky;
       display: flex;
       align-items: center;
-      height: 64px;
+      height: 56px;
       padding: 0 40px;
       margin-left: -8px;
       &.mobile {
@@ -93,14 +93,14 @@ export const useStyle = createStyles(({ token, css }) => {
       align-items: center;
       font-size: 16px;
       font-weight: 500;
-      height: 64px;
+      height: 56px;
       border-bottom: 1px solid rgba(0, 0, 0, 0.06);
       white-space: nowrap;
       padding: 0 16px;
       margin: 0 8px;
       img {
-        width: 36px;
-        height: 36px;
+        width: 32px;
+        height: 32px;
         margin-right: 4px;
       }
     `,

@@ -22,14 +22,14 @@ export default function Sider() {
       }
       if (children.length === 1) {
         return {
-          key: fullPath,
+          key: `/${fullPath}`,
           label: children[0].meta?.name,
           ...(children[0].meta || {}),
         }
       }
       if (children.length > 1) {
         return {
-          key: fullPath,
+          key: `/${fullPath}`,
           label: children[0].meta?.name,
           ...(children[0].meta || {}),
           children: children.map(item => parse(item, fullPath)),
