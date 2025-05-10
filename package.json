@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "MODE=dev tsnd --respawn --project ./tsconfig.server.json app.ts",
-    "build": "rm -rf ./dist && yarn generate && vite build && tsc --project tsconfig.server.json",
-    "start:prod": "MODE=prod node ./dist/app.js",
-    "start:test": "MODE=test node ./dist/app.js",
+    "build": "rm -rf ./build && yarn generate && vite build && tsc --project tsconfig.server.json",
+    "start:prod": "MODE=prod node ./build/app.js",
+    "start:test": "MODE=test node ./build/app.js",
     "commit": "git add . && git-cz",
     "generate": "ts-node --project ./tsconfig.server.json ./scripts/generateServerApi.ts -with-bind"
   },

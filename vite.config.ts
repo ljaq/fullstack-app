@@ -34,7 +34,7 @@ export default defineConfig(({ command }) => {
     pages,
     server,
     build: {
-      outDir: './dist/public',
+      outDir: './build/public',
       rollupOptions: {
         input: pages.reduce((acc, page) => {
           acc[page] = path.resolve(__dirname, `./client/pages/${page}/index.html`)
