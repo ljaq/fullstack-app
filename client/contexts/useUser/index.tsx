@@ -2,6 +2,8 @@ import { request } from 'client/api'
 import { ButtonAuthority, MenuAuthority } from 'client/utils/auth'
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react'
 import { useLogout } from './hooks'
+import { useLocalStorage } from 'react-use'
+import storages from 'client/storages'
 
 const INITIAL_STATE: UserState | null = null
 const UserContext = createContext<any>(INITIAL_STATE)
@@ -18,7 +20,7 @@ export function useUser(): [UserState, { getUser: () => Promise<UserState>; logo
 }
 
 export default function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<UserState>({})
+  const [user, setUser] = useLocalStorage<UserState>(storages.USER, {})
   const logout = useLogout()
 
   const getUser = useCallback(async () => {
