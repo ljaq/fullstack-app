@@ -1,7 +1,5 @@
 const { defineConfig } = require('cz-git')
 
-const scopes = []
-
 module.exports = defineConfig({
   types: [
     { value: '✨ feat', name: '✨ feat:     新增功能 | A new feature' },
@@ -20,7 +18,7 @@ module.exports = defineConfig({
     { value: '📁 chore', name: '📁 chore:    其他修改 | Other changes that do not modify src or test files' }
   ],
   // 需求取pages下面的目录、其它为other
-  scopes: ['other', ...scopes],
+  // scopes: ['other', ...scopes],
   messages: {
     type: '选择一种你的提交类型:',
     scope: '选择一个scope (可选):',
@@ -28,5 +26,5 @@ module.exports = defineConfig({
     confirmCommit: '确定提交commit吗?'
   },
   subjectLimit: 100,
-  skipQuestions: ['body', 'breaking', 'footer']
+  skipQuestions: ['body', 'breaking', 'footer', 'scope']
 })

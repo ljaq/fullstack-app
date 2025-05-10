@@ -1,6 +1,6 @@
 import { Fetch, paseRequest } from './utils'
 import { API_REQ_FUNCTION } from './types'
-import * as serverApi from './serverApi'
+import * as serverApi from './api.gen'
 import * as api from './api'
 
 type API<T> = {

@@ -3,20 +3,24 @@ import Page from 'vite-plugin-pages'
 import { readFileSync, readdirSync } from 'fs'
 import path from 'path'
 import { defineConfig, ServerOptions } from 'vite'
+import proxy from './proxy'
 
 export default defineConfig(({ command }) => {
   const isHttps = process.env.VITE_SSL_KEY_FILE && process.env.VITE_SSL_CRT_FILE
   const pages = readdirSync(path.resolve(__dirname, 'client/pages'))
 
   const server: ServerOptions = {
-    proxy: pages.reduce((acc, page) => {
-      acc[`/${page}`] = {
-        target: `http${isHttps ? 's' : ''}://localhost:${process.env.PORT}`,
-        changeOrigin: true,
-        rewrite: () => `/client/pages/${page}/index.html`,
-      }
-      return acc
-    }, {}),
+    proxy: pages.reduce(
+      (acc, page) => {
+        acc[`/${page}`] = {
+          target: `http${isHttps ? 's' : ''}://localhost:${process.env.PORT}`,
+          changeOrigin: true,
+          rewrite: () => `/client/pages/${page}/index.html`,
+        }
+        return acc
+      },
+      { ...proxy },
+    ),
   }
 
   if (isHttps) {

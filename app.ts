@@ -69,12 +69,11 @@ async function createServer() {
         }),
       )
       .use(koaStatic(path.join(__dirname, './public'), { maxAge: 2592000 }) as any)
+    Object.entries(proxy).reduce(
+      (app, [api, conf]) => app.use(k2c(createProxyMiddleware(api, conf) as any)),
+      darukServer.app,
+    )
   }
-
-  Object.entries(proxy).reduce(
-    (app, [api, conf]) => app.use(k2c(createProxyMiddleware(api, conf) as any)),
-    darukServer.app,
-  )
   if (isHttps) {
     const options = {
       key: readFileSync(process.env.VITE_SSL_KEY_FILE!),

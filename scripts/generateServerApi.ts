@@ -38,6 +38,6 @@ import chalk from 'chalk'
   }
   const conf = JSON.parse((await readFile('./.prettierrc')).toString())
   const res = await prettier.format(code, { ...conf, parser: 'typescript' })
-  writeFile(path.join(__dirname, '../client/api/serverApi.ts'), res)
-  console.log(chalk.green(`[✓] generate serverApi success`))
+  writeFile(path.join(__dirname, '../client/api/api.gen.ts'), res)
+  console.log(chalk.green(`[✓] generate api.gen success`))
 })()

@@ -14,7 +14,7 @@ export async function Fetch<F = any, T = any>({
   if (params) {
     Object.keys(params).forEach(key => {
       const reg = new RegExp(`/:${key}`, 'g')
-      url = url.replace(reg, `/${params[key]}`)
+      url = url!.replace(reg, `/${params[key]}`)
     })
   }
   if (query) {
@@ -23,10 +23,10 @@ export async function Fetch<F = any, T = any>({
   if (inlineQuery) {
     for (const key in inlineQuery) {
       const reg = new RegExp(`/\\{${key}\\}/`, 'g')
-      url = url.replace(reg, `/${inlineQuery[key]}/`)
+      url = url!.replace(reg, `/${inlineQuery[key]}/`)
     }
   }
-  const response = await fetch(url, {
+  const response = await fetch(url!, {
     method: method || (body ? 'POST' : 'GET'),
     body: body && JSON.stringify(body),
     credentials: 'include',
