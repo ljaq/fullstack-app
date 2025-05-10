@@ -5,7 +5,6 @@ import { useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import routes from '~react-page-cms'
 import { useLayoutState } from './context'
-import logo from './logo.svg'
 import { useStyle } from './style'
 
 export default function Sider() {
@@ -57,7 +56,7 @@ export default function Sider() {
         <Drawer
           title={
             <Flex align='center'>
-              <img src={logo} style={{ width: 34, height: 34, marginRight: 8 }} />
+              <img src='/logo.svg' style={{ width: 34, height: 34, marginRight: 8 }} />
               {<span>Fullstack App</span>}
             </Flex>
           }
@@ -74,7 +73,7 @@ export default function Sider() {
       ) : (
         <Layout.Sider theme='light' className={styles.sider} collapsed={collapsed} collapsedWidth={64} width={'100%'}>
           <div className={styles.logo} style={{ justifyContent: collapsed ? 'center' : 'flex-start' }}>
-            <img src={logo} />
+            <img src='/logo.svg' />
             {!collapsed && <span>Fullstack App</span>}
           </div>
 

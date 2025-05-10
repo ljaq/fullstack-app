@@ -6,7 +6,6 @@ import { Fragment, useMemo } from 'react'
 import { Link, useLocation } from 'react-router'
 import routes from '~react-page-cms'
 import { useLayoutState } from './context'
-import logo from './logo.svg'
 import { useStyle } from './style'
 
 export default function Header() {
@@ -61,7 +60,7 @@ export default function Header() {
       {isMobile && (
         <div className={styles.logo}>
           <Button icon={<MenuOutlined />} type='text' onClick={() => setCollapsed(!collapsed)} />
-          <img src={logo} style={{ marginLeft: 8 }} />
+          <img src='/logo.svg' style={{ marginLeft: 8 }} />
         </div>
       )}
       <div className={cx(styles.header, isMobile && 'mobile')}>

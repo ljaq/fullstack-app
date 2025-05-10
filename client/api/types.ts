@@ -1,7 +1,7 @@
 export type Methods = 'GET' | 'POST' | 'DELETE' | 'PUT'
 
 export interface RequestConfig<T = any> {
-  url?: string
+  url: string
   method?: Methods
   query?: T
   body?: T

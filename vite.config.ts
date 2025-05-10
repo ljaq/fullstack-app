@@ -15,7 +15,6 @@ export default defineConfig(({ command }) => {
         changeOrigin: true,
         rewrite: () => `/client/pages/${page}/index.html`,
       }
-      // console.log(`regester page: http${isHttps ? 's' : ''}://localhost:${process.env.PORT}/${page}`);
       return acc
     }, {}),
   }
@@ -28,6 +27,7 @@ export default defineConfig(({ command }) => {
   }
 
   return {
+    pages,
     server,
     build: {
       outDir: './dist/public',

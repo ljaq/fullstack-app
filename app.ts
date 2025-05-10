@@ -15,6 +15,7 @@ import proxy from './proxy'
 const isDev = process.env.MODE === 'dev'
 const PORT = process.env.PORT
 const isHttps = process.env.VITE_SSL_KEY_FILE && process.env.VITE_SSL_CRT_FILE
+let pages: string[] = []
 
 async function createServer() {
   const darukServer = DarukServer({
@@ -52,10 +53,11 @@ async function createServer() {
 
   if (isDev) {
     const vite = await (await import('vite')).createServer({ server: { middlewareMode: true } })
+    pages = (vite.config as any).pages
     darukServer.app.use(koaStatic(path.join(__dirname, './public'), {}) as any).use(k2c(vite.middlewares))
     require('./scripts/generateServerApi')
   } else {
-    const pages = readdirSync(path.join(__dirname, './public/client/pages'))
+    pages = readdirSync(path.join(__dirname, './public/client/pages'))
     darukServer.app
       .use(
         historyApiFallback({
@@ -83,8 +85,9 @@ async function createServer() {
   } else {
     darukServer.app.listen(PORT)
   }
-
-  console.log(chalk.green(`[✓] running at http${isHttps ? 's' : ''}://localhost:${PORT}`))
+  const url = `http${isHttps ? 's' : ''}://localhost:${PORT}`
+  console.log(chalk.green(`[✓] running at ${url}`))
+  pages.map(page => console.log(chalk.magenta(`[⌘] register page ${url}/${page}`)))
 }
 
 createServer()

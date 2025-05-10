@@ -91,7 +91,7 @@ export const useStyle = createStyles(({ token, css }) => {
       flex-shrink: 0;
       display: flex;
       align-items: center;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 500;
       height: 64px;
       border-bottom: 1px solid rgba(0, 0, 0, 0.06);

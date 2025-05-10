@@ -38,14 +38,14 @@ export async function Fetch<F = any, T = any>({
     if (responseType === 'blob') {
       const fileInfo: { fileName: string; fileType: string } = response.headers
         .get('Content-Disposition')
-        .split(';')
-        .map(item => item.split('='))
-        .reduce((a, [key, value]) => {
+        ?.split(';')
+        ?.map(item => item.split('='))
+        ?.reduce((a, [key, value]) => {
           a[key] = decodeURIComponent(value)
           return a
         }, {} as any)
       downloadFile(await response.blob(), `${fileInfo.fileName}.${fileInfo.fileType}`)
-      return
+      return Promise.resolve('' as any)
     }
     return await response.json()
   }
@@ -71,10 +71,10 @@ export const getBaseRequest = (url: string | { method?: Methods; url: string }) 
 export type BaseRequest = (config?: Partial<RequestConfig>) => Promise<any>
 
 export function paseRequest<T, K extends keyof T>(apis: T) {
-  return Object.entries(apis).reduce(
+  return Object.entries(apis as any).reduce(
     (prev, next) => {
       const [name, url] = next
-      prev[name] = getBaseRequest(url)
+      prev[name] = getBaseRequest(url as string)
       return prev
     },
     {} as { [x in K]: BaseRequest },

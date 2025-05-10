@@ -107,7 +107,7 @@ export const getBase64 = (file: RcFile): Promise<string> =>
 
 export function downloadFile(blob: Blob, fileName = '未命名') {
   const link = document.createElement('a')
-  const binaryData = []
+  const binaryData: any[] = []
   binaryData.push(blob)
   link.href = window.URL.createObjectURL(new Blob(binaryData))
   link.download = fileName
@@ -115,6 +115,7 @@ export function downloadFile(blob: Blob, fileName = '未命名') {
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
+  return blob
 }
 
 export function treeWalk<T>(treeData: T[], fn: (item: T) => void) {
