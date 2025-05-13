@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "MODE=dev tsnd --respawn --project ./tsconfig.server.json app.ts",
-    "build": "rm -rf ./build && yarn generate && vite build && tsc --project tsconfig.server.json",
+    "build": "rm -rf ./build && yarn generate && vite build && tsc --project tsconfig.server.json && node ./scripts/rmtml.mjs",
     "start:prod": "MODE=prod node ./build/app.js",
     "start:test": "MODE=test node ./build/app.js",
     "commit": "git add . && git-cz",

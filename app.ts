@@ -57,7 +57,9 @@ async function createServer() {
     darukServer.app.use(koaStatic(path.join(__dirname, './public'), {}) as any).use(k2c(vite.middlewares))
     require('./scripts/generateServerApi')
   } else {
-    pages = readdirSync(path.join(__dirname, './public/client/pages'))
+    pages = readdirSync(path.join(__dirname, './public'))
+      .filter(item => item.endsWith('.html'))
+      .map(item => item.replace(/\.html$/, ''))
     darukServer.app
       .use(
         historyApiFallback({
@@ -65,7 +67,7 @@ async function createServer() {
           index: 'index.html',
           htmlAcceptHeaders: ['text/html', 'application/xhtml+xml'],
           disableDotRule: false,
-          rewrites: pages.map(page => ({ from: `^/${page}`, to: `/client/pages/${page}/index.html` })),
+          rewrites: pages.map(page => ({ from: `^/${page}`, to: `/${page}.html` })),
         }),
       )
       .use(koaStatic(path.join(__dirname, './public'), { maxAge: 2592000 }) as any)
