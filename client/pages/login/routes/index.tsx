@@ -1,9 +1,11 @@
-import { App, Button, Form, Input } from 'antd'
+import { ProductOutlined } from '@ant-design/icons'
+import { App, Button, Form, Input, Space } from 'antd'
 import { request } from 'client/api'
 import storages from 'client/storages'
 import qs from 'querystring'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocalStorage } from 'react-use'
+import FOG from 'vanta/dist/vanta.fog.min'
 import './style.less'
 
 export default function Login() {
@@ -40,12 +42,35 @@ export default function Login() {
     setLoading(false)
   }
 
+  useEffect(() => {
+    FOG({
+      el: '.login',
+      mouseControls: true,
+      touchControls: true,
+      gyroControls: true,
+      minHeight: 200.0,
+      minWidth: 200.0,
+      zoom: 0.5,
+      highlightColor: '#00CCFF',
+      midtoneColor: '#0077FF',
+      lowlightColor: '#00007F',
+      baseColor: '#E6F7FF',
+    })
+  }, [])
+
   return (
     <div className='login'>
-      <div className='bg'></div>
+      <div className='left-container'>
+        <div className='app-name'>
+          <Space>
+            <ProductOutlined />
+            <span>FullStack App</span>
+          </Space>
+        </div>
+      </div>
       <div className='login-content'>
-        <div className='login-content-title'>FullStack App</div>
         <div className='account-login'>
+          <div className='login-content-title'>欢迎回来</div>
           <Form form={form} size='large' onFinish={handleFinish}>
             <Form.Item name='username' rules={[{ required: true, message: '请输入用户名' }]}>
               <Input placeholder='请输入用户名' />
@@ -54,14 +79,7 @@ export default function Login() {
               <Input.Password placeholder='请输入密码' autoComplete='new-password' />
             </Form.Item>
 
-            <Button
-              htmlType='submit'
-              color='default'
-              variant='solid'
-              block
-              className='account-login-btn'
-              loading={loading}
-            >
+            <Button htmlType='submit' type='primary' block className='account-login-btn' loading={loading}>
               登录
             </Button>
           </Form>

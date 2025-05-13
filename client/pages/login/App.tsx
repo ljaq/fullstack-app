@@ -7,7 +7,7 @@ import routes from '~react-page-login'
 function App() {
   const { pathname } = useLocation()
   return (
-    <ConfigProvider locale={zh_CN} theme={{ token: { colorPrimary: '#333' } }}>
+    <ConfigProvider locale={zh_CN}>
       <Suspense fallback={<Spin spinning />}>
         <div key={pathname}>{useRoutes(routes)}</div>
       </Suspense>
