@@ -20,7 +20,7 @@ let pages: string[] = []
 async function createServer() {
   const darukServer = DarukServer({
     notFound(ctx) {
-      ctx.body = '404 notFound'
+      ctx.redirect('/404')
     },
     loggerOptions: {
       disable: true,
