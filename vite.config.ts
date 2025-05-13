@@ -1,8 +1,8 @@
 import react from '@vitejs/plugin-react-swc'
-import Page from 'vite-plugin-pages'
-import { readFileSync, readdirSync } from 'fs'
+import { readdirSync, readFileSync } from 'fs'
 import path from 'path'
 import { defineConfig, ServerOptions } from 'vite'
+import Page from 'vite-plugin-pages'
 import proxy from './proxy'
 
 export default defineConfig(({ command }) => {
@@ -40,6 +40,17 @@ export default defineConfig(({ command }) => {
           acc[page] = path.resolve(__dirname, `./client/pages/${page}/index.html`)
           return acc
         }, {}),
+        output: {
+          assetFileNames: 'assets/[name]-[hash].[ext]',
+          chunkFileNames: 'js/[name]-[hash].js',
+          entryFileNames: 'js/[name]-[hash].js',
+          compact: true,
+          manualChunks: (id: string) => {
+            if (id.includes('node_modules')) {
+              return id.toString().split('node_modules/')[1].split('/')[0].toString()
+            }
+          },
+        },
       },
     },
     resolve: {
