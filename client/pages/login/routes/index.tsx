@@ -2,13 +2,17 @@ import { ProductOutlined } from '@ant-design/icons'
 import { App, Button, Form, Input, Space } from 'antd'
 import { request } from 'client/api'
 import storages from 'client/storages'
+import { formatTime } from 'client/utils/time'
+import dayjs from 'dayjs'
 import qs from 'querystring'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocalStorage } from 'react-use'
 import FOG from 'vanta/dist/vanta.fog.min'
 import './style.less'
 
 export default function Login() {
+  const timer = useRef<any>(null)
+  const [time, setTime] = useState(formatTime(dayjs(), 'YYYY/MM/DD HH:mm'))
   const [loading, setLoading] = useState(false)
   const [_, setToken] = useLocalStorage(storages.TOKEN)
   const [form] = Form.useForm()
@@ -56,6 +60,14 @@ export default function Login() {
       lowlightColor: '#00007F',
       baseColor: '#E6F7FF',
     })
+
+    timer.current = setInterval(() => {
+      setTime(formatTime(dayjs(), 'YYYY/MM/DD HH:mm'))
+    }, 1000)
+
+    return () => {
+      clearInterval(timer.current)
+    }
   }, [])
 
   return (
@@ -63,7 +75,6 @@ export default function Login() {
       <div className='left-container'>
         <div className='app-name'>
           <Space>
-            <ProductOutlined />
             <span>FullStack App</span>
           </Space>
         </div>
@@ -73,10 +84,10 @@ export default function Login() {
           <div className='login-content-title'>欢迎回来</div>
           <Form form={form} size='large' onFinish={handleFinish}>
             <Form.Item name='username' rules={[{ required: true, message: '请输入用户名' }]}>
-              <Input placeholder='请输入用户名' />
+              <Input placeholder='请输入用户名' variant='filled' />
             </Form.Item>
             <Form.Item name='password' rules={[{ required: true, message: '请输入密码' }]}>
-              <Input.Password placeholder='请输入密码' autoComplete='new-password' />
+              <Input.Password placeholder='请输入密码' autoComplete='new-password' variant='filled' />
             </Form.Item>
 
             <Button htmlType='submit' type='primary' block className='account-login-btn' loading={loading}>
@@ -85,7 +96,7 @@ export default function Login() {
           </Form>
         </div>
 
-        <div className='desc'>请联系管理员开通权限</div>
+        <div className='desc'>{time}</div>
       </div>
     </div>
   )
