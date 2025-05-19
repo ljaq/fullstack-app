@@ -33,13 +33,15 @@ export const useStyle = createStyles(({ token, css }) => {
       align-items: center;
       height: 56px;
       padding: 0 40px;
-      margin-left: -8px;
+      /* margin-left: -8px; */
       &.mobile {
         margin-left: 0px;
       }
     `,
     content: css`
-      padding: 0 40px 32px;
+      height: calc(100vh - 56px);
+      overflow: auto;
+      /* padding: 0 40px 32px; */
     `,
     sider: css`
       max-width: unset !important;
