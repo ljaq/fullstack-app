@@ -1,5 +1,5 @@
 import { MenuFoldOutlined, MenuOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
-import { Breadcrumb, Button, Space } from 'antd'
+import { Breadcrumb, Button, Space, Typography } from 'antd'
 import { BreadcrumbItemType } from 'antd/es/breadcrumb/Breadcrumb'
 import Translate from 'client/components/Animation/Translate'
 import { Fragment, useMemo } from 'react'
@@ -66,11 +66,12 @@ export default function Header() {
       <div className={cx(styles.header, isMobile && 'mobile')}>
         <Space>
           {!isMobile && (
-            <Button
-              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-              type='text'
-              onClick={() => setCollapsed(!collapsed)}
-            />
+            // <Button
+            //   icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            //   type='text'
+            //   onClick={() => setCollapsed(!collapsed)}
+            // />
+            <Typography.Text type='secondary'>当前位置：</Typography.Text>
           )}
           <Breadcrumb
             style={{ height: 22 }}
