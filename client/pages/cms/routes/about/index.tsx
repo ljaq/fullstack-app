@@ -6,7 +6,7 @@ export default function About() {
   return (
     <PageContainer>
       <div>
-        {/* <Editor /> */}
+        <Editor />
       </div>
     </PageContainer>
   )
