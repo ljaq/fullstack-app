@@ -1,32 +1,20 @@
+import build from '@hono/vite-build/node'
+import devServer from '@hono/vite-dev-server'
 import react from '@vitejs/plugin-react'
 import { readdirSync, readFileSync } from 'fs'
 import path from 'path'
-import { defineConfig, ServerOptions, loadEnv } from 'vite'
+import { defineConfig, loadEnv, ServerOptions } from 'vite'
 import Page from 'vite-plugin-pages'
-import devServer from '@hono/vite-dev-server'
 import proxy from './proxy'
 
 export default defineConfig(({ command, mode }) => {
-  const env = loadEnv(mode, process.cwd(), '');
+  const env = loadEnv(command === 'build' ? 'production' : mode, process.cwd(), '')
   const isHttps = env.VITE_SSL_KEY_FILE && env.VITE_SSL_CRT_FILE
-  const pages = readdirSync(path.resolve(__dirname, 'client/pages'))  
-
-  console.log('mode', mode);
-  
+  const pages = readdirSync(path.resolve(__dirname, 'client/pages'))
 
   const server: ServerOptions = {
     port: Number(env.VITE_PORT),
-    proxy: pages.reduce(
-      (acc, page) => {
-        acc[`/${page}`] = {
-          target: `http${isHttps ? 's' : ''}://localhost:${process.env.PORT}`,
-          changeOrigin: true,
-          rewrite: () => `/client/pages/${page}/index.html`,
-        }
-        return acc
-      },
-      { ...proxy },
-    ),
+    proxy,
   }
 
   if (isHttps) {
@@ -37,28 +25,30 @@ export default defineConfig(({ command, mode }) => {
   }
 
   return {
-    pages,
     server,
-    build: {
-      outDir: './build/public',
-      rollupOptions: {
-        input: pages.reduce((acc, page) => {
-          acc[page] = path.resolve(__dirname, `./client/pages/${page}/index.html`)
-          return acc
-        }, {}),
-        output: {
-          assetFileNames: 'assets/[name]-[hash].[ext]',
-          chunkFileNames: 'js/[name]-[hash].js',
-          entryFileNames: 'js/[name]-[hash].js',
-          compact: true,
-          manualChunks: (id: string) => {
-            if (id.includes('node_modules')) {
-              return id.toString().split('node_modules/')[1].split('/')[0].toString()
-            }
-          },
-        },
-      },
-    },
+    build:
+      mode === 'client'
+        ? {
+            outDir: './build/public',
+            rollupOptions: {
+              input: pages.reduce((acc, page) => {
+                acc[page] = path.resolve(__dirname, `./client/pages/${page}/index.html`)
+                return acc
+              }, {}),
+              output: {
+                assetFileNames: 'assets/[name]-[hash].[ext]',
+                chunkFileNames: 'js/[name]-[hash].js',
+                entryFileNames: 'js/[name]-[hash].js',
+                compact: true,
+                manualChunks: (id: string) => {
+                  if (id.includes('node_modules')) {
+                    return id.toString().split('node_modules/')[1].split('/')[0].toString()
+                  }
+                },
+              },
+            },
+          }
+        : {},
     resolve: {
       alias: {
         client: path.resolve(__dirname, './client'),
@@ -84,21 +74,14 @@ export default defineConfig(({ command, mode }) => {
           /^\/static\/.+/,
           /^\/node_modules\/.*/,
         ],
-        ignoreWatching: [/\.wrangler/],
-        // handleHotUpdate: ({ server, modules }) => {
-        //   const isSSR = modules.some(mod => mod._ssrModule)
-        //   if (isSSR) {
-        //     server.hot.send({ type: 'full-reload' })
-        //     return []
-        //   }
-        // },
+        ignoreWatching: [],
       }),
       ...pages.map(page =>
         Page({
           dirs: [{ dir: `client/pages/${page}/routes`, baseRoute: `/${page}` }],
           moduleId: `~react-page-${page}`,
           importMode: 'sync',
-          
+
           onClientGenerated(clientCode) {
             return (
               clientCode
@@ -114,6 +97,14 @@ export default defineConfig(({ command, mode }) => {
           },
         }),
       ),
-    ],
+      mode === 'server' &&
+        build({
+          entry: './app.ts',
+          output: 'app.js',
+          outputDir: './build',
+          minify: false,
+          port: Number(env.VITE_PORT),
+        }),
+    ].filter(v => v),
   }
 })

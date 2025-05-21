@@ -4,14 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "serve": "vite --mode development",
+    "dev": "vite --mode development",
     "build:client": "vite build --mode client",
     "build:server": "vite build --mode server",
-    "build": "rm -rf ./build && yarn generate && vite build && tsc --project tsconfig.server.json && node ./scripts/rmtml.mjs",
+    "build": "rm -rf ./build && yarn build:client && yarn build:server && node ./scripts/rmtml.mjs",
     "start:prod": "MODE=prod node ./build/app.js",
     "start:test": "MODE=test node ./build/app.js",
-    "commit": "git add . && git-cz",
-    "generate": "ts-node --project ./tsconfig.server.json ./scripts/generateServerApi.ts -with-bind"
+    "commit": "git add . && git-cz"
   },
   "config": {
     "commitizen": {
@@ -58,6 +57,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
+    "@hono/vite-build": "^1.6.1",
     "@hono/vite-dev-server": "^0.19.0",
     "@swc/core": "^1.11.24",
     "@types/react": "^18.3.18",

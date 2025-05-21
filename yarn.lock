@@ -1024,6 +1024,11 @@
   resolved "https://registry.npmmirror.com/@hono/node-server/-/node-server-1.14.2.tgz#b9974d0322dd7b3467001ab371e28597c205b897"
   integrity sha512-GHjpOeHYbr9d1vkID2sNUYkl5IxumyhDrUJB7wBp7jvqYwPFt+oNKsAPBRcdSbV7kIrXhouLE199ks1QcK4r7A==
 
+"@hono/vite-build@^1.6.1":
+  version "1.6.1"
+  resolved "https://registry.npmmirror.com/@hono/vite-build/-/vite-build-1.6.1.tgz#aa5900345caf2157d84d5ad8fa7c3bbb1c1cf899"
+  integrity sha512-M60p0cAWgEbYiGa+1j35Ljqcef8s2N5EhpQMWrH1N6fSid5jKD2+D2t1+AntI8HZbgC5VDdpk4QzcEuLMPCgsA==
+
 "@hono/vite-dev-server@^0.19.0":
   version "0.19.0"
   resolved "https://registry.npmmirror.com/@hono/vite-dev-server/-/vite-dev-server-0.19.0.tgz#b29d7c6774b019a1c598c017f796b8aced66e0f2"

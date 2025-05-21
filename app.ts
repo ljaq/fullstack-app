@@ -18,7 +18,7 @@ const app = new Hono()
 const url = `http${isHttps ? 's' : ''}://localhost:${import.meta.env.VITE_PORT}`
 
 // async function createServer() {
-// Object.entries(proxy).reduce((app, [api, conf]) => app.use(api, cors({ origin: conf.target! })), app)
+Object.entries(proxy).reduce((app, [api, conf]) => app.use(api, cors({ origin: conf.target! })), app)
 
 if (isDev) {
   const regex = /(<head[\s\S]*?)(\s*<\/head>)/i
@@ -26,7 +26,7 @@ if (isDev) {
   pages.reduce(
     (app, page) =>
       app.use(`/${page}/*`, async c => {
-        const html = readFileSync(path.join(import.meta.dirname, `./client/pages/${page}/index.html`), 'utf-8')
+        const html = readFileSync(path.join(import.meta.dirname, `./public/${page}.html`), 'utf-8')
         const newHtml = html.replace(
           regex,
           `$1
@@ -45,6 +45,18 @@ if (isDev) {
     app,
   )
 } else {
+  pages = readdirSync(path.join(import.meta.dirname, './public'))
+    .filter(item => item.endsWith('.html'))
+    .map(item => item.replace(/\.html$/, ''))
+  pages.reduce(
+    (app, page) =>
+      app.use(`/${page}/*`, async c => {
+        const html = readFileSync(path.join(import.meta.dirname, `./client/pages/${page}/index.html`), 'utf-8')
+
+        return c.html(html)
+      }),
+    app,
+  )
 }
 
 export default app
