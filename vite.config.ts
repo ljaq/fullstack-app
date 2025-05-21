@@ -68,6 +68,7 @@ export default defineConfig(({ command, mode }) => {
           /.*\.ts$/,
           /.*\.tsx$/,
           /.*\.png$/,
+          /.*\.ttf$/,
           /^\/@.+$/,
           /\?t\=\d+$/,
           /^\/favicon\.ico$/,
