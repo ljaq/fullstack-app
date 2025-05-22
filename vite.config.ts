@@ -48,13 +48,18 @@ export default defineConfig(({ command, mode }) => {
               },
             },
           }
-        : {},
+        : { copyPublicDir: false },
     resolve: {
       alias: {
         client: path.resolve(__dirname, './client'),
         server: path.resolve(__dirname, './server'),
         utils: path.resolve(__dirname, './utils'),
         types: path.resolve(__dirname, './types'),
+      },
+    },
+    environments: {
+      ssr: {
+        keepProcessEnv: true,
       },
     },
     plugins: [

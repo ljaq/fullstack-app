@@ -1,18 +1,22 @@
-// require('module-alias/register')
-// require('dotenv').config({ path: `.env.${process.env.MODE}`, override: true })
-
+import { serveStatic } from '@hono/node-server/serve-static'
+import dotenv from 'dotenv'
+import { readFileSync, readdirSync } from 'fs'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { serveStatic } from '@hono/node-server/serve-static'
-import { readFileSync, readdirSync } from 'fs'
 import path from 'path'
 import proxy from './proxy'
 
-const isDev = import.meta.env.MODE === 'development'
+const isDev = import.meta.env.DEV
+const isServer = import.meta.env.MODE  === 'server'
 const isHttps = process.env.VITE_SSL_KEY_FILE && process.env.VITE_SSL_CRT_FILE
 let pages: string[] = []
 const app = new Hono()
 const url = `http${isHttps ? 's' : ''}://localhost:${import.meta.env.VITE_PORT}`
+
+if (isServer) {  
+  // 手动加载环境变量
+  Object.assign(import.meta.env, dotenv.config({ path: `.env.${process.env.mode}` }).parsed || {})
+}
 
 Object.entries(proxy).reduce((app, [api, conf]) => app.use(api, cors({ origin: conf.target! })), app)
 
@@ -55,5 +59,6 @@ if (isDev) {
     app,
   )
 }
+console.log(process.env.mode, import.meta.env)
 
 export default app

@@ -33,5 +33,6 @@
     "server",
     "types",
     "utils",
+    "vite-env.d.ts"
   ]
 }

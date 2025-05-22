@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite --mode development",
-    "build:client": "vite build --mode client",
+    "dev:production": "vite --mode production",
+    "build": "rm -rf ./build && yarn build:client && yarn build:server",
+    "build:client": "vite build --mode client && node ./scripts/rmtml.mjs",
     "build:server": "vite build --mode server",
-    "build": "rm -rf ./build && yarn build:client && yarn build:server && node ./scripts/rmtml.mjs",
-    "start:prod": "MODE=prod node ./build/app.js",
-    "start:test": "MODE=test node ./build/app.js",
+    "start:prod": "cross-env mode=production node ./build/app.js",
+    "start:test": "cross-env mode=development node ./build/app.js",
     "commit": "git add . && git-cz"
   },
   "config": {
