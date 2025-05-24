@@ -1,11 +1,10 @@
 import build from '@hono/vite-build/node'
 import devServer from '@hono/vite-dev-server'
 import react from '@vitejs/plugin-react'
-import { readdirSync, readFileSync } from 'fs'
+import { readdirSync } from 'fs'
 import path from 'path'
-import { defineConfig, loadEnv, ServerOptions } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import Page from 'vite-plugin-pages'
-import getProxy from './proxy'
 
 export default defineConfig(({ command, mode }) => {
   const env = loadEnv(command === 'build' ? 'production' : mode, process.cwd(), '')
@@ -33,14 +32,29 @@ export default defineConfig(({ command, mode }) => {
                 return acc
               }, {}),
               output: {
-                assetFileNames: 'assets/[name]-[hash].[ext]',
-                chunkFileNames: 'js/[name]-[hash].js',
+                chunkFileNames: 'js/[name]-[hash].js', 
                 entryFileNames: 'js/[name]-[hash].js',
-                compact: true,
-                manualChunks: (id: string) => {
-                  if (id.includes('node_modules')) {
-                    return id.toString().split('node_modules/')[1].split('/')[0].toString()
+                assetFileNames(assetsInfo) {
+                  if (assetsInfo.names[0]?.endsWith('.css')) {
+                    return 'css/[name]-[hash].css'
                   }
+                  const fontExts = ['.ttf', '.otf', '.woff', '.woff2', '.eot']
+                  if (fontExts.some(ext => assetsInfo.names[0]?.endsWith(ext))) {
+                    return 'font/[name]-[hash].[ext]'
+                  }
+                  const imgExts = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.icon']
+                  if (imgExts.some(ext => assetsInfo.names[0]?.endsWith(ext))) {
+                    return 'img/[name]-[hash].[ext]'
+                  }
+                  const imgSvg = ['.svg']
+                  if (imgSvg.some(ext => assetsInfo.names[0]?.endsWith(ext))) {
+                    return 'assest/icons/[name].[ext]'
+                  }
+                  const videoExts = ['.mp4', '.avi', '.wmv', '.ram', '.mpg', 'mpeg']
+                  if (videoExts.some(ext => assetsInfo.names[0]?.endsWith(ext))) {
+                    return 'video/[name]-[hash].[ext]'
+                  }
+                  return 'assets/[name]-[hash].[ext]'
                 },
               },
             },
