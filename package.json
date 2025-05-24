@@ -4,13 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --mode development",
-    "dev:production": "vite --mode production",
+    "dev": "vite --mode development --host",
+    "dev:production": "vite --mode production --host",
     "build": "rm -rf ./build && yarn build:client && yarn build:server",
     "build:client": "vite build --mode client && node ./scripts/rmtml.mjs",
     "build:server": "vite build --mode server",
-    "start:prod": "cross-env mode=production node ./build/app.js",
     "start:test": "cross-env mode=development node ./build/app.js",
+    "start:prod": "cross-env mode=production node ./build/app.js",
     "commit": "git add . && git-cz"
   },
   "config": {

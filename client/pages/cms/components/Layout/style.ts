@@ -3,6 +3,7 @@ import { createStyles } from 'antd-style'
 export const useStyle = createStyles(({ token, css }) => {
   return {
     layout: css`
+      position: relative;
       display: flex;
       flex-wrap: nowrap;
       background: linear-gradient( #ffffff, #f5f5f5 28%);
@@ -25,6 +26,16 @@ export const useStyle = createStyles(({ token, css }) => {
             background-color: ${token.colorPrimary} !important;
           }
         }
+      }
+      &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 0;
+        background: linear-gradient( #ffffffff, #ffffffdd 28%);
       }
     `,
     header: css`
@@ -80,7 +91,7 @@ export const useStyle = createStyles(({ token, css }) => {
         padding: 0 8px;
         user-select: none;
         .user-info {
-          padding: 8px 16px;
+          padding: 6px 12px;
           border-radius: ${token.borderRadius}px;
           cursor: pointer;
           &:hover {

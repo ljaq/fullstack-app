@@ -1,17 +1,21 @@
 import { LogoutOutlined } from '@ant-design/icons'
-import { Button, ConfigProvider, Drawer, Flex, Layout, Menu, Space } from 'antd'
+import { Button, ConfigProvider, Drawer, Flex, Layout, Menu, Space, theme } from 'antd'
 import Avatar from 'boring-avatars'
 import { useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import routes from '~react-page-cms'
 import { useLayoutState } from './context'
 import { useStyle } from './style'
+import Logo from './Logo'
 
 export default function Sider() {
   const { collapsed, isMobile, setCollapsed } = useLayoutState()
   const { styles } = useStyle()
   const location = useLocation()
   const navigate = useNavigate()
+  const {
+    token: { colorPrimary, colorPrimaryBorder },
+  } = theme.useToken()
 
   const layoutRoutes = useMemo(() => {
     const parse = (route, prefix = '') => {
@@ -56,8 +60,8 @@ export default function Sider() {
         <Drawer
           title={
             <Flex align='center'>
-              <img src='/logo.svg' style={{ width: 34, height: 34, marginRight: 8 }} />
-              {<span>Fullstack App</span>}
+              <Logo style={{ width: 34, height: 34, marginRight: 4, flexShrink: 0 }} />
+              <span>Fullstack App</span>
             </Flex>
           }
           closeIcon={null}
@@ -73,7 +77,7 @@ export default function Sider() {
       ) : (
         <Layout.Sider theme='light' className={styles.sider} collapsed={collapsed} collapsedWidth={64} width={'100%'}>
           <div className={styles.logo} style={{ justifyContent: collapsed ? 'center' : 'flex-start' }}>
-            <img src='/logo.svg' />
+            <Logo style={{ width: 32, height: 32, marginRight: collapsed ? 0 : 8, flexShrink: 0 }} />
             {!collapsed && <span>Fullstack App</span>}
           </div>
 
@@ -90,11 +94,11 @@ export default function Sider() {
             className='user'
             justify='space-between'
             align='center'
-            style={{ flexDirection: collapsed ? 'column-reverse' : 'row' }}
+            style={{ flexDirection: collapsed ? 'column-reverse' : 'row', paddingBottom: collapsed ? 8 : 0 }}
             gap={4}
           >
             <Flex align='center' className='user-info'>
-              <Avatar name='Admin' variant='beam' size={28} />
+              <Avatar name='Admin' variant='beam' size={24} colors={[colorPrimaryBorder, colorPrimary]} />
               {!collapsed && <span style={{ marginLeft: 8 }}>Admin</span>}
             </Flex>
             <Space direction={collapsed ? 'vertical' : 'horizontal'}>

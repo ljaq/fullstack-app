@@ -59,6 +59,5 @@ if (isDev) {
     app,
   )
 }
-console.log(process.env.mode, import.meta.env)
 
 export default app

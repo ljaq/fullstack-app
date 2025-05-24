@@ -1,5 +1,7 @@
-import { Splitter } from 'antd'
+import { Splitter, theme } from 'antd'
 import { ReactNode, useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router'
+import FOG from 'vanta/dist/vanta.fog.min'
 import { LayoutProvider, useLayoutState } from './context'
 import Header from './Header'
 import Sider from './Sider'
@@ -13,6 +15,16 @@ function Layout(props: IProps) {
   const { styles, cx } = useStyle()
   const { collapsed, setCollapsed, isMobile } = useLayoutState()
   const [siderWidth, setSiderWidth] = useState(200)
+  const { pathname } = useLocation()
+  const navigate = useNavigate()
+  const {
+    token: { colorPrimary, colorPrimaryHover, colorPrimaryActive },
+  } = theme.useToken()
+
+  const handleSpliterSizeChange = ([size]) => {
+    setSiderWidth(size > 128 ? size : 66)
+    setCollapsed(size < 128)
+  }
 
   useEffect(() => {
     if (collapsed) {
@@ -25,10 +37,27 @@ function Layout(props: IProps) {
     }
   }, [collapsed])
 
-  const handleSpliterSizeChange = ([size]) => {
-    setSiderWidth(size > 128 ? size : 66)
-    setCollapsed(size < 128)
-  }
+  useEffect(() => {
+    if (pathname === '/cms' || pathname === '/cms/') {
+      navigate('/cms/home', { replace: true })
+    }
+  }, [pathname])
+
+  useEffect(() => {
+    FOG({
+      el: `.${styles.layout}`,
+      mouseControls: true,
+      touchControls: true,
+      gyroControls: true,
+      minHeight: 200.0,
+      minWidth: 200.0,
+      zoom: 0.5,
+      highlightColor: colorPrimaryActive,
+      midtoneColor: colorPrimaryHover,
+      lowlightColor: colorPrimary,
+      baseColor: '#ffffff',
+    })
+  }, [])
 
   const pcLayout = (
     <Splitter onResize={handleSpliterSizeChange}>
@@ -54,7 +83,7 @@ function Layout(props: IProps) {
     </div>
   )
 
-  return <div className={cx(styles.layout)}>{isMobile ? mobileLayout : pcLayout}</div>
+  return <div className={cx(styles.layout, 'layout')}>{isMobile ? mobileLayout : pcLayout}</div>
 }
 
 export default function (props: IProps) {

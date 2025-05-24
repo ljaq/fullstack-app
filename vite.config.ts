@@ -79,6 +79,7 @@ export default defineConfig(({ command, mode }) => {
           /^\/favicon\.ico$/,
           /^\/static\/.+/,
           /^\/node_modules\/.*/,
+          /\?import$/,
         ],
         ignoreWatching: [],
       }),
