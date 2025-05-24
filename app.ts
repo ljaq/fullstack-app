@@ -1,94 +1,59 @@
-require('module-alias/register')
-require('dotenv').config({ path: `.env.${process.env.MODE}`, override: true })
+// require('module-alias/register')
+// require('dotenv').config({ path: `.env.${process.env.MODE}`, override: true })
 
-import chalk from 'chalk'
-import { DarukServer } from 'daruk'
+import { Hono } from 'hono'
+import { cors } from 'hono/cors'
+import { serveStatic } from '@hono/node-server/serve-static'
 import { readFileSync, readdirSync } from 'fs'
-import { createProxyMiddleware } from 'http-proxy-middleware'
-import https from 'https'
-import k2c from 'koa-connect'
-import koaStatic from 'koa-static'
-import historyApiFallback from 'koa2-connect-history-api-fallback'
 import path from 'path'
 import proxy from './proxy'
 
-const isDev = process.env.MODE === 'dev'
-const PORT = process.env.PORT
+const isDev = import.meta.env.MODE === 'development'
 const isHttps = process.env.VITE_SSL_KEY_FILE && process.env.VITE_SSL_CRT_FILE
 let pages: string[] = []
+const app = new Hono()
+const url = `http${isHttps ? 's' : ''}://localhost:${import.meta.env.VITE_PORT}`
 
-async function createServer() {
-  const darukServer = DarukServer({
-    notFound(ctx) {
-      ctx.redirect('/404')
-    },
-    loggerOptions: {
-      disable: true,
-    },
-    bodyOptions: {
-      multipart: true,
-      formidable: {
-        // 上传目录
-        uploadDir: __dirname,
-        // 保留文件扩展名
-        keepExtensions: true,
-      },
-    },
-    errorOptions: {
-      all(err, ctx) {
-        ctx.body = err.message
-      },
-    },
-  })
+Object.entries(proxy).reduce((app, [api, conf]) => app.use(api, cors({ origin: conf.target! })), app)
 
-  try {
-    await darukServer.loadFile('./server/services')
-    await darukServer.loadFile('./server/controllers')
-    await darukServer.loadFile('./server/middlewares')
-  } catch (e) {
-    //
-  }
+if (isDev) {
+  const regex = /(<head[\s\S]*?)(\s*<\/head>)/i
+  pages = readdirSync(path.join(import.meta.dirname, './client/pages'))
+  pages.reduce(
+    (app, page) =>
+      app.use(`/${page}/*`, async c => {
+        const html = readFileSync(path.join(import.meta.dirname, `./client/pages/${page}/index.html`), 'utf-8')
+        const newHtml = html.replace(
+          regex,
+          `$1
+            <script type="module">
+              import RefreshRuntime from '${url}/@react-refresh'
+              RefreshRuntime.injectIntoGlobalHook(window)
+              window.$RefreshReg$ = () => {}
+              window.$RefreshSig$ = () => type => type
+              window.__vite_plugin_react_preamble_installed__ = true
+            </script>
+          $2`,
+        )
 
-  await darukServer.binding()
+        return c.html(newHtml)
+      }),
+    app,
+  )
+} else {
+  app.use('/*', serveStatic({ root: '/build/public' }))
+  pages = readdirSync(path.join(import.meta.dirname, './public'))
+    .filter(item => item.endsWith('.html'))
+    .map(item => item.replace(/\.html$/, ''))
+  pages.reduce(
+    (app, page) =>
+      app.use(`/${page}/*`, async c => {
+        const html = readFileSync(path.join(import.meta.dirname, `./public/${page}.html`), 'utf-8')
 
-  if (isDev) {
-    const vite = await (await import('vite')).createServer({ server: { middlewareMode: true } })
-    pages = (vite.config as any).pages
-    darukServer.app.use(koaStatic(path.join(__dirname, './public'), {}) as any).use(k2c(vite.middlewares))
-    require('./scripts/generateServerApi')
-  } else {
-    pages = readdirSync(path.join(__dirname, './public'))
-      .filter(item => item.endsWith('.html'))
-      .map(item => item.replace(/\.html$/, ''))
-    darukServer.app
-      .use(
-        historyApiFallback({
-          whiteList: ['/api', '/coze', '/assets'],
-          index: 'index.html',
-          htmlAcceptHeaders: ['text/html', 'application/xhtml+xml'],
-          disableDotRule: false,
-          rewrites: pages.map(page => ({ from: `^/${page}`, to: `/${page}.html` })),
-        }),
-      )
-      .use(koaStatic(path.join(__dirname, './public'), { maxAge: 2592000 }) as any)
-    Object.entries(proxy).reduce(
-      (app, [api, conf]) => app.use(k2c(createProxyMiddleware(api, conf) as any)),
-      darukServer.app,
-    )
-  }
-  if (isHttps) {
-    const options = {
-      key: readFileSync(process.env.VITE_SSL_KEY_FILE!),
-      cert: readFileSync(process.env.VITE_SSL_CRT_FILE!),
-    }
-    ;(darukServer.app as any).httpServer = https.createServer(options, darukServer.app.callback()).listen(PORT)
-    darukServer.emit('serverReady')
-  } else {
-    darukServer.app.listen(PORT)
-  }
-  const url = `http${isHttps ? 's' : ''}://localhost:${PORT}`
-  console.log(chalk.green(`[✓] running at ${url}`))
-  pages.map(page => console.log(chalk.magenta(`[⌘] register page ${url}/${page}`)))
+        return c.html(html)
+      }),
+    app,
+  )
 }
 
-createServer()
+export default app

@@ -1,26 +1,20 @@
-import react from '@vitejs/plugin-react-swc'
+import build from '@hono/vite-build/node'
+import devServer from '@hono/vite-dev-server'
+import react from '@vitejs/plugin-react'
 import { readdirSync, readFileSync } from 'fs'
 import path from 'path'
-import { defineConfig, ServerOptions } from 'vite'
+import { defineConfig, loadEnv, ServerOptions } from 'vite'
 import Page from 'vite-plugin-pages'
 import proxy from './proxy'
 
-export default defineConfig(({ command }) => {
-  const isHttps = process.env.VITE_SSL_KEY_FILE && process.env.VITE_SSL_CRT_FILE
+export default defineConfig(({ command, mode }) => {
+  const env = loadEnv(command === 'build' ? 'production' : mode, process.cwd(), '')
+  const isHttps = env.VITE_SSL_KEY_FILE && env.VITE_SSL_CRT_FILE
   const pages = readdirSync(path.resolve(__dirname, 'client/pages'))
 
   const server: ServerOptions = {
-    proxy: pages.reduce(
-      (acc, page) => {
-        acc[`/${page}`] = {
-          target: `http${isHttps ? 's' : ''}://localhost:${process.env.PORT}`,
-          changeOrigin: true,
-          rewrite: () => `/client/pages/${page}/index.html`,
-        }
-        return acc
-      },
-      { ...proxy },
-    ),
+    port: Number(env.VITE_PORT),
+    proxy,
   }
 
   if (isHttps) {
@@ -31,28 +25,30 @@ export default defineConfig(({ command }) => {
   }
 
   return {
-    pages,
     server,
-    build: {
-      outDir: './build/public',
-      rollupOptions: {
-        input: pages.reduce((acc, page) => {
-          acc[page] = path.resolve(__dirname, `./client/pages/${page}/index.html`)
-          return acc
-        }, {}),
-        output: {
-          assetFileNames: 'assets/[name]-[hash].[ext]',
-          chunkFileNames: 'js/[name]-[hash].js',
-          entryFileNames: 'js/[name]-[hash].js',
-          compact: true,
-          manualChunks: (id: string) => {
-            if (id.includes('node_modules')) {
-              return id.toString().split('node_modules/')[1].split('/')[0].toString()
-            }
-          },
-        },
-      },
-    },
+    build:
+      mode === 'client'
+        ? {
+            outDir: './build/public',
+            rollupOptions: {
+              input: pages.reduce((acc, page) => {
+                acc[page] = path.resolve(__dirname, `./client/pages/${page}/index.html`)
+                return acc
+              }, {}),
+              output: {
+                assetFileNames: 'assets/[name]-[hash].[ext]',
+                chunkFileNames: 'js/[name]-[hash].js',
+                entryFileNames: 'js/[name]-[hash].js',
+                compact: true,
+                manualChunks: (id: string) => {
+                  if (id.includes('node_modules')) {
+                    return id.toString().split('node_modules/')[1].split('/')[0].toString()
+                  }
+                },
+              },
+            },
+          }
+        : {},
     resolve: {
       alias: {
         client: path.resolve(__dirname, './client'),
@@ -62,12 +58,31 @@ export default defineConfig(({ command }) => {
       },
     },
     plugins: [
-      react(),
+      react({ include: /\.(mdx|js|jsx|ts|tsx)$/ }),
+      devServer({
+        entry: './app.ts',
+        injectClientScript: true,
+        exclude: [
+          /.*\.css$/,
+          /.*\.less$/,
+          /.*\.ts$/,
+          /.*\.tsx$/,
+          /.*\.png$/,
+          /.*\.ttf$/,
+          /^\/@.+$/,
+          /\?t\=\d+$/,
+          /^\/favicon\.ico$/,
+          /^\/static\/.+/,
+          /^\/node_modules\/.*/,
+        ],
+        ignoreWatching: [],
+      }),
       ...pages.map(page =>
         Page({
           dirs: [{ dir: `client/pages/${page}/routes`, baseRoute: `/${page}` }],
           moduleId: `~react-page-${page}`,
           importMode: 'sync',
+
           onClientGenerated(clientCode) {
             return (
               clientCode
@@ -83,6 +98,14 @@ export default defineConfig(({ command }) => {
           },
         }),
       ),
-    ],
+      mode === 'server' &&
+        build({
+          entry: './app.ts',
+          output: 'app.js',
+          outputDir: './build',
+          minify: false,
+          port: Number(env.VITE_PORT),
+        }),
+    ].filter(v => v),
   }
 })

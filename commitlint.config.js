@@ -1,6 +1,6 @@
-const { defineConfig } = require('cz-git')
+import { defineConfig } from'cz-git'
 
-module.exports = defineConfig({
+export default defineConfig({
   types: [
     { value: '✨ feat', name: '✨ feat:     新增功能 | A new feature' },
     { value: '🐛 fix', name: '🐛 fix:      修复缺陷 | A bug fix' },
