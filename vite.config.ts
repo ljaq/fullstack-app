@@ -5,27 +5,24 @@ import { readdirSync, readFileSync } from 'fs'
 import path from 'path'
 import { defineConfig, loadEnv, ServerOptions } from 'vite'
 import Page from 'vite-plugin-pages'
-import proxy from './proxy'
+import getProxy from './proxy'
 
 export default defineConfig(({ command, mode }) => {
   const env = loadEnv(command === 'build' ? 'production' : mode, process.cwd(), '')
   const isHttps = env.VITE_SSL_KEY_FILE && env.VITE_SSL_CRT_FILE
   const pages = readdirSync(path.resolve(__dirname, 'client/pages'))
 
-  const server: ServerOptions = {
-    port: Number(env.VITE_PORT),
-    proxy,
-  }
-
-  if (isHttps) {
-    server.https = {
-      key: readFileSync(process.env.VITE_SSL_KEY_FILE),
-      cert: readFileSync(process.env.VITE_SSL_CRT_FILE),
-    }
-  }
-
   return {
-    server,
+    server: {
+      port: Number(env.VITE_PORT),
+      proxy: {
+        '^/api': {
+          target: 'http://47.93.55.131:5000',
+          changeOrigin: true,
+          secure: false,
+        },
+      },
+    },
     build:
       mode === 'client'
         ? {

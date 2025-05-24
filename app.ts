@@ -2,23 +2,36 @@ import { serveStatic } from '@hono/node-server/serve-static'
 import dotenv from 'dotenv'
 import { readFileSync, readdirSync } from 'fs'
 import { Hono } from 'hono'
-import { cors } from 'hono/cors'
+import { proxy } from 'hono/proxy'
 import path from 'path'
-import proxy from './proxy'
+import proxyConf from './proxy'
 
 const isDev = import.meta.env.DEV
-const isServer = import.meta.env.MODE  === 'server'
+const isServer = import.meta.env.MODE === 'server'
 const isHttps = process.env.VITE_SSL_KEY_FILE && process.env.VITE_SSL_CRT_FILE
 let pages: string[] = []
 const app = new Hono()
 const url = `http${isHttps ? 's' : ''}://localhost:${import.meta.env.VITE_PORT}`
 
-if (isServer) {  
+if (isServer) {
   // 手动加载环境变量
   Object.assign(import.meta.env, dotenv.config({ path: `.env.${process.env.mode}` }).parsed || {})
 }
 
-Object.entries(proxy).reduce((app, [api, conf]) => app.use(api, cors({ origin: conf.target! })), app)
+Object.entries(proxyConf).reduce(
+  (app, [api, conf]) =>
+    app.all(api, c => {
+      return proxy(`${conf.target}${c.req.path}`, {
+        ...c.req,
+        headers: {
+          ...c.req.header(),
+          'X-Forwarded-For': '127.0.0.1',
+          'X-Forwarded-Host': c.req.header('host'),
+        },
+      })
+    }),
+  app,
+)
 
 if (isDev) {
   const regex = /(<head[\s\S]*?)(\s*<\/head>)/i

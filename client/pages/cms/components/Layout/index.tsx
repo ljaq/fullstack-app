@@ -1,7 +1,6 @@
-import { Splitter, theme } from 'antd'
+import { Splitter } from 'antd'
 import { ReactNode, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
-import FOG from 'vanta/dist/vanta.fog.min'
 import { LayoutProvider, useLayoutState } from './context'
 import Header from './Header'
 import Sider from './Sider'
@@ -17,9 +16,6 @@ function Layout(props: IProps) {
   const [siderWidth, setSiderWidth] = useState(200)
   const { pathname } = useLocation()
   const navigate = useNavigate()
-  const {
-    token: { colorPrimary, colorPrimaryHover, colorPrimaryActive },
-  } = theme.useToken()
 
   const handleSpliterSizeChange = ([size]) => {
     setSiderWidth(size > 128 ? size : 66)
@@ -42,22 +38,6 @@ function Layout(props: IProps) {
       navigate('/cms/home', { replace: true })
     }
   }, [pathname])
-
-  useEffect(() => {
-    FOG({
-      el: `.${styles.layout}`,
-      mouseControls: true,
-      touchControls: true,
-      gyroControls: true,
-      minHeight: 200.0,
-      minWidth: 200.0,
-      zoom: 0.5,
-      highlightColor: colorPrimaryActive,
-      midtoneColor: colorPrimaryHover,
-      lowlightColor: colorPrimary,
-      baseColor: '#ffffff',
-    })
-  }, [])
 
   const pcLayout = (
     <Splitter onResize={handleSpliterSizeChange}>
