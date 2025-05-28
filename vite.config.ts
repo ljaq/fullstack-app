@@ -32,7 +32,7 @@ export default defineConfig(({ command, mode }) => {
                 return acc
               }, {}),
               output: {
-                chunkFileNames: 'js/[name]-[hash].js', 
+                chunkFileNames: 'js/[name]-[hash].js',
                 entryFileNames: 'js/[name]-[hash].js',
                 assetFileNames(assetsInfo) {
                   if (assetsInfo.names[0]?.endsWith('.css')) {
@@ -93,6 +93,7 @@ export default defineConfig(({ command, mode }) => {
           /\?import$/,
         ],
         ignoreWatching: [],
+        handleHotUpdate(ctx) {},
       }),
       ...pages.map(page =>
         Page({
