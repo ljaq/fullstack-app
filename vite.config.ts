@@ -1,31 +1,27 @@
 import build from '@hono/vite-build/node'
 import devServer from '@hono/vite-dev-server'
 import react from '@vitejs/plugin-react'
-import { readdirSync, readFileSync } from 'fs'
+import { readdirSync } from 'fs'
 import path from 'path'
-import { defineConfig, loadEnv, ServerOptions } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import Page from 'vite-plugin-pages'
-import proxy from './proxy'
 
 export default defineConfig(({ command, mode }) => {
   const env = loadEnv(command === 'build' ? 'production' : mode, process.cwd(), '')
   const isHttps = env.VITE_SSL_KEY_FILE && env.VITE_SSL_CRT_FILE
   const pages = readdirSync(path.resolve(__dirname, 'client/pages'))
 
-  const server: ServerOptions = {
-    port: Number(env.VITE_PORT),
-    proxy,
-  }
-
-  if (isHttps) {
-    server.https = {
-      key: readFileSync(process.env.VITE_SSL_KEY_FILE),
-      cert: readFileSync(process.env.VITE_SSL_CRT_FILE),
-    }
-  }
-
   return {
-    server,
+    server: {
+      port: Number(env.VITE_PORT),
+      proxy: {
+        '^/api': {
+          target: 'http://47.93.55.131:5000',
+          changeOrigin: true,
+          secure: false,
+        },
+      },
+    },
     build:
       mode === 'client'
         ? {
@@ -36,25 +32,45 @@ export default defineConfig(({ command, mode }) => {
                 return acc
               }, {}),
               output: {
-                assetFileNames: 'assets/[name]-[hash].[ext]',
                 chunkFileNames: 'js/[name]-[hash].js',
                 entryFileNames: 'js/[name]-[hash].js',
-                compact: true,
-                manualChunks: (id: string) => {
-                  if (id.includes('node_modules')) {
-                    return id.toString().split('node_modules/')[1].split('/')[0].toString()
+                assetFileNames(assetsInfo) {
+                  if (assetsInfo.names[0]?.endsWith('.css')) {
+                    return 'css/[name]-[hash].css'
                   }
+                  const fontExts = ['.ttf', '.otf', '.woff', '.woff2', '.eot']
+                  if (fontExts.some(ext => assetsInfo.names[0]?.endsWith(ext))) {
+                    return 'font/[name]-[hash].[ext]'
+                  }
+                  const imgExts = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.icon']
+                  if (imgExts.some(ext => assetsInfo.names[0]?.endsWith(ext))) {
+                    return 'img/[name]-[hash].[ext]'
+                  }
+                  const imgSvg = ['.svg']
+                  if (imgSvg.some(ext => assetsInfo.names[0]?.endsWith(ext))) {
+                    return 'assest/icons/[name].[ext]'
+                  }
+                  const videoExts = ['.mp4', '.avi', '.wmv', '.ram', '.mpg', 'mpeg']
+                  if (videoExts.some(ext => assetsInfo.names[0]?.endsWith(ext))) {
+                    return 'video/[name]-[hash].[ext]'
+                  }
+                  return 'assets/[name]-[hash].[ext]'
                 },
               },
             },
           }
-        : {},
+        : { copyPublicDir: false },
     resolve: {
       alias: {
         client: path.resolve(__dirname, './client'),
         server: path.resolve(__dirname, './server'),
         utils: path.resolve(__dirname, './utils'),
         types: path.resolve(__dirname, './types'),
+      },
+    },
+    environments: {
+      ssr: {
+        keepProcessEnv: true,
       },
     },
     plugins: [
@@ -74,8 +90,10 @@ export default defineConfig(({ command, mode }) => {
           /^\/favicon\.ico$/,
           /^\/static\/.+/,
           /^\/node_modules\/.*/,
+          /\?import$/,
         ],
         ignoreWatching: [],
+        handleHotUpdate(ctx) {},
       }),
       ...pages.map(page =>
         Page({
