@@ -1,6 +1,6 @@
 export default {
   '/api/*': {
-    target: import.meta.env.VITE_SERVER_API,
+    target: import.meta.env.VITE_THIRD_API,
     changeOrigin: true,
   },
 }

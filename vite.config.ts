@@ -5,6 +5,7 @@ import { readdirSync } from 'fs'
 import path from 'path'
 import { defineConfig, loadEnv } from 'vite'
 import Page from 'vite-plugin-pages'
+import app from './app'
 
 export default defineConfig(({ command, mode }) => {
   const env = loadEnv(command === 'build' ? 'production' : mode, process.cwd(), '')
@@ -93,7 +94,8 @@ export default defineConfig(({ command, mode }) => {
           /\?import$/,
         ],
         ignoreWatching: [],
-        handleHotUpdate(ctx) {},
+        handleHotUpdate(ctx) {        
+        },
       }),
       ...pages.map(page =>
         Page({

@@ -1,9 +1,11 @@
 import { Hono } from 'hono'
 
-const app = new Hono({})
+const helloRoute = new Hono()
+  .get('/', c => {
+    return c.json({ result: 'Hello World!' })
+  })
+  .post('/', c => {
+    return c.json({ result: 'Hello World!' })
+  })
 
-app.get('/', (c) => {
-  return c.text('Hello World!')
-})
-
-export default app
+export default helloRoute
