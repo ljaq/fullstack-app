@@ -15,7 +15,7 @@ function App() {
     getUser()
   }, [])
   return (
-    <ConfigProvider locale={zh_CN}>
+    <ConfigProvider locale={zh_CN} theme={{ token: { colorPrimary: '#9254de' } }}>
       <EasyModal.Provider>
         <Layout>
           <Suspense fallback={<Spin spinning />}>

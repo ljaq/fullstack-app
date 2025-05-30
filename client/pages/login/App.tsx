@@ -8,7 +8,7 @@ import './index.less'
 function App() {
   const { pathname } = useLocation()
   return (
-    <ConfigProvider locale={zh_CN}>
+    <ConfigProvider locale={zh_CN} theme={{ token: { colorPrimary: '#9254de' } }}>
       <Suspense fallback={<Spin spinning />}>
         <div key={pathname}>{useRoutes(routes)}</div>
       </Suspense>

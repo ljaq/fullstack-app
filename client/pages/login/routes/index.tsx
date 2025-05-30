@@ -1,5 +1,5 @@
 import { ProductOutlined } from '@ant-design/icons'
-import { App, Button, Form, Input, Space } from 'antd'
+import { App, Button, Form, Input, Space, theme } from 'antd'
 import { request } from 'client/api'
 import storages from 'client/storages'
 import { formatTime } from 'client/utils/time'
@@ -17,6 +17,7 @@ export default function Login() {
   const [_, setToken] = useLocalStorage(storages.TOKEN)
   const [form] = Form.useForm()
   const { message } = App.useApp()
+  const { token: { colorPrimary, colorPrimaryBgHover, colorPrimaryActive, colorPrimaryHover } } = theme.useToken()
 
   const handleFinish = async (fields: any) => {
     setLoading(true)
@@ -55,10 +56,10 @@ export default function Login() {
       minHeight: 200.0,
       minWidth: 200.0,
       zoom: 0.5,
-      highlightColor: '#00CCFF',
-      midtoneColor: '#0077FF',
-      lowlightColor: '#00007F',
-      baseColor: '#E6F7FF',
+      highlightColor: colorPrimaryHover,
+      midtoneColor: colorPrimary,
+      lowlightColor: colorPrimaryActive,
+      baseColor: colorPrimaryBgHover,
     })
 
     timer.current = setInterval(() => {

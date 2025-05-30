@@ -27,7 +27,6 @@ export default function UserProvider({ children }: { children: React.ReactNode }
     let user: UserState
     try {
       const res = await request.authority.getXSRF({ method: 'GET' })
-      const userInfo = await request.authority.userInfo({ method: 'GET' })
       const roleName = res?.currentUser?.roles?.[0]
       const auth = res?.auth?.grantedPolicies || {}
       const userName = res?.currentUser?.userName
@@ -37,7 +36,6 @@ export default function UserProvider({ children }: { children: React.ReactNode }
         userName: userName,
         roleName: roleName,
         authList: authList as (MenuAuthority | ButtonAuthority)[],
-        ...userInfo,
       }
     } catch (err) {
       user = {
