@@ -1,5 +1,5 @@
 import { MenuFoldOutlined, MenuOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
-import { Breadcrumb, Button, Space, Typography } from 'antd'
+import { Badge, Breadcrumb, Button, Popover, Space, theme, Typography } from 'antd'
 import { BreadcrumbItemType } from 'antd/es/breadcrumb/Breadcrumb'
 import Translate from 'client/components/Animation/Translate'
 import { Fragment, useMemo } from 'react'
@@ -7,11 +7,15 @@ import { Link, useLocation } from 'react-router'
 import routes from '~react-page-cms'
 import { useLayoutState } from './context'
 import { useStyle } from './style'
+import { themeList } from './conf'
+import { useUser } from 'client/contexts/useUser'
 
 export default function Header() {
+  const [, { setThemeConfig }] = useUser()
   const { collapsed, setCollapsed, isMobile } = useLayoutState()
   const { styles, cx } = useStyle()
   const { pathname } = useLocation()
+  const { colorPrimary } = theme.useToken().token
 
   const breadcrumbs = useMemo<BreadcrumbItemType[]>(() => {
     // 标准化路径格式
@@ -79,6 +83,25 @@ export default function Header() {
             separator={<Translate direction='right'>/</Translate>}
           />
         </Space>
+        <Popover
+          arrow={false}
+          content={
+            <Space style={{ width: 154 }} wrap>
+              {themeList.map(color => (
+                <Button
+                  key={color}
+                  type='text'
+                  size='small'
+                  icon={<Badge dot status={colorPrimary === color ? 'processing' : 'default'} color={color} />}
+                  onClick={() => setThemeConfig({ color })}
+                />
+              ))}
+            </Space>
+          }
+          placement='bottomRight'
+        >
+          <Badge dot status='processing' color={colorPrimary} />
+        </Popover>
       </div>
     </Fragment>
   )

@@ -9,13 +9,13 @@ import routes from '~react-page-cms'
 import Layout from './components/Layout/index'
 function App() {
   const { pathname } = useLocation()
-  const [, { getUser }] = useUser()
+  const [{ themeConfig }, { getUser }] = useUser()
 
   useEffect(() => {
     getUser()
   }, [])
   return (
-    <ConfigProvider locale={zh_CN} theme={{ token: { colorPrimary: '#9254de' } }}>
+    <ConfigProvider locale={zh_CN} theme={{ token: { colorPrimary: themeConfig.color } }}>
       <EasyModal.Provider>
         <Layout>
           <Suspense fallback={<Spin spinning />}>

@@ -1,6 +1,6 @@
 import { request } from 'client/api'
 import { ButtonAuthority, MenuAuthority } from 'client/utils/auth'
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useContext, useMemo } from 'react'
 import { useLogout } from './hooks'
 import { useLocalStorage } from 'react-use'
 import storages from 'client/storages'
@@ -8,23 +8,32 @@ import storages from 'client/storages'
 const INITIAL_STATE: UserState | null = null
 const UserContext = createContext<any>(INITIAL_STATE)
 
+type IThemeConfig = {
+  color: string
+}
+
 export type UserState = {
   userName?: string
   authList?: (MenuAuthority | ButtonAuthority)[]
   roleName?: string
   id?: string
+  themeConfig: IThemeConfig
 }
 
-export function useUser(): [UserState, { getUser: () => Promise<UserState>; logout: () => void }] {
+export function useUser(): [
+  UserState,
+  { getUser: () => Promise<UserState>; logout: () => void; setThemeConfig: (themeConfig: IThemeConfig) => void },
+] {
   return useContext(UserContext)
 }
 
 export default function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useLocalStorage<UserState>(storages.USER, {})
+  const [user, setUser] = useLocalStorage<Omit<UserState, 'themeConfig'>>(storages.USER, {})
+  const [themeConfig, setThemeConfig] = useLocalStorage<IThemeConfig>(storages.THEME, { color: '#9254de' })
   const logout = useLogout()
 
   const getUser = useCallback(async () => {
-    let user: UserState
+    let user: Omit<UserState, 'themeConfig'>
     try {
       const res = await request.authority.getXSRF({ method: 'GET' })
       const roleName = res?.currentUser?.roles?.[0]
@@ -50,7 +59,15 @@ export default function UserProvider({ children }: { children: React.ReactNode }
   }, [])
 
   return (
-    <UserContext.Provider value={useMemo(() => [{ ...user }, { getUser, logout }], [user, getUser, logout])}>
+    <UserContext.Provider
+      value={useMemo(
+        () => [
+          { ...user, themeConfig },
+          { getUser, logout, setThemeConfig },
+        ],
+        [user, themeConfig, getUser, logout, setThemeConfig],
+      )}
+    >
       {children}
     </UserContext.Provider>
   )

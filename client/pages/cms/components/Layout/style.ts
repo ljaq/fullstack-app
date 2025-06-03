@@ -32,8 +32,9 @@ export const useStyle = createStyles(({ token, css }) => {
       position: sticky;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       height: 56px;
-      padding: 0 40px;
+      padding: 0 20px;
       /* margin-left: -8px; */
       &.mobile {
         margin-left: 0px;
