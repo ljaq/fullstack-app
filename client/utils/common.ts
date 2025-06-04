@@ -55,7 +55,7 @@ export const nameTran = (str: string) => str.replace(/([A-Z|0-9]+)/g, (_, p1) =>
 export const randomInArr = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)]
 
 /** 返回登陆页面 */
-export const toLogin = () => (location.href = location.href.split('?')[0] + '?redirect=' + location.href)
+export const toLogin = () => (location.href = `${location.origin}/login?redirect=${location.href}`)
 
 /** 格式化时间 */
 export const formatTime = (time, formats = 'YYYY-MM-DD HH:mm:ss') => dayjs(time).format(formats)

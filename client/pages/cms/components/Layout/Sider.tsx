@@ -3,12 +3,14 @@ import { Button, ConfigProvider, Drawer, Flex, Layout, Menu, Space, theme } from
 import Avatar from 'boring-avatars'
 import { useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router'
+import { useUser } from 'client/contexts/useUser'
 import routes from '~react-page-cms'
 import { useLayoutState } from './context'
 import { useStyle } from './style'
 import Logo from './Logo'
 
 export default function Sider() {
+  const [, { logout }] = useUser()
   const { collapsed, isMobile, setCollapsed } = useLayoutState()
   const { styles } = useStyle()
   const location = useLocation()
@@ -102,7 +104,7 @@ export default function Sider() {
               {!collapsed && <span style={{ marginLeft: 8 }}>Admin</span>}
             </Flex>
             <Space direction={collapsed ? 'vertical' : 'horizontal'}>
-              <Button type='text' icon={<LogoutOutlined />} />
+              <Button type='text' icon={<LogoutOutlined />} onClick={logout} />
             </Space>
           </Flex>
         </Layout.Sider>
