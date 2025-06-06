@@ -45,6 +45,7 @@
     "dayjs": "^1.11.13",
     "docx-preview": "^0.1.20",
     "echarts": "^5.6.0",
+    "form-render": "^2.5.3",
     "hono": "^4.7.10",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

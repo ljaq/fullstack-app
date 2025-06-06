@@ -1,12 +1,11 @@
-import { Card, TableProps, Row, Col, Table, Flex, Alert, Space, Button, theme, Tooltip, Modal } from 'antd'
-import { SorterResult } from 'antd/lib/table/interface'
+import { Card, TableProps, Row, Table, Flex, Alert, Space, Button, theme, Tooltip, Modal } from 'antd'
+import { SorterResult, TableRowSelection } from 'antd/lib/table/interface'
 import { API_REQ_FUNCTION, Methods } from '../../api/types'
 import type { DragEndEvent } from '@dnd-kit/core'
 import { DndContext } from '@dnd-kit/core'
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import ToolRow, { ToolRowInstance, ToolRowProps } from '../ToolRow'
 import React, {
   ForwardedRef,
   forwardRef,
@@ -16,16 +15,16 @@ import React, {
   useEffect,
   useImperativeHandle,
   useMemo,
-  useRef,
   useState,
 } from 'react'
-import { formatQuery } from '../../utils/getFormItem'
 import { MenuOutlined } from '@ant-design/icons'
+import  { Schema, useForm, SearchForm } from 'form-render'
 
 import './style.less'
 
 interface IProps {
   tableTitle?: ReactNode
+  search?: { schema: Schema }
   request: API_REQ_FUNCTION
   extra?: ReactElement
   ghost?: boolean
@@ -35,7 +34,7 @@ interface IProps {
         request: API_REQ_FUNCTION
       }
   selectable?: boolean
-  getSelectProps?: TableProps['rowSelection']['getCheckboxProps']
+  getSelectProps?: TableRowSelection['getCheckboxProps']
   selectExtra?: ReactNode
   commonParams?: { [key: string]: any }
   defaultPageSize?: number
@@ -43,7 +42,7 @@ interface IProps {
   method?: Methods
 }
 
-export type CommonTableProps = TableProps<any> & IProps & Partial<ToolRowProps>
+export type CommonTableProps = TableProps<any> & IProps
 
 export interface CommonTableInstance {
   fetchData: () => Promise<any>
@@ -91,13 +90,12 @@ const SortRow = ({ children, ...props }: React.HTMLAttributes<HTMLTableRowElemen
 
 function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInstance>) {
   const {
+    search,
     style,
     className,
     request,
     tableTitle,
     extra,
-    toolList,
-    toolLabelWidth = 120,
     commonParams,
     ghost,
     defaultPageSize,
@@ -112,7 +110,7 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
     selectExtra,
     ...reset
   } = props
-  const toolRef = useRef<ToolRowInstance>(null)
+  const form = useForm()
   const [pageInfo, setPageInfo] = useState({ page: 1, size: defaultPageSize ?? 10 })
   const [sortInfo, setSortInfo] = useState<[string?, ('asc' | 'desc')?]>([])
   const [filters, setFilters] = useState<any>({})
@@ -126,9 +124,8 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
 
   const { token } = theme.useToken()
 
-  const fetchData = (fields: any) => {
-    const query = formatQuery(fields, toolList || [])
-    setWithQuery(!!Object.keys(query).length)
+  const fetchData = (fields: any = {}) => {
+    setWithQuery(!!Object.keys(fields).length)
     setLoading(true)
     const skipCount = (pageInfo.page - 1) * pageInfo.size
     // const _filters = Object.keys(filters).ma
@@ -137,9 +134,11 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
       maxResultCount: pageInfo.size,
       sorting: sortInfo.join(' '),
       ...filters,
-      ...query,
+      ...fields,
       ...commonParams,
     }
+    console.log(data)
+
     const params: any = { method }
     if (method === 'GET') {
       params.query = data
@@ -160,7 +159,7 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
 
   useImperativeHandle<unknown, CommonTableInstance>(ref, () => {
     return {
-      fetchData: () => fetchData(toolRef.current?.getParams()),
+      fetchData: () => fetchData(form.getValues()),
       getTableData,
       getSelectedRows: () => selectedRows,
       setSelectedRows: setSelectedRows,
@@ -169,7 +168,7 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
         setTotal(arr.length)
       },
       getParams: () => {
-        const query = formatQuery(toolRef.current?.getParams?.() || {}, toolList || [])
+        const query = form.getValues()
         return {
           query,
           pageInfo,
@@ -207,7 +206,7 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
   }
 
   useEffect(() => {
-    fetchData(toolRef.current?.getParams())
+    fetchData(form.getValues())
   }, [pageInfo, sortInfo, commonParams])
 
   const tableColumns = useMemo(() => {
@@ -284,64 +283,57 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
   return (
     <Fragment>
       <div className={`common-table ${className}`} style={style}>
-        <Row gutter={[16, 16]}>
-          {toolList && (
-            <Col span={24}>
-              <ToolRow
-                ref={toolRef}
-                toolList={toolList}
-                onFetch={() => setPageInfo({ page: 1, size: pageInfo.size })}
-              />
-            </Col>
+        {search?.schema && (
+          <SearchForm
+            style={{ border: `1px solid ${token.colorBorderSecondary}`, borderRadius: token.borderRadius }}
+            form={form}
+            schema={search.schema}
+            onSearch={fetchData}
+          />
+        )}
+
+        <Card style={ghost ? { boxShadow: 'none', border: 'none' } : {}} bodyStyle={ghost ? { padding: 0 } : {}}>
+          {(tableTitle || extra) && (
+            <Row justify='space-between' align='middle' wrap={false} style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 16, fontWeight: 'bold' }}>{tableTitle}</div>
+              <div>{extra}</div>
+            </Row>
           )}
-          <Col span={24}>
-            <Card style={ghost ? { boxShadow: 'none', border: 'none' } : {}} bodyStyle={ghost ? { padding: 0 } : {}}>
-              {(tableTitle || extra) && (
-                <Row justify='space-between' align='middle' wrap={false} style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 16, fontWeight: 'bold' }}>{tableTitle}</div>
-                  <div>{extra}</div>
-                </Row>
-              )}
-              {selectable && (
-                <Alert
-                  className='selected-info'
-                  style={{ backgroundColor: token.colorPrimaryBg, borderColor: token.colorPrimaryBorder }}
-                  message={
-                    <Flex justify='space-between' align='center'>
-                      <Space>
-                        已选择
-                        <Tooltip title={selectedRows.length ? '查看已选择' : ''}>
-                          <a onClick={() => setShowSelectedModal(!!selectedRows.length)}>{selectedRows.length}</a>
-                        </Tooltip>
-                        条
-                      </Space>
-                      {selectedRows?.length > 0 && (
-                        <Space>
-                          <Button size='small' onClick={() => setSelectedRows([])}>
-                            清空
-                          </Button>
-                          {selectExtra}
-                        </Space>
-                      )}
-                    </Flex>
-                  }
-                />
-              )}
-              {dragable ? (
-                <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
-                  <SortableContext
-                    items={tableData.map(i => i[rowKey.toString()])}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    {tableCom}
-                  </SortableContext>
-                </DndContext>
-              ) : (
-                tableCom
-              )}
-            </Card>
-          </Col>
-        </Row>
+          {selectable && (
+            <Alert
+              className='selected-info'
+              style={{ backgroundColor: token.colorPrimaryBg, borderColor: token.colorPrimaryBorder }}
+              message={
+                <Flex justify='space-between' align='center'>
+                  <Space>
+                    已选择
+                    <Tooltip title={selectedRows.length ? '查看已选择' : ''}>
+                      <a onClick={() => setShowSelectedModal(!!selectedRows.length)}>{selectedRows.length}</a>
+                    </Tooltip>
+                    条
+                  </Space>
+                  {selectedRows?.length > 0 && (
+                    <Space>
+                      <Button size='small' onClick={() => setSelectedRows([])}>
+                        清空
+                      </Button>
+                      {selectExtra}
+                    </Space>
+                  )}
+                </Flex>
+              }
+            />
+          )}
+          {dragable ? (
+            <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
+              <SortableContext items={tableData.map(i => i[rowKey.toString()])} strategy={verticalListSortingStrategy}>
+                {tableCom}
+              </SortableContext>
+            </DndContext>
+          ) : (
+            tableCom
+          )}
+        </Card>
       </div>
 
       <Modal

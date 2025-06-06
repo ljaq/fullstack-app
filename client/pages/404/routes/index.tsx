@@ -1,6 +1,24 @@
 import { Button, Result, Space } from 'antd'
+import { useNavigate } from 'react-router'
 
-export default function Page404() {
+export default function Page404({ crossPage = true }: { crossPage?: boolean }) {
+  const navigate = useNavigate()
+
+  const handleBack = () => {
+    if (crossPage) {
+      window.history.back()
+    } else {
+      navigate(-1)
+    }
+  }
+
+  const handleHome = () => {
+    if (crossPage) {
+      window.location.href = '/'
+    } else {
+      navigate('/')
+    }
+  }
   return (
     <div style={{ paddingTop: 120 }}>
       <Result
@@ -8,10 +26,8 @@ export default function Page404() {
         title='找不到页面'
         extra={
           <Space>
-            <Button onClick={() => window.history.back()}>
-              返回上一页
-            </Button>
-            <Button type='primary' onClick={() => window.history.back()}>
+            <Button onClick={handleBack}>返回上一页</Button>
+            <Button type='primary' onClick={handleHome}>
               回到首页
             </Button>
           </Space>
