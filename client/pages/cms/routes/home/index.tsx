@@ -2,6 +2,7 @@ import { HomeOutlined } from '@ant-design/icons'
 import CommonTable from 'client/components/CommonTable'
 import { IFormItem } from 'client/utils/getFormItem'
 import { ColumnsType } from 'antd/es/table'
+import { Schema } from 'form-render'
 
 const toolList: IFormItem[] = [
   {
@@ -20,6 +21,31 @@ const toolList: IFormItem[] = [
     label: '地址',
   },
 ]
+
+const schema: Schema = {
+  type: 'object',
+  displayType: 'row',
+  properties: {
+    name: {
+      type: 'string',
+      title: '姓名',
+      widget: 'input',
+    },
+    age: {
+      type: 'number',
+      title: '年龄',
+    },
+    address: {
+      type: 'string',
+      title: '地址',
+    },
+    date: {
+      type: 'range',
+      title: '日期',
+      widget: 'dateRange',
+    },
+  },
+}
 
 export default function Home() {
   const columns: ColumnsType = [
@@ -40,7 +66,7 @@ export default function Home() {
     },
   ]
 
-  return <CommonTable toolList={toolList} columns={columns} request={() => Promise.resolve([])} />
+  return <CommonTable search={{ schema }} columns={columns} request={() => Promise.resolve([])} />
 }
 
 export const pageConfig = {

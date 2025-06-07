@@ -1,0 +1,11 @@
+Model Information:
+* title:	Pond Weed
+* source:	https://sketchfab.com/3d-models/pond-weed-b34ed521c5bb45ca9191b6213e1830d6
+* author:	Valery.Li (https://sketchfab.com/Valery.Li)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Pond Weed" (https://sketchfab.com/3d-models/pond-weed-b34ed521c5bb45ca9191b6213e1830d6) by Valery.Li (https://sketchfab.com/Valery.Li) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

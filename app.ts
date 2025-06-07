@@ -3,26 +3,25 @@ import dotenv from 'dotenv'
 import { readFileSync, readdirSync } from 'fs'
 import { Hono } from 'hono'
 import { proxy } from 'hono/proxy'
+import { prettyJSON } from 'hono/pretty-json'
 import path from 'path'
-import proxyConf from './proxy'
-import routes from './server/routes'
+import helloRoute from './server/routes/hello'
 
 const isDev = import.meta.env.DEV
 const isServer = import.meta.env.MODE === 'server'
+dotenv.config({ path: `.env.${isServer ? process.env.mode : import.meta.env.MODE}` })
+
 const isHttps = process.env.VITE_SSL_KEY_FILE && process.env.VITE_SSL_CRT_FILE
 let pages: string[] = []
+const url = `http${isHttps ? 's' : ''}://localhost:${process.env.VITE_PORT}`
+
 const app = new Hono()
-const url = `http${isHttps ? 's' : ''}://localhost:${import.meta.env.VITE_PORT}`
 
-if (isServer) {
-  // 手动加载环境变量
-  Object.assign(import.meta.env, dotenv.config({ path: `.env.${process.env.mode}` }).parsed || {})
-}
+app.use(prettyJSON())
 
-routes.forEach(([path, route]) => {
-  app.route(`/jaq${path}`, route)
-})
+const routes = app.basePath('/jaq').route('/hello', helloRoute)
 
+const proxyConf = await import('./proxy.ts').then(conf => conf.default)
 Object.entries(proxyConf).reduce(
   (app, [api, conf]) =>
     app.all(api, c => {
@@ -81,3 +80,5 @@ if (isDev) {
 app.get('/*', c => c.redirect('/404'))
 
 export default app
+
+export type AppType = typeof routes

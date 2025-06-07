@@ -1,6 +1,6 @@
 import { message } from 'antd'
 import { downloadFile, querystring } from '../utils/common'
-import { Methods, RequestConfig } from './types'
+import { Client, Methods, RequestConfig, THIRD_API, UnionToIntersection } from './types'
 
 export async function Fetch<F = any, T = any>({
   url,
@@ -18,7 +18,7 @@ export async function Fetch<F = any, T = any>({
     })
   }
   if (query) {
-    url += `?${querystring.stringify(query)}`
+    url += `${/\?(.*?)/.test(url!) ? '&' : '?'}${querystring.stringify(query)}`
   }
   if (inlineQuery) {
     for (const key in inlineQuery) {
@@ -79,4 +79,25 @@ export function paseRequest<T, K extends keyof T>(apis: T) {
     },
     {} as { [x in K]: BaseRequest },
   )
+}
+
+export function createApiProxy<T, K>(
+  baseApi: K,
+  basePath: string[] = [],
+): UnionToIntersection<Client<T>> & THIRD_API<K> {
+  const proxyFunction = function () {}
+
+  return new Proxy(proxyFunction, {
+    get(target, prop) {
+      if (typeof prop === 'symbol') return Reflect.get(target, prop)
+
+      const newPath = [...basePath, String(prop)]
+      return createApiProxy(baseApi, newPath)
+    },
+    apply(_, __, args) {
+      const path = basePath.reduce((a, b) => a?.[b], baseApi) ?? `/${basePath.join('/')}`
+      const request = getBaseRequest({ url: import.meta.env.DEV ? `${path}?pretty` : path })
+      return request(args[0])
+    },
+  }) as any
 }
