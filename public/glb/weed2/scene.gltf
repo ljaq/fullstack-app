@@ -1,0 +1,749 @@
+{
+  "accessors": [
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 5810,
+      "max": [
+        3.968074321746826,
+        3.192768096923828,
+        0.6664773225784302
+      ],
+      "min": [
+        -2.390852451324463,
+        -3.4938948154449463,
+        -1.157522439956665
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 69720,
+      "componentType": 5126,
+      "count": 5810,
+      "max": [
+        0.9408442378044128,
+        0.9974871873855591,
+        0.23875059187412262
+      ],
+      "min": [
+        -0.5303370952606201,
+        -0.49547484517097473,
+        -0.9999278783798218
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5126,
+      "count": 5810,
+      "max": [
+        0.9967439770698547,
+        0.9999856352806091,
+        0.7845564484596252,
+        1.0
+      ],
+      "min": [
+        -0.9913981556892395,
+        -0.9606267213821411,
+        -0.43732011318206787,
+        1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 5810,
+      "max": [
+        0.9741992354393005,
+        0.9962828755378723
+      ],
+      "min": [
+        0.0011199064319953322,
+        0.0011139989364892244
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "componentType": 5125,
+      "count": 21120,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 139440,
+      "componentType": 5126,
+      "count": 7488,
+      "max": [
+        3.040273904800415,
+        2.9759740829467773,
+        0.5562923550605774
+      ],
+      "min": [
+        -1.4341773986816406,
+        -2.921380043029785,
+        -1.329747200012207
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 229296,
+      "componentType": 5126,
+      "count": 7488,
+      "max": [
+        0.9998589754104614,
+        0.9986194372177124,
+        0.9996150732040405
+      ],
+      "min": [
+        -0.9986684918403625,
+        -0.9958932995796204,
+        -0.9971522092819214
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 46480,
+      "componentType": 5126,
+      "count": 7488,
+      "max": [
+        1.0,
+        1.0
+      ],
+      "min": [
+        0.0,
+        0.0
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 84480,
+      "componentType": 5125,
+      "count": 40176,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 319152,
+      "componentType": 5126,
+      "count": 9697,
+      "max": [
+        1.7086089849472046,
+        2.872715473175049,
+        1.052828311920166
+      ],
+      "min": [
+        -1.9218673706054688,
+        -2.6808974742889404,
+        -0.8146058917045593
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 435516,
+      "componentType": 5126,
+      "count": 9697,
+      "max": [
+        0.9997968673706055,
+        0.9998931884765625,
+        0.9999569654464722
+      ],
+      "min": [
+        -0.9996811151504517,
+        -0.9994217157363892,
+        -0.9999747276306152
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 106384,
+      "componentType": 5126,
+      "count": 9697,
+      "max": [
+        0.8593332767486572,
+        0.996630847454071
+      ],
+      "min": [
+        0.00452421372756362,
+        0.004810495302081108
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 245184,
+      "componentType": 5125,
+      "count": 56250,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 551880,
+      "componentType": 5126,
+      "count": 1971,
+      "max": [
+        1.6006561517715454,
+        2.5276496410369873,
+        0.5853862166404724
+      ],
+      "min": [
+        -1.5342693328857422,
+        -2.0515944957733154,
+        -0.8586744666099548
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 575532,
+      "componentType": 5126,
+      "count": 1971,
+      "max": [
+        0.9945264458656311,
+        0.9967941045761108,
+        0.949979841709137
+      ],
+      "min": [
+        -0.9954125881195068,
+        -0.9907189011573792,
+        -0.9320763349533081
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 183960,
+      "componentType": 5126,
+      "count": 1971,
+      "max": [
+        0.7633771300315857,
+        0.999912679195404
+      ],
+      "min": [
+        8.735852316021919e-05,
+        0.00018880600691772997
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 470184,
+      "componentType": 5125,
+      "count": 10257,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 599184,
+      "componentType": 5126,
+      "count": 112,
+      "max": [
+        0.48702478408813477,
+        0.2975795269012451,
+        0.28608691692352295
+      ],
+      "min": [
+        -1.348440170288086,
+        -0.7393693923950195,
+        -0.505396842956543
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 600528,
+      "componentType": 5126,
+      "count": 112,
+      "max": [
+        0.9859061241149902,
+        0.9805615544319153,
+        0.9953958988189697
+      ],
+      "min": [
+        -0.9539471864700317,
+        -0.9937219619750977,
+        -0.998853862285614
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 199728,
+      "componentType": 5126,
+      "count": 112,
+      "max": [
+        0.0,
+        0.0
+      ],
+      "min": [
+        0.0,
+        0.0
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 511212,
+      "componentType": 5125,
+      "count": 648,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 601872,
+      "componentType": 5126,
+      "count": 760,
+      "max": [
+        1.6200083494186401,
+        2.5381598472595215,
+        0.46497631072998047
+      ],
+      "min": [
+        -1.1646718978881836,
+        -1.8564666509628296,
+        -0.8735471963882446
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 610992,
+      "componentType": 5126,
+      "count": 760,
+      "max": [
+        0.9984437227249146,
+        0.9988489747047424,
+        0.9990899562835693
+      ],
+      "min": [
+        -0.9979384541511536,
+        -0.9915595054626465,
+        -0.9993470907211304
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 200624,
+      "componentType": 5126,
+      "count": 760,
+      "max": [
+        0.0,
+        0.0
+      ],
+      "min": [
+        0.0,
+        0.0
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 513804,
+      "componentType": 5125,
+      "count": 4488,
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "extras": {
+      "author": "sligocreatures (https://sketchfab.com/sligocreatures)",
+      "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+      "source": "https://sketchfab.com/3d-models/lilypads-9c55bc7d174a42878a47f31c2895a607",
+      "title": "Lilypads"
+    },
+    "generator": "Sketchfab-12.67.0",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 531756,
+      "name": "floatBufferViews",
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 206704,
+      "byteOffset": 531756,
+      "byteStride": 8,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 620112,
+      "byteOffset": 738460,
+      "byteStride": 12,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 92960,
+      "byteOffset": 1358572,
+      "byteStride": 16,
+      "name": "floatBufferViews",
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 1451532,
+      "uri": "scene.bin"
+    }
+  ],
+  "images": [
+    {
+      "uri": "textures/lilypad_baseColor.png"
+    },
+    {
+      "uri": "textures/lilypad_metallicRoughness.png"
+    },
+    {
+      "uri": "textures/lilypad_normal.png"
+    },
+    {
+      "uri": "textures/trumpet_flower-white_baseColor.png"
+    },
+    {
+      "uri": "textures/trumpet_flower-white_emissive.png"
+    },
+    {
+      "uri": "textures/material_baseColor.png"
+    }
+  ],
+  "materials": [
+    {
+      "doubleSided": true,
+      "name": "lilypad",
+      "normalTexture": {
+        "index": 2,
+        "scale": 0.3421997458487618
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicRoughnessTexture": {
+          "index": 1
+        }
+      }
+    },
+    {
+      "doubleSided": true,
+      "name": "stems",
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.06667810739778185,
+          0.20594136762876553,
+          0.04578178226458442,
+          1.0
+        ],
+        "metallicFactor": 0.0,
+        "roughnessFactor": 0.9648674897496459
+      }
+    },
+    {
+      "doubleSided": true,
+      "emissiveTexture": {
+        "index": 4
+      },
+      "name": "trumpet_flower-white",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 3
+        },
+        "metallicFactor": 0.0
+      }
+    },
+    {
+      "doubleSided": true,
+      "name": "material",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 5
+        },
+        "metallicFactor": 0.0,
+        "roughnessFactor": 0.8211145618000169
+      }
+    },
+    {
+      "doubleSided": true,
+      "name": "transparent",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicFactor": 0.0,
+        "roughnessFactor": 0.8211145618000169
+      }
+    },
+    {
+      "doubleSided": true,
+      "name": "glass",
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.00295498458316351,
+          0.06725368186183119,
+          0.008392398627550262,
+          1.0
+        ],
+        "metallicFactor": 0.0,
+        "roughnessFactor": 0.8211145618000169
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "lily pad 1.026_lilypad_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 1,
+            "POSITION": 0,
+            "TANGENT": 2,
+            "TEXCOORD_0": 3
+          },
+          "indices": 4,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "lily pad 1.026_stems_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 6,
+            "POSITION": 5,
+            "TEXCOORD_0": 7
+          },
+          "indices": 8,
+          "material": 1,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "lily pad 1.026_trumpet flower-white_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 10,
+            "POSITION": 9,
+            "TEXCOORD_0": 11
+          },
+          "indices": 12,
+          "material": 2,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "lily pad 1.026_bud_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 14,
+            "POSITION": 13,
+            "TEXCOORD_0": 15
+          },
+          "indices": 16,
+          "material": 3,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "lily pad 1.026_transparent_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 18,
+            "POSITION": 17,
+            "TEXCOORD_0": 19
+          },
+          "indices": 20,
+          "material": 4,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "lily pad 1.026_glass_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 22,
+            "POSITION": 21,
+            "TEXCOORD_0": 23
+          },
+          "indices": 24,
+          "material": 5,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "children": [
+        1
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.220446049250313e-16,
+        -1.0,
+        0.0,
+        0.0,
+        1.0,
+        2.220446049250313e-16,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "Sketchfab_model"
+    },
+    {
+      "children": [
+        2
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        -1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "c247edb10b1944bd8161aafb76353959.fbx"
+    },
+    {
+      "children": [
+        3
+      ],
+      "name": "RootNode"
+    },
+    {
+      "children": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "matrix": [
+        226.95985912318665,
+        -66.17277239018718,
+        127.30708593559892,
+        0.0,
+        88.7307532767177,
+        -73.12126397708386,
+        -196.19454673757585,
+        0.0,
+        195.52480862681404,
+        489.6484467353479,
+        -94.06301083712374,
+        0.0,
+        1372.7769775390625,
+        467.8616638183594,
+        -268.4431457519531,
+        1.0
+      ],
+      "name": "lily pad 1.026"
+    },
+    {
+      "mesh": 0,
+      "name": "lily pad 1.026_lilypad_0"
+    },
+    {
+      "mesh": 1,
+      "name": "lily pad 1.026_stems_0"
+    },
+    {
+      "mesh": 2,
+      "name": "lily pad 1.026_trumpet flower-white_0"
+    },
+    {
+      "mesh": 3,
+      "name": "lily pad 1.026_bud_0"
+    },
+    {
+      "mesh": 4,
+      "name": "lily pad 1.026_transparent_0"
+    },
+    {
+      "mesh": 5,
+      "name": "lily pad 1.026_glass_0"
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Sketchfab_Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    },
+    {
+      "sampler": 0,
+      "source": 2
+    },
+    {
+      "sampler": 0,
+      "source": 3
+    },
+    {
+      "sampler": 0,
+      "source": 4
+    },
+    {
+      "sampler": 0,
+      "source": 5
+    }
+  ]
+}

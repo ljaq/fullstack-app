@@ -1,0 +1,11 @@
+Model Information:
+* title:	Lilypads
+* source:	https://sketchfab.com/3d-models/lilypads-9c55bc7d174a42878a47f31c2895a607
+* author:	sligocreatures (https://sketchfab.com/sligocreatures)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Lilypads" (https://sketchfab.com/3d-models/lilypads-9c55bc7d174a42878a47f31c2895a607) by sligocreatures (https://sketchfab.com/sligocreatures) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
