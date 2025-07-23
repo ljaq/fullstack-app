@@ -47,6 +47,7 @@ show_help() {
     echo ""
     echo "选项:"
     echo "  build          构建生产环境镜像"
+    echo "  build:clean    清理缓存并构建生产环境镜像"
     echo "  build:test     构建测试环境镜像"
     echo "  dev            启动开发环境"
     echo "  test           启动测试环境"
@@ -60,6 +61,7 @@ show_help() {
     echo ""
     echo "示例:"
     echo "  $0 build        # 构建生产镜像"
+    echo "  $0 build:clean  # 清理缓存并构建生产镜像"
     echo "  $0 build:test   # 构建测试镜像"
     echo "  $0 prod         # 启动生产环境"
     echo "  $0 test         # 启动测试环境"
@@ -72,6 +74,21 @@ build_image() {
     docker-compose build app
     if [ $? -eq 0 ]; then
         print_message "镜像构建成功！"
+    else
+        print_error "镜像构建失败！"
+        exit 1
+    fi
+}
+
+# 清理构建缓存并构建镜像
+build_image_clean() {
+    print_message "清理构建缓存并构建生产环境镜像..."
+    docker-compose build --no-cache app
+    if [ $? -eq 0 ]; then
+        print_message "镜像构建成功！"
+        # 清理悬空镜像
+        print_message "清理悬空镜像..."
+        docker image prune -f
     else
         print_error "镜像构建失败！"
         exit 1
@@ -171,6 +188,9 @@ main() {
     case "${1:-help}" in
         build)
             build_image
+            ;;
+        build:clean)
+            build_image_clean
             ;;
         build:test)
             build_test_image
