@@ -1,0 +1,50 @@
+# 测试环境 Dockerfile - 使用development环境变量
+FROM node:18-alpine AS builder
+
+# 设置工作目录
+WORKDIR /app
+
+# 安装依赖
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
+
+# 复制源代码
+COPY . .
+
+# 构建应用（使用development环境变量）
+RUN yarn build
+
+# 测试环境运行阶段
+FROM node:18-alpine AS test
+
+# 安装生产依赖
+WORKDIR /app
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile --production
+
+# 从构建阶段复制构建产物
+COPY --from=builder /app/build ./build
+COPY --from=builder /app/public ./public
+
+# 复制必要的配置文件
+COPY app.ts ./
+COPY proxy.ts ./
+COPY tsconfig*.json ./
+
+# 创建非root用户
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
+
+# 更改文件所有权
+RUN chown -R nextjs:nodejs /app
+USER nextjs
+
+# 暴露端口
+EXPOSE 3606
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3606/jaq/hello', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+
+# 启动应用（使用development环境变量）
+CMD ["node", "build/app.js"] 

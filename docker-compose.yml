@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  # 开发环境应用
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: development
+    container_name: fullstack-app-dev
+    ports:
+      - "3606:3606"
+    environment:
+      - NODE_ENV=development
+      - VITE_ENVIRONMENT=development
+      - VITE_PORT=3606
+      - VITE_THIRD_API=http://47.93.55.131:5000
+      - mode=development
+    volumes:
+      - .:/app
+      - /app/node_modules
+    restart: unless-stopped
+    profiles:
+      - dev
+    networks:
+      - app-network
+
+  # 测试环境应用
+  app-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+      target: test
+    container_name: fullstack-app-test
+    ports:
+      - "3607:3606"
+    environment:
+      - NODE_ENV=development
+      - VITE_ENVIRONMENT=development
+      - VITE_PORT=3606
+      - VITE_THIRD_API=http://47.93.55.131:5000
+      - mode=development
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3606/jaq/hello', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - app-network
+
+  # 生产环境应用
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: fullstack-app
+    ports:
+      - "3608:3606"
+    environment:
+      - NODE_ENV=production
+      - VITE_ENVIRONMENT=production
+      - VITE_PORT=3606
+      - VITE_THIRD_API=https://service.zhongboboye.com:4000
+      - mode=production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3606/jaq/hello', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - app-network
+
+  # Nginx 反向代理（可选）
+  nginx:
+    image: nginx:alpine
+    container_name: fullstack-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - app
+    restart: unless-stopped
+    profiles:
+      - nginx
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  app-data: 

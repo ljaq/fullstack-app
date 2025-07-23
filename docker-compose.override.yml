@@ -1,0 +1,47 @@
+# 本地开发环境覆盖配置
+# 这个文件会被 docker-compose.yml 自动加载
+version: '3.8'
+
+services:
+  app-dev:
+    environment:
+      - NODE_ENV=development
+      - VITE_ENVIRONMENT=development
+      - VITE_PORT=3606
+      - VITE_THIRD_API=http://47.93.55.131:5000
+      - mode=development
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./logs:/app/logs
+    # 开发环境启用这些选项
+    stdin_open: true
+    tty: true
+
+  app-test:
+    environment:
+      - NODE_ENV=development
+      - VITE_ENVIRONMENT=development
+      - VITE_PORT=3606
+      - VITE_THIRD_API=http://47.93.55.131:5000
+      - mode=development
+    volumes:
+      # 如果需要挂载日志目录
+      - ./logs:/app/logs
+    # 测试环境可以启用这些选项进行调试
+    # stdin_open: true
+    # tty: true
+
+  app:
+    environment:
+      - NODE_ENV=production
+      - VITE_ENVIRONMENT=production
+      - VITE_PORT=3606
+      - VITE_THIRD_API=https://service.zhongboboye.com:4000
+      - mode=production
+    volumes:
+      # 如果需要挂载日志目录
+      - ./logs:/app/logs
+    # 生产环境可以启用这些选项进行调试
+    # stdin_open: true
+    # tty: true 
