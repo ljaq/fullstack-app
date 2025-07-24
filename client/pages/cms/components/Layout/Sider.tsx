@@ -20,8 +20,11 @@ export default function Sider() {
   } = theme.useToken()
 
   const layoutRoutes = useMemo(() => {
+    const getMenuRoutes = routes => {
+      return [...routes].filter(route => !route?.meta?.hide)?.sort((a, b) => a.meta?.order - b.meta?.order)
+    }
     const parse = (route, prefix = '') => {
-      const { path, children } = route
+      const { path, children, meta } = route
       const fullPath = [prefix, path].filter(p => p).join('/')
       if (!children) {
         return null
@@ -29,21 +32,21 @@ export default function Sider() {
       if (children.length === 1) {
         return {
           key: `/${fullPath}`,
-          label: children[0].meta?.name,
-          ...(children[0].meta || {}),
+          label: meta?.name,
+          ...meta,
         }
       }
       if (children.length > 1) {
         return {
           key: `/${fullPath}`,
-          label: children[0].meta?.name,
-          ...(children[0].meta || {}),
-          children: children.map(item => parse(item, fullPath)),
+          label: meta?.name,
+          ...meta,
+          children: getMenuRoutes(children).map(item => parse(item, fullPath)),
         }
       }
     }
 
-    return routes.map(item => parse(item, ''))[0]?.children || []
+    return getMenuRoutes(routes).map(item => parse(item, ''))[0]?.children || []
   }, [routes])
 
   return (

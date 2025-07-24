@@ -22,7 +22,8 @@ export default function About() {
   )
 }
 
-export const pageConfig = {
+About.pageConfig = {
   name: '关于',
+  order: 2,
   icon: <HomeOutlined />,
 }

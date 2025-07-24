@@ -11,8 +11,6 @@ interface IProps {
   extra?: React.ReactNode
 }
 
-// console.log(routes);
-
 export default function PageContainer(props: IProps) {
   const { children, footer, extra } = props
   const { pathname } = useLocation()
@@ -31,7 +29,7 @@ export default function PageContainer(props: IProps) {
         return cur
       }
     }
-    return walk(routes, 0)?.children?.[0]?.meta
+    return walk(routes, 0)?.meta
   }, [pathname])
 
   return (

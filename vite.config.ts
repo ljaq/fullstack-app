@@ -15,9 +15,10 @@ export default defineConfig(({ command, mode }) => {
   return {
     server: {
       port: Number(env.VITE_PORT),
+      hmr: { overlay: false },
       proxy: {
         '^/api': {
-          target: 'http://47.93.55.131:5000',
+          target: 'https://service.zhongboboye.com:4000',
           changeOrigin: true,
           secure: false,
         },
@@ -94,8 +95,7 @@ export default defineConfig(({ command, mode }) => {
           /\?import$/,
         ],
         ignoreWatching: [],
-        handleHotUpdate(ctx) {        
-        },
+        handleHotUpdate(ctx) {},
       }),
       ...pages.map(page =>
         Page({
@@ -104,16 +104,34 @@ export default defineConfig(({ command, mode }) => {
           importMode: 'sync',
 
           onClientGenerated(clientCode) {
+            console.log(
+              clientCode
+                // /const (.*?) = React\.lazy\(\(\) => import\((.*?)\)\);/g
+                // .replace(/import (.*?) from (.*?);/g, (match, pageName, comPath) => {
+                //   if (comPath === 'react') return match
+                //   return `${match}\r\nimport { pageConfig as ${pageName}meta } from ${comPath}`
+                // })
+                .replace(
+                  /"children":\[\{"caseSensitive":false\,"path":""\,"element":React\.createElement\((.*?)\)/g,
+                  (match, pageName) => {
+                    return `meta: ${pageName}.meta,${match}`
+                  },
+                ),
+            )
+
             return (
               clientCode
                 // /const (.*?) = React\.lazy\(\(\) => import\((.*?)\)\);/g
-                .replace(/import (.*?) from (.*?);/g, (match, pageName, comPath) => {
-                  if (comPath === 'react') return match
-                  return `${match}\r\nimport { pageConfig as ${pageName}meta } from ${comPath}`
-                })
-                .replace(/"element":React\.createElement\((.*?)\)/g, (match, pageName) => {
-                  return `${match}, meta: ${pageName}meta`
-                })
+                // .replace(/import (.*?) from (.*?);/g, (match, pageName, comPath) => {
+                //   if (comPath === 'react') return match
+                //   return `${match}\r\nimport { pageConfig as ${pageName}meta } from ${comPath}`
+                // })
+                .replace(
+                  /"children":\[\{"caseSensitive":false\,"path":""\,"element":React\.createElement\((.*?)\)/g,
+                  (match, pageName) => {
+                    return `meta: ${pageName}.pageConfig,${match}`
+                  },
+                )
             )
           },
         }),

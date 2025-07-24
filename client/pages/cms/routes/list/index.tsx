@@ -4,7 +4,8 @@ export default function List() {
   return <div>list</div>
 }
 
-export const pageConfig = {
+List.pageConfig = {
   name: 'list',
-  icon: <HomeOutlined />
+  order: 1,
+  icon: <HomeOutlined />,
 }

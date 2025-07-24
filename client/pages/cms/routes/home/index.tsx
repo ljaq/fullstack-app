@@ -69,7 +69,8 @@ export default function Home() {
   return <CommonTable search={{ schema }} columns={columns} request={() => Promise.resolve([])} />
 }
 
-export const pageConfig = {
+Home.pageConfig = {
   name: 'Home',
+  order: 0,
   icon: <HomeOutlined />,
 }
