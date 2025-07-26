@@ -1,4 +1,4 @@
-import { Card, TableProps, Row, Table, Flex, Alert, Space, Button, theme, Tooltip, Modal } from 'antd'
+import { Card, TableProps, Row, Table, Flex, Alert, Space, Button, theme, Tooltip, Modal, ConfigProvider } from 'antd'
 import { SorterResult, TableRowSelection } from 'antd/lib/table/interface'
 import { API_REQ_FUNCTION, Methods } from '../../api/types'
 import type { DragEndEvent } from '@dnd-kit/core'
@@ -18,7 +18,7 @@ import React, {
   useState,
 } from 'react'
 import { MenuOutlined } from '@ant-design/icons'
-import  { Schema, useForm, SearchForm } from 'form-render'
+import { Schema, useForm, SearchForm } from 'form-render'
 
 import './style.less'
 
@@ -284,12 +284,14 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
     <Fragment>
       <div className={`common-table ${className}`} style={style}>
         {search?.schema && (
-          <SearchForm
-            style={{ border: `1px solid ${token.colorBorderSecondary}`, borderRadius: token.borderRadius }}
-            form={form}
-            schema={search.schema}
-            onSearch={fetchData}
-          />
+          <ConfigProvider variant='filled'>
+            <SearchForm
+              style={{ border: `1px solid ${token.colorBorderSecondary}`, borderRadius: token.borderRadius }}
+              form={form}
+              schema={search.schema}
+              onSearch={fetchData}
+            />
+          </ConfigProvider>
         )}
 
         <Card style={ghost ? { boxShadow: 'none', border: 'none' } : {}} bodyStyle={ghost ? { padding: 0 } : {}}>

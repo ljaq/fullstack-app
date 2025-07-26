@@ -27,6 +27,12 @@ yarn start:prod
 # 生产环境
 ./deploy.sh prod
 
+# 停止所有容器
+./deploy.sh stop
+
+# 重启所有容器
+./deploy.sh restart
+
 # 查看帮助
 ./deploy.sh help
 ```
