@@ -77,7 +77,7 @@ if (isDev) {
   )
 }
 
-app.get('/*', c => c.redirect('/404'))
+app.get('/', c => c.redirect('/cms')).get('/*', c => c.redirect('/404'))
 
 export default app
 
