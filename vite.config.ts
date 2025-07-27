@@ -104,21 +104,6 @@ export default defineConfig(({ command, mode }) => {
           importMode: 'sync',
 
           onClientGenerated(clientCode) {
-            console.log(
-              clientCode
-                // /const (.*?) = React\.lazy\(\(\) => import\((.*?)\)\);/g
-                // .replace(/import (.*?) from (.*?);/g, (match, pageName, comPath) => {
-                //   if (comPath === 'react') return match
-                //   return `${match}\r\nimport { pageConfig as ${pageName}meta } from ${comPath}`
-                // })
-                .replace(
-                  /"children":\[\{"caseSensitive":false\,"path":""\,"element":React\.createElement\((.*?)\)/g,
-                  (match, pageName) => {
-                    return `meta: ${pageName}.meta,${match}`
-                  },
-                ),
-            )
-
             return (
               clientCode
                 // /const (.*?) = React\.lazy\(\(\) => import\((.*?)\)\);/g
