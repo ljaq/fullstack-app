@@ -116,6 +116,7 @@ start_dev() {
 
 # 启动测试环境
 start_test() {
+    build_test_image
     print_message "启动测试环境..."
     docker-compose up -d app-test
     print_message "测试环境已启动，访问地址: http://localhost:3607"
@@ -123,6 +124,7 @@ start_test() {
 
 # 启动生产环境
 start_prod() {
+    build_image
     print_message "启动生产环境..."
     docker-compose up -d app
     print_message "生产环境已启动，访问地址: http://localhost:3608"

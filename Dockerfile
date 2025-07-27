@@ -20,16 +20,12 @@ FROM node:22-alpine AS production
 # 安装生产依赖
 WORKDIR /app
 COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile --production
 
 # 从构建阶段复制构建产物
 COPY --from=builder /app/build ./build
-COPY --from=builder /app/public ./public
 
 # 复制必要的配置文件
-COPY app.ts ./
-COPY proxy.ts ./
-COPY tsconfig*.json ./
+COPY .env.production ./.env
 
 # 创建非root用户
 RUN addgroup -g 1001 -S nodejs

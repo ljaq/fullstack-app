@@ -10,12 +10,8 @@ services:
     container_name: fullstack-app-dev
     ports:
       - "3606:3606"
-    environment:
-      - NODE_ENV=development
-      - VITE_ENVIRONMENT=development
-      - VITE_PORT=3606
-      - VITE_THIRD_API=http://47.93.55.131:5000
-      - mode=development
+    env_file:
+      - path: ./.env.development
     volumes:
       - .:/app
       - /app/node_modules
@@ -34,12 +30,8 @@ services:
     container_name: fullstack-app-test
     ports:
       - "3607:3606"
-    environment:
-      - NODE_ENV=development
-      - VITE_ENVIRONMENT=development
-      - VITE_PORT=3606
-      - VITE_THIRD_API=http://47.93.55.131:5000
-      - mode=development
+    env_file:
+      - path: ./.env.development
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:3606/jaq/hello', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
@@ -59,12 +51,8 @@ services:
     container_name: fullstack-app
     ports:
       - "3608:3606"
-    environment:
-      - NODE_ENV=production
-      - VITE_ENVIRONMENT=production
-      - VITE_PORT=3606
-      - VITE_THIRD_API=https://service.zhongboboye.com:4000
-      - mode=production
+    env_file:
+      - path: ./.env.production
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:3606/jaq/hello', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
