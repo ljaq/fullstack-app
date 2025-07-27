@@ -29,11 +29,11 @@ COPY .env.development ./.env
 
 # 创建非root用户
 RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
+RUN adduser -S ljaq -u 1001
 
 # 更改文件所有权
-RUN chown -R nextjs:nodejs /app
-USER nextjs
+RUN chown -R ljaq:nodejs /app
+USER ljaq
 
 # 暴露端口
 EXPOSE 3606
