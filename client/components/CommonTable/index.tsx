@@ -1,4 +1,4 @@
-import { Card, TableProps, Row, Table, Flex, Alert, Space, Button, theme, Tooltip, Modal, ConfigProvider } from 'antd'
+import { Card, TableProps, Row, Table, Flex, Space, Button, theme, Tooltip, Modal, ConfigProvider } from 'antd'
 import { SorterResult, TableRowSelection } from 'antd/lib/table/interface'
 import { API_REQ_FUNCTION, Methods } from '../../api/types'
 import type { DragEndEvent } from '@dnd-kit/core'
@@ -19,8 +19,7 @@ import React, {
 } from 'react'
 import { MenuOutlined } from '@ant-design/icons'
 import { Schema, useForm, SearchForm } from 'form-render'
-
-import './style.less'
+import { useStyle } from './useStyle'
 
 interface IProps {
   tableTitle?: ReactNode
@@ -110,6 +109,7 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
     selectExtra,
     ...reset
   } = props
+  const { styles, cx } = useStyle()
   const form = useForm()
   const [pageInfo, setPageInfo] = useState({ page: 1, size: defaultPageSize ?? 10 })
   const [sortInfo, setSortInfo] = useState<[string?, ('asc' | 'desc')?]>([])
@@ -137,7 +137,6 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
       ...fields,
       ...commonParams,
     }
-    console.log(data)
 
     const params: any = { method }
     if (method === 'GET') {
@@ -214,10 +213,11 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
       if (item.key !== INDEX_KEY) return item
       return {
         title: '序号',
-        width: 60,
+        width: 70,
         render: (_: any, __: any, index: number) => {
           const { page, size } = pageInfo
-          return (page - 1) * size + index + 1
+          const rank = (page - 1) * size + index + 1
+          return <div className={`rank rank-${rank}`}>{rank}</div>
         },
       }
     })
@@ -282,7 +282,7 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
 
   return (
     <Fragment>
-      <div className={`common-table ${className}`} style={style}>
+      <div className={cx(styles.commonTable, className)} style={style}>
         {search?.schema && (
           <ConfigProvider variant='filled'>
             <SearchForm
@@ -294,37 +294,31 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
           </ConfigProvider>
         )}
 
-        <Card style={ghost ? { boxShadow: 'none', border: 'none' } : {}} bodyStyle={ghost ? { padding: 0 } : {}}>
+        <Card style={ghost ? { boxShadow: 'none', border: 'none' } : {}}>
           {(tableTitle || extra) && (
-            <Row justify='space-between' align='middle' wrap={false} style={{ marginBottom: 16 }}>
+            <Row justify='space-between' align='middle' wrap={false} style={{ marginBottom: token.sizeSM }}>
               <div style={{ fontSize: 16, fontWeight: 'bold' }}>{tableTitle}</div>
               <div>{extra}</div>
             </Row>
           )}
           {selectable && (
-            <Alert
-              className='selected-info'
-              style={{ backgroundColor: token.colorPrimaryBg, borderColor: token.colorPrimaryBorder }}
-              message={
-                <Flex justify='space-between' align='center'>
-                  <Space>
-                    已选择
-                    <Tooltip title={selectedRows.length ? '查看已选择' : ''}>
-                      <a onClick={() => setShowSelectedModal(!!selectedRows.length)}>{selectedRows.length}</a>
-                    </Tooltip>
-                    条
-                  </Space>
-                  {selectedRows?.length > 0 && (
-                    <Space>
-                      <Button size='small' onClick={() => setSelectedRows([])}>
-                        清空
-                      </Button>
-                      {selectExtra}
-                    </Space>
-                  )}
-                </Flex>
-              }
-            />
+            <div className={cx('selected-info', !!selectedRows?.length && 'active')}>
+              <Space className='selected-info-text'>
+                已选择
+                <Tooltip title={selectedRows.length ? '查看已选择' : ''}>
+                  <a onClick={() => setShowSelectedModal(!!selectedRows.length)}>{selectedRows.length}</a>
+                </Tooltip>
+                项
+              </Space>
+              {selectedRows?.length > 0 && (
+                <Space>
+                  <Button type='link' size='small' onClick={() => setSelectedRows([])}>
+                    取消选择
+                  </Button>
+                  {selectExtra}
+                </Space>
+              )}
+            </div>
           )}
           {dragable ? (
             <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
