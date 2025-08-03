@@ -102,22 +102,17 @@ export default defineConfig(({ command, mode }) => {
           dirs: [{ dir: `client/pages/${page}/routes`, baseRoute: `/${page}` }],
           moduleId: `~react-page-${page}`,
           importMode: 'sync',
-
+          exclude: ['**/components/*.tsx', '**/components/*.ts', '**/schema.ts'],
           onClientGenerated(clientCode) {
-            return (
-              clientCode
-                // /const (.*?) = React\.lazy\(\(\) => import\((.*?)\)\);/g
-                // .replace(/import (.*?) from (.*?);/g, (match, pageName, comPath) => {
-                //   if (comPath === 'react') return match
-                //   return `${match}\r\nimport { pageConfig as ${pageName}meta } from ${comPath}`
-                // })
-                .replace(
-                  /"children":\[\{"caseSensitive":false\,"path":""\,"element":React\.createElement\((.*?)\)/g,
-                  (match, pageName) => {
-                    return `meta: ${pageName}.pageConfig,${match}`
-                  },
-                )
-            )
+            const routeCode = clientCode
+              .replace(
+                /"children":\[\{"caseSensitive":false\,"path":""\,"element":React\.createElement\((.*?)\)\}\,?/g,
+                (_, pageName) => {
+                  return `meta: ${pageName}.pageConfig,"element":React.createElement(${pageName}),"children":[`
+                },
+              )
+              .replace(/"children":\[\]\,?/g, '')
+            return routeCode
           },
         }),
       ),

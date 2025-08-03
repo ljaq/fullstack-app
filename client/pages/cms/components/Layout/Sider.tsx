@@ -26,16 +26,15 @@ export default function Sider() {
     const parse = (route, prefix = '') => {
       const { path, children, meta } = route
       const fullPath = [prefix, path].filter(p => p).join('/')
-      if (!children) {
-        return null
-      }
-      if (children.length === 1) {
+
+      if (!children || children.length === 1) {
         return {
           key: `/${fullPath}`,
           label: meta?.name,
           ...meta,
         }
       }
+
       if (children.length > 1) {
         return {
           key: `/${fullPath}`,
@@ -48,6 +47,18 @@ export default function Sider() {
 
     return getMenuRoutes(routes).map(item => parse(item, ''))[0]?.children || []
   }, [routes])
+
+  const defaultOpenKeys = useMemo(() => {
+    return location.pathname
+      .split('/')
+      .slice(1, -1)
+      .reduce((acc, cur) => {
+        if (acc.length === 0) {
+          return [`/${cur}`]
+        }
+        return [...acc, `${acc[acc.length - 1]}/${cur}`]
+      }, [])
+  }, [location.pathname])
 
   return (
     <ConfigProvider
@@ -66,7 +77,7 @@ export default function Sider() {
           title={
             <Flex align='center'>
               <Logo style={{ width: 34, height: 34, marginRight: 4, flexShrink: 0 }} />
-              <span>Fullstack App</span>
+              <span>智慧新闻平台</span>
             </Flex>
           }
           closeIcon={null}
@@ -83,7 +94,7 @@ export default function Sider() {
         <Layout.Sider theme='light' className={styles.sider} collapsed={collapsed} collapsedWidth={64} width={'100%'}>
           <div className={styles.logo} style={{ justifyContent: collapsed ? 'center' : 'flex-start' }}>
             <Logo style={{ width: 32, height: 32, marginRight: collapsed ? 0 : 8, flexShrink: 0 }} />
-            {!collapsed && <span>Fullstack App</span>}
+            {!collapsed && <span>智慧新闻平台</span>}
           </div>
 
           <div className='menu'>
@@ -91,6 +102,7 @@ export default function Sider() {
               mode='inline'
               items={layoutRoutes}
               selectedKeys={[location.pathname]}
+              defaultOpenKeys={defaultOpenKeys}
               onSelect={e => navigate(e.key)}
             />
           </div>

@@ -31,7 +31,7 @@ export default function Header() {
       const findRoute = (routes: any[]) => {
         for (const route of routes) {
           if (route.path === segment) {
-            matchedRoute = route?.children?.[0]
+            matchedRoute = route
             return true
           }
           if (route.children) {
