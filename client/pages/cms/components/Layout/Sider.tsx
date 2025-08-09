@@ -77,7 +77,7 @@ export default function Sider() {
           title={
             <Flex align='center'>
               <Logo style={{ width: 34, height: 34, marginRight: 4, flexShrink: 0 }} />
-              <span>智慧新闻平台</span>
+              <span>Fullstack App</span>
             </Flex>
           }
           closeIcon={null}
@@ -94,7 +94,7 @@ export default function Sider() {
         <Layout.Sider theme='light' className={styles.sider} collapsed={collapsed} collapsedWidth={64} width={'100%'}>
           <div className={styles.logo} style={{ justifyContent: collapsed ? 'center' : 'flex-start' }}>
             <Logo style={{ width: 32, height: 32, marginRight: collapsed ? 0 : 8, flexShrink: 0 }} />
-            {!collapsed && <span>智慧新闻平台</span>}
+            {!collapsed && <span>Fullstack App</span>}
           </div>
 
           <div className='menu'>
