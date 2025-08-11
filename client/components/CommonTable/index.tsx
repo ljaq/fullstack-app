@@ -1,4 +1,4 @@
-import { Card, TableProps, Row, Table, Flex, Space, Button, theme, Tooltip, Modal, ConfigProvider } from 'antd'
+import { Card, TableProps, Row, Table, Space, Button, theme, Tooltip, Modal, ConfigProvider } from 'antd'
 import { SorterResult, TableRowSelection } from 'antd/lib/table/interface'
 import { API_REQ_FUNCTION, Methods } from '../../api/types'
 import type { DragEndEvent } from '@dnd-kit/core'
@@ -127,11 +127,9 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
   const fetchData = (fields: any = {}) => {
     setWithQuery(!!Object.keys(fields).length)
     setLoading(true)
-    const skipCount = (pageInfo.page - 1) * pageInfo.size
-    // const _filters = Object.keys(filters).ma
     const data = {
-      skipCount,
-      maxResultCount: pageInfo.size,
+      page: pageInfo.page,
+      page_size: pageInfo.size,
       sorting: sortInfo.join(' '),
       ...filters,
       ...fields,
@@ -147,9 +145,9 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
     }
     return request(params)
       .then(res => {
-        const _data = Array.isArray(res) ? res : res.items
+        const _data = Array.isArray(res) ? res : res.data
         setTableData(_data)
-        setTotal(res.totalCount)
+        setTotal(res.total)
         onUpdate?.(_data)
         return res
       })
@@ -205,7 +203,10 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
   }
 
   useEffect(() => {
-    fetchData(form.getValues())
+    if (!loading) {
+      fetchData(form.getValues())
+    }
+    // fetchData(form.getValues())
   }, [pageInfo, sortInfo, commonParams])
 
   const tableColumns = useMemo(() => {
@@ -289,6 +290,7 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
               style={{ border: `1px solid ${token.colorBorderSecondary}`, borderRadius: token.borderRadius }}
               form={form}
               schema={search.schema}
+              searchOnMount={false}
               onSearch={fetchData}
             />
           </ConfigProvider>

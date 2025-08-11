@@ -1,7 +1,6 @@
-import { App, Badge, Divider, Modal, Space } from 'antd'
+import { App, Divider, Modal, Space } from 'antd'
 import { ReactNode, useMemo, useState } from 'react'
 import EasyModal from '../../utils/easyModal'
-import { InfoCircleOutlined } from '@ant-design/icons'
 
 import './style.less'
 
@@ -52,13 +51,7 @@ const CommonConfirmModal = EasyModal.create<IProps>(modal => {
 
   return (
     <Modal
-      title={
-        <Badge dot color={color} text={title} status='processing' />
-        // <Space>
-        //   <InfoCircleOutlined />
-        //   {title}
-        // </Space>
-      }
+      title={title}
       open={open}
       onCancel={handleCancel}
       onOk={handleOk}
