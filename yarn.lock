@@ -1212,10 +1212,10 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@ljaq/editor@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@ljaq/editor/-/editor-0.1.0.tgz#ae9a40e55692971d9be0bb9933cfeaa31567a867"
-  integrity sha512-UDeDpWFBVzocMnDIww8087aZxsjj0mkhJP+waxzUhNX+WTlRHNFGqQyZWpZK2w9miKrsgwv/uxUr8ZvsPlKbqA==
+"@ljaq/editor@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@ljaq/editor/-/editor-0.1.1.tgz#bd65932a5270bb3357fe22e6009ae70556093bca"
+  integrity sha512-tj3ZiYPPeiF35aCth4PUs7oQIPNs3rbyMrkTCclYsVuNktCUqq70jAZ77lCJuCUM6EXgwo5mrkxLDJs3g2sHcw==
   dependencies:
     "@ant-design/icons" "^6.0.0"
     "@icon-park/react" "^1.4.2"
