@@ -1,30 +1,39 @@
-import { App, Divider, Modal, Space } from 'antd'
+import { App, Divider, Modal, Space, theme } from 'antd'
 import { ReactNode, useMemo, useState } from 'react'
 import EasyModal from '../../utils/easyModal'
 
 import './style.less'
 
+type Color = 'success' | 'warning' | 'error'
+
 interface IProps {
   title?: string
   tip: string
-  color?: string
+  color?: Color
   children?: ReactNode
-  onOk?: () => Promise<any>
+  onOk?: (() => void) | (() => Promise<any>)
 }
 
 const CommonConfirmModal = EasyModal.create<IProps>(modal => {
   const { open, hide, resolve, reject, props } = modal
-  const { title = '提示', tip, color = '#DB0000', onOk } = props
+  const { title = '提示', tip, color = 'error', onOk } = props
   const { message } = App.useApp()
   const [loading, setLoading] = useState(false)
+  const { token } = theme.useToken()
 
   const children = useMemo(() => {
-    const [s, h, e] = tip.split('$')
+    const tipSplited = tip.split('$')
     return (
       <Space>
-        {s}
-        <span style={{ color }}>{h}</span>
-        {e}
+        {tipSplited.map((s, i) =>
+          i % 2 === 1 ? (
+            <span key={i} style={{ color: token[`color${color[0].toUpperCase() + color.slice(1)}Text`] }}>
+              {s}
+            </span>
+          ) : (
+            <span key={i}>{s}</span>
+          ),
+        )}
       </Space>
     )
   }, [tip, color])
@@ -44,7 +53,7 @@ const CommonConfirmModal = EasyModal.create<IProps>(modal => {
       }
       resolve()
       hide()
-    } catch {
+    } catch (err) {
       setLoading(false)
     }
   }
@@ -57,7 +66,6 @@ const CommonConfirmModal = EasyModal.create<IProps>(modal => {
       onOk={handleOk}
       confirmLoading={loading}
       className='common-confirm-modal'
-      zIndex={10000}
     >
       <div
         className='content'

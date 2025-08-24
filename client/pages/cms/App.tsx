@@ -6,8 +6,9 @@ import EasyModal from 'client/utils/easyModal'
 import { Suspense, useEffect } from 'react'
 import { useLocation, useRoutes } from 'react-router'
 import cmsRoutes from '~react-page-cms'
-import Layout from './components/Layout/index'
 import NotFound from 'client/pages/404/routes/index'
+import { useAuthorityRoutes } from 'client/hooks/useAuthorityRoutes'
+import Layout from './components/Layout/index'
 
 const routes = [
   ...cmsRoutes,
@@ -33,7 +34,7 @@ function App() {
                 key={pathname}
                 style={{ height: 'calc(100vh - 56px)', padding: '0 40px 32px', boxSizing: 'border-box' }}
               >
-                {useRoutes(routes)}
+                {useRoutes(useAuthorityRoutes(routes))}
               </div>
             </Translate>
           </Suspense>
