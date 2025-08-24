@@ -1,11 +1,3 @@
-import { Card, TableProps, Row, Table, Space, Button, theme, Tooltip, Modal, ConfigProvider } from 'antd'
-import { SorterResult, TableRowSelection } from 'antd/lib/table/interface'
-import { API_REQ_FUNCTION, Methods } from '../../api/types'
-import type { DragEndEvent } from '@dnd-kit/core'
-import { DndContext } from '@dnd-kit/core'
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
-import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
 import React, {
   ForwardedRef,
   forwardRef,
@@ -17,9 +9,18 @@ import React, {
   useMemo,
   useState,
 } from 'react'
+import { Card, TableProps, Row, Table, Space, Button, theme, Tooltip, Modal, ConfigProvider } from 'antd'
 import { MenuOutlined } from '@ant-design/icons'
+import { SorterResult, TableRowSelection } from 'antd/lib/table/interface'
+import { useQuery } from '@tanstack/react-query'
+import type { DragEndEvent } from '@dnd-kit/core'
+import { DndContext } from '@dnd-kit/core'
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { Schema, useForm, SearchForm } from 'form-render'
 import { useStyle } from './useStyle'
+import { API_REQ_FUNCTION } from '../../api/types'
 
 interface IProps {
   tableTitle?: ReactNode
@@ -38,7 +39,6 @@ interface IProps {
   commonParams?: { [key: string]: any }
   defaultPageSize?: number
   onUpdate?: (data: any[]) => void
-  method?: Methods
 }
 
 export type CommonTableProps = TableProps<any> & IProps
@@ -47,7 +47,6 @@ export interface CommonTableInstance {
   fetchData: () => Promise<any>
   getTableData: () => any[]
   getSelectedRows: () => any[]
-  setTableData: (data: any[]) => void
   setSelectedRows: (data: any[]) => void
   getParams: () => {
     query: { [key: string]: any }
@@ -102,7 +101,6 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
     dragable,
     columns,
     rowKey = 'id',
-    method = 'GET',
     onUpdate,
     selectable,
     getSelectProps,
@@ -114,56 +112,48 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
   const [pageInfo, setPageInfo] = useState({ page: 1, size: defaultPageSize ?? 10 })
   const [sortInfo, setSortInfo] = useState<[string?, ('asc' | 'desc')?]>([])
   const [filters, setFilters] = useState<any>({})
-  const [total, setTotal] = useState(0)
+  const [query, setQuery] = useState<any>({})
   const [loading, setLoading] = useState(false)
   const [tableData, setTableData] = useState<any[]>([])
-  const [withQuery, setWithQuery] = useState(false)
   const [selectedRows, setSelectedRows] = useState<any[]>([])
   const [showSelectedModal, setShowSelectedModal] = useState(false)
   const selectedRowKeys = useMemo(() => selectedRows.map(item => item[rowKey as any]), [selectedRows, rowKey])
-
   const { token } = theme.useToken()
 
-  const fetchData = (fields: any = {}) => {
-    setWithQuery(!!Object.keys(fields).length)
-    setLoading(true)
-    const data = {
-      page: pageInfo.page,
-      page_size: pageInfo.size,
-      sorting: sortInfo.join(' '),
-      ...filters,
-      ...fields,
-      ...commonParams,
-    }
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: [request.url, pageInfo, query, sortInfo, filters, commonParams],
+    retry: 1,
+    queryFn: () =>
+      request({
+        method: 'GET',
+        query: {
+          page: pageInfo.page,
+          page_size: pageInfo.size,
+          sorting: sortInfo.join(' '),
+          ...query,
+          ...filters,
+          ...commonParams,
+        },
+      }),
+  })
 
-    const params: any = { method }
-    if (method === 'GET') {
-      params.query = data
-    } else {
-      params.data = data
-      delete params.data.sorting
-    }
-    return request(params)
-      .then(res => {
-        const _data = Array.isArray(res) ? res : res.data
-        setTableData(_data)
-        setTotal(res.total)
-        onUpdate?.(_data)
-        return res
-      })
-      .finally(() => setLoading(false))
+  const total = useMemo(() => data?.total || 0, [data])
+
+  const fetchData = () => {
+    setLoading(true)
+    return refetch().finally(() => setLoading(false))
   }
+
+  useEffect(() => {
+    setTableData(data?.data || [])
+  }, [data])
 
   useImperativeHandle<unknown, CommonTableInstance>(ref, () => {
     return {
-      fetchData: () => fetchData(form.getValues()),
+      fetchData,
       getTableData,
       getSelectedRows: () => selectedRows,
       setSelectedRows: setSelectedRows,
-      setTableData: (arr: any[]) => {
-        setTableData(arr)
-        setTotal(arr.length)
-      },
       getParams: () => {
         const query = form.getValues()
         return {
@@ -202,13 +192,6 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
     }
   }
 
-  useEffect(() => {
-    if (!loading) {
-      fetchData(form.getValues())
-    }
-    // fetchData(form.getValues())
-  }, [pageInfo, sortInfo, commonParams])
-
   const tableColumns = useMemo(() => {
     const _columns = columns?.map(item => {
       if (item.key !== INDEX_KEY) return item
@@ -222,16 +205,16 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
         },
       }
     })
-    return dragable && !withQuery && _columns
+    return dragable && _columns
       ? [{ key: DRAG_KEY, title: '排序', fixed: 'left' as any, width: 60 }, ..._columns]
       : _columns
-  }, [columns, dragable, withQuery, pageInfo])
+  }, [columns, dragable, pageInfo])
 
   const tableCom = (
     <Table
       {...reset}
       rowKey={rowKey}
-      loading={{ spinning: loading, delay: 0 }}
+      loading={isLoading || loading}
       columns={tableColumns}
       dataSource={tableData || []}
       components={dragable ? { body: { row: SortRow } } : undefined}
@@ -291,7 +274,7 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
               form={form}
               schema={search.schema}
               searchOnMount={false}
-              onSearch={fetchData}
+              onSearch={setQuery}
             />
           </ConfigProvider>
         )}
