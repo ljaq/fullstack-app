@@ -4,6 +4,7 @@ import React, { createContext, useCallback, useContext, useMemo } from 'react'
 import { useLogout } from './hooks'
 import { useLocalStorage } from 'react-use'
 import storages from 'client/storages'
+import { Role } from 'types/enum'
 
 const INITIAL_STATE: UserState | null = null
 const UserContext = createContext<any>(INITIAL_STATE)
@@ -15,7 +16,7 @@ type IThemeConfig = {
 export type UserState = {
   userName?: string
   authList?: (MenuAuthority | ButtonAuthority)[]
-  roleName?: string
+  roleName?: typeof Role.valueType
   id?: string
   themeConfig: IThemeConfig
 }
@@ -36,9 +37,9 @@ export default function UserProvider({ children }: { children: React.ReactNode }
     let user: Omit<UserState, 'themeConfig'>
     try {
       const res = await request.authority.getXSRF({ method: 'GET' })
-      const roleName = res?.currentUser?.roles?.[0]
-      const auth = res?.auth?.grantedPolicies || {}
-      const userName = res?.currentUser?.userName
+      const roleName = res?.data?.currentUser?.roles?.[0]
+      const auth = res?.data?.auth?.grantedPolicies || {}
+      const userName = res?.data?.currentUser?.userName
       const authList = Object.keys(auth).filter(item => item.includes('SinodacServerPermissions.'))
       if (roleName === 'admin') authList.push(MenuAuthority.超级管理员)
       user = {
@@ -50,7 +51,6 @@ export default function UserProvider({ children }: { children: React.ReactNode }
       user = {
         id: '',
         userName: '',
-        roleName: '',
         authList: [],
       }
     }
