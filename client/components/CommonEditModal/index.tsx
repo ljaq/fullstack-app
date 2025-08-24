@@ -1,4 +1,4 @@
-import { Modal, Spin } from 'antd'
+import { App, Modal, Spin } from 'antd'
 import { SchemaBase } from 'form-render'
 import { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from 'react'
 import FormRender, { useForm } from '../FormRender'
@@ -6,7 +6,7 @@ import FormRender, { useForm } from '../FormRender'
 interface IProps {
   name: string
   schema: SchemaBase
-  onEdit?: (values: any, orgValues: any) => Promise<void>
+  onEdit?: (id: string | number, values: any, orgValues: any) => Promise<void>
   onCreate?: (values: any) => Promise<void>
   onValuesChange?: (values: any) => void
   labelWidth?: number | string
@@ -14,11 +14,12 @@ interface IProps {
 }
 
 export interface CommonEditModalInstance {
-  setModalStatus: (status: boolean | any, readonly?: boolean) => void
+  show: (status: boolean | any, readonly?: boolean) => void
 }
 
 function CommonEditModal(props: IProps, ref) {
   const { name, onCreate, onEdit, schema, idKey = 'id', onValuesChange } = props
+  const { message } = App.useApp()
   const [showModal, setShowModal] = useState<boolean | any>(false)
   const [readonly, setReadonly] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -32,11 +33,11 @@ function CommonEditModal(props: IProps, ref) {
 
   useImperativeHandle(ref, () => {
     return {
-      setModalStatus,
+      show,
     }
   })
 
-  const setModalStatus = useCallback(
+  const show = useCallback(
     async (s: any, readonly = false) => {
       setReadonly(readonly)
       let status: any = s
@@ -72,9 +73,11 @@ function CommonEditModal(props: IProps, ref) {
       setLoading(true)
       try {
         if (typeof showModal === 'object') {
-          await onEdit?.({ ...values, [idKey]: showModal[idKey] }, showModal)
+          await onEdit?.(showModal[idKey], values, showModal)
+          message.success('编辑成功')
         } else {
           await onCreate?.(values)
+          message.success('新增成功')
         }
         onCancel()
       } catch (error) {
