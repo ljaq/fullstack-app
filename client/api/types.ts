@@ -1,6 +1,7 @@
 import { HonoBase } from 'hono/hono-base'
+import { IRequest } from 'types'
 
-export type Methods = 'GET' | 'POST' | 'DELETE' | 'PUT'
+export type Methods = 'GET' | 'POST' | 'DELETE' | 'PUT' | 'get' | 'post' | 'put' | 'delete'
 
 export interface RequestConfig<T = any> {
   url?: string
@@ -16,12 +17,54 @@ export type BaseConfig = string | { target: string; baseConfig: RequestConfig }
 
 export type UrlObj = { [key: string]: BaseConfig }
 
-export type API_REQ_FUNCTION = (config?: RequestConfig) => Promise<any>
+export interface API_REQ_FUNCTION<T = any> {
+  (config?: RequestConfig): Promise<IRequest<T>>
+  /**
+   * ## get 查询
+   */
+  get: API_REQ_FUNCTION<T>
+  /**
+   * ## post 新增
+   */
+  post: API_REQ_FUNCTION<T>
+  /**
+   * ## put 修改
+   */
+  put: API_REQ_FUNCTION<T>
+  /**
+   * ## delete 删除
+   */
+  delete: API_REQ_FUNCTION<T>
+  /**
+   * ## query 参数
+   * `/api/test?id=1&name=2`
+   */
+  query: (query: Record<string, any>) => API_REQ_FUNCTION<T>
+  /**
+   * ## params 路由参数
+   * `/api/test/:id/:name`
+   */
+  params: (params: Record<string, any>) => API_REQ_FUNCTION<T>
+  /**
+   * ## body 请求体
+   * `/api/test`
+   * ```
+   * { id: 1, name: 2 }
+   * ```
+   */
+  body: (body: Record<string, any>) => API_REQ_FUNCTION<T>
+  /**
+   * ## 请求地址
+   */
+  url: string
+  /**
+   * ## 调用
+   */
+  then: Promise<IRequest<T>>['then']
+}
 
 export type THIRD_API<T> = {
-  [X in keyof T]: {
-    [K in keyof T[X]]: API_REQ_FUNCTION
-  }
+  [X in keyof T]: T[X] extends string ? API_REQ_FUNCTION : THIRD_API<T[X]>
 }
 
 export type Endpoint = {
