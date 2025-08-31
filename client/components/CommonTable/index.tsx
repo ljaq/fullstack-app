@@ -36,7 +36,7 @@ interface IProps {
   selectable?: boolean
   getSelectProps?: TableRowSelection['getCheckboxProps']
   selectExtra?: ReactNode
-  commonParams?: { [key: string]: any }
+  baseQuery?: { [key: string]: any }
   defaultPageSize?: number
   onUpdate?: (data: any[]) => void
 }
@@ -94,7 +94,7 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
     request,
     tableTitle,
     extra,
-    commonParams,
+    baseQuery,
     ghost,
     defaultPageSize,
     pagination,
@@ -120,9 +120,10 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
   const selectedRowKeys = useMemo(() => selectedRows.map(item => item[rowKey as any]), [selectedRows, rowKey])
   const { token } = theme.useToken()
 
-  const { data, isLoading, refetch } = useQuery({
-    queryKey: [request.url, pageInfo, query, sortInfo, filters, commonParams],
+  const { data, isFetching, refetch } = useQuery({
+    queryKey: [request.url, pageInfo, query, sortInfo, filters, baseQuery],
     retry: 1,
+    placeholderData: prevData => prevData,
     queryFn: () =>
       request({
         method: 'GET',
@@ -132,7 +133,7 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
           sorting: sortInfo.join(' '),
           ...query,
           ...filters,
-          ...commonParams,
+          ...baseQuery,
         },
       }),
   })
@@ -214,7 +215,7 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
     <Table
       {...reset}
       rowKey={rowKey}
-      loading={isLoading || loading}
+      loading={isFetching || loading}
       columns={tableColumns}
       dataSource={tableData || []}
       components={dragable ? { body: { row: SortRow } } : undefined}

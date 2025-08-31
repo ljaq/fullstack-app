@@ -6,22 +6,29 @@ import FormRender, { useForm } from '../FormRender'
 interface IProps {
   name: string
   schema: SchemaBase
-  onEdit?: (id: string | number, values: any, orgValues: any) => Promise<void>
-  onCreate?: (values: any) => Promise<void>
+  onEdit?: (id: string | number, values: any, orgValues: any) => Promise<void> | void
+  onCreate?: (values: any) => Promise<void> | void
   onValuesChange?: (values: any) => void
   labelWidth?: number | string
   idKey?: string
+  okText?: string
+}
+
+type IOptions = {
+  readonly?: boolean
+  disabled?: boolean
 }
 
 export interface CommonEditModalInstance {
-  show: (status: boolean | any, readonly?: boolean) => void
+  show: (status: boolean | any, options?: IOptions) => void
 }
 
 function CommonEditModal(props: IProps, ref) {
-  const { name, onCreate, onEdit, schema, idKey = 'id', onValuesChange } = props
+  const { name, onCreate, onEdit, schema, idKey = 'id', okText, onValuesChange } = props
   const { message } = App.useApp()
   const [showModal, setShowModal] = useState<boolean | any>(false)
   const [readonly, setReadonly] = useState(false)
+  const [disabled, setDisabled] = useState(false)
   const [loading, setLoading] = useState(false)
   const [initLoading, setInitLoading] = useState(false)
   const form = useForm()
@@ -38,8 +45,10 @@ function CommonEditModal(props: IProps, ref) {
   })
 
   const show = useCallback(
-    async (s: any, readonly = false) => {
+    async (s: any, options: IOptions = {}) => {
+      const { readonly = false, disabled = false } = options
       setReadonly(readonly)
+      setDisabled(disabled)
       let status: any = s
       if (typeof s === 'function') {
         try {
@@ -93,13 +102,16 @@ function CommonEditModal(props: IProps, ref) {
       title={title}
       open={!!showModal}
       onOk={form.submit}
+      okText={okText}
       okButtonProps={{ loading }}
       onCancel={onCancel}
+      footer={readonly ? null : undefined}
     >
       <Spin spinning={initLoading}>
         <FormRender
           form={form}
-          disabled={readonly}
+          readOnly={readonly}
+          disabled={disabled}
           schema={schema}
           onFinish={handleSubmit}
           onValuesChange={onValuesChange}
