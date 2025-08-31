@@ -5,7 +5,9 @@ import { Hono } from 'hono'
 import { proxy } from 'hono/proxy'
 import { prettyJSON } from 'hono/pretty-json'
 import path from 'path'
+import qs from 'querystring'
 import helloRoute from './server/routes/hello'
+import { getProxy } from './proxy'
 
 const isDev = import.meta.env.DEV
 const isServer = import.meta.env.MODE === 'server'
@@ -21,18 +23,30 @@ app.use(prettyJSON())
 
 const routes = app.basePath('/jaq').route('/hello', helloRoute)
 
-const proxyConf = await import('./proxy.ts').then(conf => conf.default)
-Object.entries(proxyConf).reduce(
+Object.entries(getProxy()).reduce(
   (app, [api, conf]) =>
-    app.all(api, c => {
-      return proxy(`${conf.target}${c.req.path}`, {
-        ...c.req,
-        headers: {
-          ...c.req.header(),
-          'X-Forwarded-For': '127.0.0.1',
-          'X-Forwarded-Host': c.req.header('host'),
-        },
-      })
+    app.all(api, async ctx => {
+      try {
+        const query = ctx.req.query()
+        const url = `${conf.target}${ctx.req.path}?${qs.stringify(query)}`
+
+        const method = ctx.req.method
+        const headers = ctx.req.header()
+
+        let body = null
+        if (method !== 'GET' && method !== 'HEAD') {
+          body = await ctx.req.raw.clone().text()
+        }
+
+        const response = await proxy(url, {
+          method,
+          headers,
+          body: body || undefined,
+        })
+        return response
+      } catch (error) {
+        return ctx.json({ code: 500, message: '服务异常，请稍后再试' }, 500)
+      }
     }),
   app,
 )

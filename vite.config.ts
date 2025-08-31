@@ -16,13 +16,6 @@ export default defineConfig(({ command, mode }) => {
     server: {
       port: Number(env.VITE_PORT),
       hmr: { overlay: false },
-      proxy: {
-        '^/api': {
-          target: 'https://service.zhongboboye.com:4000',
-          changeOrigin: true,
-          secure: false,
-        },
-      },
     },
     build:
       mode === 'client'
