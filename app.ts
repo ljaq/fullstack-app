@@ -7,7 +7,6 @@ import { prettyJSON } from 'hono/pretty-json'
 import path from 'path'
 import qs from 'querystring'
 import helloRoute from './server/routes/hello'
-import { getProxy } from './proxy'
 
 const isDev = import.meta.env.DEV
 const isServer = import.meta.env.MODE === 'server'
@@ -23,7 +22,13 @@ app.use(prettyJSON())
 
 const routes = app.basePath('/jaq').route('/hello', helloRoute)
 
-Object.entries(getProxy()).reduce(
+const proxyConf = {
+  '/api/*': {
+    target: process.env.VITE_THIRD_API,
+    changeOrigin: true,
+  },
+}
+Object.entries(proxyConf).reduce(
   (app, [api, conf]) =>
     app.all(api, async ctx => {
       try {

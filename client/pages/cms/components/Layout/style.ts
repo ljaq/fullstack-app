@@ -6,7 +6,7 @@ export const useStyle = createStyles(({ token, css }) => {
       position: relative;
       display: flex;
       flex-wrap: nowrap;
-      background: linear-gradient( #ffffff, #f5f5f5 28%);
+      background: linear-gradient(#ffffff, #f5f5f5 28%);
       .ant-splitter-bar-dragger {
         &::before,
         &::after {
@@ -41,9 +41,9 @@ export const useStyle = createStyles(({ token, css }) => {
       }
     `,
     content: css`
-      height: calc(100vh - 56px);
-      overflow: auto;
-      /* padding: 0 40px 32px; */
+      /* height: calc(100vh - 56px); */
+      /* overflow-y: auto;
+      overflow-x: hidden; */
     `,
     sider: css`
       max-width: unset !important;

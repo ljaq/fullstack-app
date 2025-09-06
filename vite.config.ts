@@ -95,16 +95,12 @@ export default defineConfig(({ command, mode }) => {
           dirs: [{ dir: `client/pages/${page}/routes`, baseRoute: `/${page}` }],
           moduleId: `~react-page-${page}`,
           importMode: 'sync',
-          exclude: ['**/components/*.tsx', '**/components/*.ts', '**/schema.ts'],
+          routeStyle: 'next',
+          exclude: ['**/components/*.tsx', '**/components/*.ts', '**/schema.ts', '**/style.ts'],
           onClientGenerated(clientCode) {
-            const routeCode = clientCode
-              .replace(
-                /"children":\[\{"caseSensitive":false\,"path":""\,"element":React\.createElement\((.*?)\)\}\,?/g,
-                (_, pageName) => {
-                  return `meta: ${pageName}.pageConfig,"element":React.createElement(${pageName}),"children":[`
-                },
-              )
-              .replace(/"children":\[\]\,?/g, '')
+            const routeCode = clientCode.replace(/"element":React\.createElement\((.*?)\)/g, (_, pageName) => {
+              return `meta: ${pageName}.pageConfig,${_}`
+            })
             return routeCode
           },
         }),

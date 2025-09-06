@@ -45,7 +45,7 @@ function Layout(props: IProps) {
         <Sider />
       </Splitter.Panel>
       <Splitter.Panel>
-        <div style={{ height: '100vh', flexGrow: 1 }}>
+        <div style={{ height: '100vh', flexGrow: 1, overflowY: 'auto', overflowX: 'hidden' }}>
           <Header />
           <div className={styles.content}>{props.children}</div>
         </div>

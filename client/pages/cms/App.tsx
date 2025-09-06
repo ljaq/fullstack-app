@@ -30,10 +30,7 @@ function App() {
         <Layout>
           <Suspense fallback={<Spin spinning />}>
             <Translate distance={40}>
-              <div
-                key={pathname}
-                style={{ height: 'calc(100vh - 56px)', padding: '0 40px 32px', boxSizing: 'border-box' }}
-              >
+              <div key={pathname} style={{ padding: '0 40px 32px' }}>
                 {useRoutes(useAuthorityRoutes(routes))}
               </div>
             </Translate>

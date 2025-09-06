@@ -1,6 +1,30 @@
 import { useAuthority } from './useAuthority'
 import { IRouteObject } from 'client/types'
 
+const parse = route => {
+  let children = route.children
+  console.log(children)
+
+  let meta = route.meta
+  if (!meta && children && children[0]?.path === '') {
+    meta = children[0].meta
+    // children = children.slice(1)
+  }
+
+  if (!children?.length) {
+    return {
+      meta,
+      ...route,
+    }
+  }
+
+  return {
+    meta,
+    ...route,
+    children: children.map(item => parse(item)),
+  }
+}
+
 export function useAuthorityRoutes(routes: IRouteObject[]) {
   const { hasAuthority } = useAuthority()
 
@@ -18,5 +42,9 @@ export function useAuthorityRoutes(routes: IRouteObject[]) {
       })
   }
 
-  return filterRoutes(routes)
+  const parsed = routes.map(item => parse(item))
+
+  const res = filterRoutes(parsed)
+
+  return res
 }

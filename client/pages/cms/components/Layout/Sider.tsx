@@ -8,6 +8,7 @@ import routes from '~react-page-cms'
 import { useLayoutState } from './context'
 import { useStyle } from './style'
 import Logo from './Logo'
+import { useMenu } from './useMenu'
 
 export default function Sider() {
   const [, { logout }] = useUser()
@@ -15,38 +16,10 @@ export default function Sider() {
   const { styles } = useStyle()
   const location = useLocation()
   const navigate = useNavigate()
+  const menu = useMenu()
   const {
     token: { colorPrimary, colorPrimaryBorder },
   } = theme.useToken()
-
-  const layoutRoutes = useMemo(() => {
-    const getMenuRoutes = routes => {
-      return [...routes].filter(route => !route?.meta?.hide)?.sort((a, b) => a.meta?.order - b.meta?.order)
-    }
-    const parse = (route, prefix = '') => {
-      const { path, children, meta } = route
-      const fullPath = [prefix, path].filter(p => p).join('/')
-
-      if (!children || children.length === 1) {
-        return {
-          key: `/${fullPath}`,
-          label: meta?.name,
-          ...meta,
-        }
-      }
-
-      if (children.length > 1) {
-        return {
-          key: `/${fullPath}`,
-          label: meta?.name,
-          ...meta,
-          children: getMenuRoutes(children).map(item => parse(item, fullPath)),
-        }
-      }
-    }
-
-    return getMenuRoutes(routes).map(item => parse(item, ''))[0]?.children || []
-  }, [routes])
 
   const defaultOpenKeys = useMemo(() => {
     return location.pathname
@@ -54,7 +27,7 @@ export default function Sider() {
       .slice(1, -1)
       .reduce((acc, cur) => {
         if (acc.length === 0) {
-          return [`/${cur}`]
+          return [location.pathname, `/${cur}`]
         }
         return [...acc, `${acc[acc.length - 1]}/${cur}`]
       }, [])
@@ -88,7 +61,7 @@ export default function Sider() {
           styles={{ body: { padding: 0 } }}
           width={256}
         >
-          <Menu mode='inline' items={layoutRoutes} selectedKeys={[location.pathname]} onSelect={e => navigate(e.key)} />
+          <Menu mode='inline' items={menu} selectedKeys={defaultOpenKeys} onSelect={e => navigate(e.key)} />
         </Drawer>
       ) : (
         <Layout.Sider theme='light' className={styles.sider} collapsed={collapsed} collapsedWidth={64} width={'100%'}>
@@ -100,8 +73,8 @@ export default function Sider() {
           <div className='menu'>
             <Menu
               mode='inline'
-              items={layoutRoutes}
-              selectedKeys={[location.pathname]}
+              items={menu}
+              selectedKeys={defaultOpenKeys}
               defaultOpenKeys={defaultOpenKeys}
               onSelect={e => navigate(e.key)}
             />
