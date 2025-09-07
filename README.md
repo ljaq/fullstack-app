@@ -19,7 +19,7 @@ yarn start:test
 yarn start:prod
 ```
 
-### Docker 一键部署
+### Docker 部署
 ```bash
 # 测试环境
 ./deploy.sh test

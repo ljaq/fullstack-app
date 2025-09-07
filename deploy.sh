@@ -33,7 +33,7 @@ check_docker() {
         exit 1
     fi
     
-    if ! command -v docker-compose &> /dev/null; then
+    if ! command -v docker compose &> /dev/null; then
         print_error "Docker Compose 未安装，请先安装 Docker Compose"
         exit 1
     fi
@@ -71,7 +71,7 @@ show_help() {
 # 构建镜像
 build_image() {
     print_message "开始构建生产环境镜像..."
-    docker-compose build app
+    docker compose build app
     if [ $? -eq 0 ]; then
         print_message "镜像构建成功！"
     else
@@ -83,7 +83,7 @@ build_image() {
 # 清理构建缓存并构建镜像
 build_image_clean() {
     print_message "清理构建缓存并构建生产环境镜像..."
-    docker-compose build --no-cache app
+    docker compose build --no-cache app
     if [ $? -eq 0 ]; then
         print_message "镜像构建成功！"
         # 清理悬空镜像
@@ -98,7 +98,7 @@ build_image_clean() {
 # 构建测试环境镜像
 build_test_image() {
     print_message "开始构建测试环境镜像..."
-    docker-compose build app-test
+    docker compose build app-test
     if [ $? -eq 0 ]; then
         print_message "测试环境镜像构建成功！"
     else
@@ -110,7 +110,7 @@ build_test_image() {
 # 启动开发环境
 start_dev() {
     print_message "启动开发环境..."
-    docker-compose --profile dev up -d app-dev
+    docker compose --profile dev up -d app-dev
     print_message "开发环境已启动，访问地址: http://localhost:3606"
 }
 
@@ -118,7 +118,7 @@ start_dev() {
 start_test() {
     build_test_image
     print_message "启动测试环境..."
-    docker-compose up -d app-test
+    docker compose up -d app-test
     print_message "测试环境已启动，访问地址: http://localhost:3607"
 }
 
@@ -126,14 +126,14 @@ start_test() {
 start_prod() {
     build_image
     print_message "启动生产环境..."
-    docker-compose up -d app
+    docker compose up -d app
     print_message "生产环境已启动，访问地址: http://localhost:3608"
 }
 
 # 启动生产环境 + Nginx
 start_nginx() {
     print_message "启动生产环境 + Nginx..."
-    docker-compose --profile nginx up -d
+    docker compose --profile nginx up -d
     print_message "生产环境 + Nginx 已启动"
     print_message "HTTP 访问地址: http://localhost"
     print_message "HTTPS 访问地址: https://localhost (需要配置SSL证书)"
@@ -143,21 +143,21 @@ start_nginx() {
 # 停止所有容器
 stop_containers() {
     print_message "停止所有容器..."
-    docker-compose down
+    docker compose down
     print_message "所有容器已停止"
 }
 
 # 重启所有容器
 restart_containers() {
     print_message "重启所有容器..."
-    docker-compose restart
+    docker compose restart
     print_message "所有容器已重启"
 }
 
 # 查看容器日志
 show_logs() {
     print_message "显示容器日志..."
-    docker-compose logs -f
+    docker compose logs -f
 }
 
 # 清理所有容器和镜像
@@ -166,7 +166,7 @@ clean_all() {
     read -r response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
         print_message "清理所有容器、镜像和网络..."
-        docker-compose down --rmi all --volumes --remove-orphans
+        docker compose down --rmi all --volumes --remove-orphans
         docker system prune -f
         print_message "清理完成"
     else
@@ -177,7 +177,7 @@ clean_all() {
 # 检查容器状态
 check_status() {
     print_message "检查容器状态..."
-    docker-compose ps
+    docker compose ps
 }
 
 # 主函数
