@@ -9,15 +9,17 @@ export interface RequestConfig<T = any> {
   query?: T
   body?: T
   params?: T
-  inlineQuery?: T
-  responseType?: 'blob'
+  headers?: { [key: string]: string }
+  options?: {
+    autoRedirect?: boolean
+  }
 }
 
 export type BaseConfig = string | { target: string; baseConfig: RequestConfig }
 
 export type UrlObj = { [key: string]: BaseConfig }
 
-export interface API_REQ_FUNCTION<T = any> {
+export interface API_REQ_FUNCTION<T = any> extends Promise<IRequest<T>> {
   (config?: RequestConfig): Promise<IRequest<T>>
   /**
    * ## get 查询
@@ -57,10 +59,6 @@ export interface API_REQ_FUNCTION<T = any> {
    * ## 请求地址
    */
   url: string
-  /**
-   * ## 调用
-   */
-  then: Promise<IRequest<T>>['then']
 }
 
 export type THIRD_API<T> = {

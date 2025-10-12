@@ -1,4 +1,4 @@
-import { createApiProxy, Fetch } from './utils'
+import { createApiProxy, Fetch } from './fetch'
 import * as api from './api'
 import { AppType } from 'app'
 
