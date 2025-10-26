@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import fs from 'fs'
 
 const dirNames = fs.readdirSync('./build/public/client/pages')

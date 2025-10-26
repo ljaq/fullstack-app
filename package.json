@@ -11,7 +11,8 @@
     "build:server": "vite build --mode server",
     "start:test": "cross-env mode=development node ./build/app.js",
     "start:prod": "cross-env mode=production node ./build/app.js",
-    "commit": "git add . && git-cz"
+    "commit": "git add . && git-cz",
+    "generate": "node ./scripts/generate.mjs"
   },
   "config": {
     "commitizen": {
@@ -70,6 +71,7 @@
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.4.1",
     "@vitejs/plugin-react-swc": "^3.9.0",
+    "art-template": "^4.13.4",
     "commitizen": "^4.3.1",
     "cross-env": "^7.0.3",
     "cz-git": "^1.11.0",

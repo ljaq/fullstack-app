@@ -6,6 +6,7 @@ import { proxy } from 'hono/proxy'
 import { prettyJSON } from 'hono/pretty-json'
 import path from 'path'
 import qs from 'querystring'
+import artTemplate from 'art-template'
 import helloRoute from './server/routes/hello'
 
 const isDev = import.meta.env.DEV
@@ -57,26 +58,11 @@ Object.entries(proxyConf).reduce(
 )
 
 if (isDev) {
-  const regex = /(<head[\s\S]*?)(\s*<\/head>)/i
   pages = readdirSync(path.join(import.meta.dirname, './client/pages'))
   pages.reduce(
     (app, page) =>
       app.get(`/${page}/*`, async c => {
-        const html = readFileSync(path.join(import.meta.dirname, `./client/pages/${page}/index.html`), 'utf-8')
-        const newHtml = html.replace(
-          regex,
-          `$1
-            <script type="module">
-              import RefreshRuntime from '${url}/@react-refresh'
-              RefreshRuntime.injectIntoGlobalHook(window)
-              window.$RefreshReg$ = () => {}
-              window.$RefreshSig$ = () => type => type
-              window.__vite_plugin_react_preamble_installed__ = true
-            </script>
-          $2`,
-        )
-
-        return c.html(newHtml)
+        return c.html(artTemplate(path.join(import.meta.dirname, `./client/pages/${page}/index.html`), process.env))
       }),
     app,
   )

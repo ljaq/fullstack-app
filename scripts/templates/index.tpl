@@ -5,8 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <link rel="stylesheet" href="/reset.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-    {{if NODE_ENV === 'development'}}
+    <%- `{{if NODE_ENV === 'development'}}` %>
     <script type="module">
       import RefreshRuntime from '/@react-refresh'
       RefreshRuntime.injectIntoGlobalHook(window)
@@ -14,11 +13,11 @@
       window.$RefreshSig$ = () => type => type
       window.__vite_plugin_react_preamble_installed__ = true
     </script>
-    {{/if}}
-    <title>登录</title>
+    <%- `{{/if}}` %>
+    <title>{{pageTitle}}</title>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/client/pages/login/main.tsx"></script>
+    <script type="module" src="/client/pages/{{pageName}}/main.tsx"></script>
   </body>
 </html>
