@@ -5,6 +5,7 @@ import { LayoutProvider, useLayoutState } from './context'
 import Header from './Header'
 import Sider from './Sider'
 import { useStyle } from './style'
+import Bg from './Bg'
 
 interface IProps {
   children: ReactNode
@@ -40,17 +41,20 @@ function Layout(props: IProps) {
   }, [pathname])
 
   const pcLayout = (
-    <Splitter onResize={handleSpliterSizeChange}>
-      <Splitter.Panel size={siderWidth} defaultSize={200} min={66} max={360} style={{ overflow: 'hidden' }}>
-        <Sider />
-      </Splitter.Panel>
-      <Splitter.Panel>
-        <div style={{ height: '100vh', flexGrow: 1, overflowY: 'auto', overflowX: 'hidden' }}>
-          <Header />
-          <div className={styles.content}>{props.children}</div>
-        </div>
-      </Splitter.Panel>
-    </Splitter>
+    <div style={{ width: '100vw', height: '100vh' }}>
+      <Bg />
+      <Splitter onResize={handleSpliterSizeChange}>
+        <Splitter.Panel size={siderWidth} defaultSize={200} min={66} max={360} style={{ overflow: 'hidden' }}>
+          <Sider />
+        </Splitter.Panel>
+        <Splitter.Panel>
+          <div style={{ height: '100vh', flexGrow: 1, overflowY: 'auto', overflowX: 'hidden' }}>
+            <Header />
+            <div className={styles.content}>{props.children}</div>
+          </div>
+        </Splitter.Panel>
+      </Splitter>
+    </div>
   )
 
   const mobileLayout = (
