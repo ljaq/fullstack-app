@@ -3,12 +3,10 @@ import { IRouteObject } from 'client/types'
 
 const parse = route => {
   let children = route.children
-  console.log(children)
 
   let meta = route.meta
   if (!meta && children && children[0]?.path === '') {
     meta = children[0].meta
-    // children = children.slice(1)
   }
 
   if (!children?.length) {

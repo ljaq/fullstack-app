@@ -1,0 +1,34 @@
+.cursor-light-item {
+  position: relative;
+  background-image: radial-gradient(
+    circle at var(--x) var(--y),
+    rgba(var(--light-color), 0.2) 0,
+    transparent var(--size)
+  );
+  transition: 0.2s;
+  transform: scale(var(--scale)) rotateX(var(--rotate-x)) rotateY(var(--rotate-y));
+}
+
+.cursor-light-item > * {
+  display: block;
+  width: 100%;
+  border-radius: inherit;
+}
+
+.cursor-light-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid rgba(var(--light-color), 1);
+  border-radius: inherit;
+  pointer-events: none;
+  mask-image: radial-gradient(
+    circle at var(--mask-x) var(--mask-y),
+    rgba(var(--light-color), 0.4) 0,
+    transparent var(--mask-size)
+  );
+  z-index: 10;
+}
