@@ -56,60 +56,60 @@
   z-index: 1;
 }
 
-// SVG线条动画样式
-.animated-line {
-  stroke-width: 1;
-  opacity: 0.6;
-  animation: glowFade 3.2s ease-in-out infinite;
-  // 为不同的线条设置不同的动画延迟
-  &.line-1 {
-    animation-delay: 1.6s;
-  }
-  &.line-2 {
-    animation-delay: 2s;
-  }
-  &.line-3 {
-    animation-delay: 2.4s;
-  }
-  &.line-4 {
-    animation-delay: 2.8s;
-  }
-  &.line-5 {
-    animation-delay: 3.2s;
-  }
+// // SVG线条动画样式
+// .animated-line {
+//   stroke-width: 1;
+//   opacity: 0.6;
+//   animation: glowFade 3.2s ease-in-out infinite;
+//   // 为不同的线条设置不同的动画延迟
+//   &.line-1 {
+//     animation-delay: 1.6s;
+//   }
+//   &.line-2 {
+//     animation-delay: 2s;
+//   }
+//   &.line-3 {
+//     animation-delay: 2.4s;
+//   }
+//   &.line-4 {
+//     animation-delay: 2.8s;
+//   }
+//   &.line-5 {
+//     animation-delay: 3.2s;
+//   }
 
-  &.line-6 {
-    animation-delay: 0s;
-  }
-  &.line-7 {
-    animation-delay: 0.4s;
-  }
-  &.line-8 {
-    animation-delay: 0.8s;
-  }
-  &.line-9 {
-    animation-delay: 1.2s;
-  }
-  &.line-10 {
-    animation-delay: 1.6s;
-  }
-  &.line-11 {
-    animation-delay: 2s;
-  }
-}
+//   &.line-6 {
+//     animation-delay: 0s;
+//   }
+//   &.line-7 {
+//     animation-delay: 0.4s;
+//   }
+//   &.line-8 {
+//     animation-delay: 0.8s;
+//   }
+//   &.line-9 {
+//     animation-delay: 1.2s;
+//   }
+//   &.line-10 {
+//     animation-delay: 1.6s;
+//   }
+//   &.line-11 {
+//     animation-delay: 2s;
+//   }
+// }
 
-// 发光渐变透明动画
-@keyframes glowFade {
-  0% {
-    opacity: 0.3;
-    filter: drop-shadow(0 0 0px var(--pattern-primary-color));
-  }
-  50% {
-    opacity: 1;
-    filter: drop-shadow(0 0 4px var(--pattern-primary-color));
-  }
-  100% {
-    opacity: 0.3;
-    filter: drop-shadow(0 0 0px var(--pattern-primary-color));
-  }
-}
+// // 发光渐变透明动画
+// @keyframes glowFade {
+//   0% {
+//     opacity: 0.3;
+//     filter: drop-shadow(0 0 0px var(--pattern-primary-color));
+//   }
+//   50% {
+//     opacity: 1;
+//     filter: drop-shadow(0 0 4px var(--pattern-primary-color));
+//   }
+//   100% {
+//     opacity: 0.3;
+//     filter: drop-shadow(0 0 0px var(--pattern-primary-color));
+//   }
+// }

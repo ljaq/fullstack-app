@@ -29,6 +29,7 @@
     "baseUrl": "./"
   },
   "include": [
+    "app.ts",
     "client",
     "server",
     "types",
