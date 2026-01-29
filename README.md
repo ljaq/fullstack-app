@@ -2,21 +2,21 @@
 
 ### 本地开发
 ```bash
-yarn install
-yarn dev
+pnpm install
+pnpm dev
 ```
 
 ### node 部署
 ```bash
 ## 安装依赖
-yarn install
-yarn build
+pnpm install
+pnpm build
 
 # 测试环境
-yarn start:test
+pnpm start:test
 
 # 生产环境
-yarn start:prod
+pnpm start:prod
 ```
 
 ### Docker 部署

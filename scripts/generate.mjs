@@ -86,7 +86,7 @@ function generatePage(pageName) {
     console.log(`✅ 页面 ${pageName} 生成成功！`)
     console.log(`📁 页面目录: ${pageDir}`)
     console.log(`🔗 访问地址: http://localhost:${getPort()}/${pageName}`)
-    console.log(`💡 提示: 使用 'yarn generate ${pageName} <路由名称>' 生成路由`)
+    console.log(`💡 提示: 使用 'pnpm generate ${pageName} <路由名称>' 生成路由`)
   } catch (error) {
     console.error(`❌ 生成页面失败: ${error.message}`)
     process.exit(1)
@@ -107,7 +107,7 @@ function generateRoute(pageName, routeName) {
 
   // 检查页面是否存在
   if (!existsSync(pageDir)) {
-    console.error(`❌ 页面 ${pageName} 不存在，请先使用 'yarn generate ${pageName}' 生成页面`)
+    console.error(`❌ 页面 ${pageName} 不存在，请先使用 'pnpm generate ${pageName}' 生成页面`)
     process.exit(1)
   }
 
@@ -142,8 +142,8 @@ function showHelp() {
   console.log('📖 页面和路由生成工具使用说明:')
   console.log('')
   console.log('用法:')
-  console.log(' yarn generate <页面名称>')
-  console.log(' yarn generate <页面名称> <路由名称>')
+  console.log(' pnpm run generate <页面名称>')
+  console.log(' pnpm run generate <页面名称> <路由名称>')
   console.log('')
   console.log('命令:')
   console.log(' <页面名称> - 生成页面')
@@ -154,11 +154,11 @@ function showHelp() {
   console.log(' 路由名称 - 可选，路由的名称，支持多层级（如: a, a/index, a/b/c）')
   console.log('')
   console.log('示例:')
-  console.log(' yarn generate dashboard')
-  console.log(' yarn generate dashboard overview')
-  console.log(' yarn generate dashboard a')
-  console.log(' yarn generate dashboard a/index')
-  console.log(' yarn generate dashboard a/b/c')
+  console.log(' pnpm run generate dashboard')
+  console.log(' pnpm run generate dashboard overview')
+  console.log(' pnpm run generate dashboard a')
+  console.log(' pnpm run generate dashboard a/index')
+  console.log(' pnpm run generate dashboard a/b/c')
   console.log('')
   console.log('💡 提示:')
   console.log(' - 生成页面后，可以添加第二个参数来生成路由')

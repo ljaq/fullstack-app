@@ -1,26 +1,9 @@
 import { HomeOutlined } from '@ant-design/icons'
 import CommonTable from 'client/components/CommonTable'
-import { IFormItem } from 'client/utils/getFormItem'
 import { ColumnsType } from 'antd/es/table'
 import { Schema } from 'form-render'
-
-const toolList: IFormItem[] = [
-  {
-    type: 'input',
-    name: 'name',
-    label: '姓名',
-  },
-  {
-    type: 'input',
-    name: 'age',
-    label: '年龄',
-  },
-  {
-    type: 'input',
-    name: 'address',
-    label: '地址',
-  },
-]
+import { IRequest } from 'types'
+import { API_REQ_FUNCTION } from 'client/api/types'
 
 const schema: Schema = {
   type: 'object',
@@ -66,7 +49,13 @@ export default function Home() {
     },
   ]
 
-  return <CommonTable search={{ schema }} columns={columns} request={() => Promise.resolve([])} />
+  return (
+    <CommonTable
+      search={{ schema }}
+      columns={columns}
+      request={(() => Promise.resolve({ data: [], total: 0, success: true, message: '' })) as API_REQ_FUNCTION<any>}
+    />
+  )
 }
 
 Home.pageConfig = {
