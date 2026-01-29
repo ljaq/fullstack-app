@@ -1,0 +1,32 @@
+---
+description: Project overview and coding conventions
+alwaysApply: true
+---
+
+# Fullstack App Conventions
+
+## Stack
+- **Client**: Vite 7, React 18, TypeScript, Ant Design 6, TanStack Query, React Router 7, form-render
+- **Server**: Hono on Node (app.ts), SSR/SPA pages via art-template
+- **Package manager**: pnpm
+
+## Path aliases (use these, not relative deep paths)
+- `client` → client/
+- `server` → server/
+- `utils` → utils/
+- `types` → types/
+
+## Formatting (.prettierrc)
+- Single quotes, no semicolons
+- `printWidth: 120`, `tabWidth: 2`
+- `arrowParens: "avoid"` (e.g. `x => x` not `(x) => x`)
+- Trailing commas
+
+## Commits
+- Use `pnpm commit` (commitizen + cz-git). Types: feat, fix, docs, style, refactor, perf, test, build, ci, revert, chore.
+
+## File layout
+- Client UI: `client/pages/<app>/routes/`, `client/components/`, `client/hooks/`, `client/contexts/`
+- API layer: `client/api/` (types in types.ts, endpoints in api.ts)
+- Shared: `types/`, `utils/`
+- Server routes: `server/routes/`

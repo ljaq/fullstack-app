@@ -1,0 +1,22 @@
+---
+description: React component and client patterns
+globs: client/**/*.tsx
+alwaysApply: false
+---
+
+# React / Client
+
+## Components
+- Use functional components. Use `forwardRef` + `useImperativeHandle` when the parent needs a ref/instance (e.g. CommonTable).
+- Define props as an `interface` (e.g. `IProps`) and extend Ant Design types when needed: `TableProps<any> & IProps`.
+
+## State and data
+- Use `@tanstack/react-query` (useQuery, useMutation) for server state. Use the project’s `API_REQ_FUNCTION` type for request functions.
+- Colocate component-only styles: `useStyle` hooks or co-located `.less`/`.css` next to the component.
+
+## UI stack
+- Ant Design (antd) for layout and components. Use `ConfigProvider`/theme when customizing.
+- form-render with `Schema` for form/search schemas where used in the codebase.
+
+## Exports
+- Prefer `index.tsx` as the component entry; export the main component and any public types from there.

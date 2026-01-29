@@ -1,0 +1,40 @@
+---
+description: TypeScript standards and patterns
+globs: **/*.ts
+alwaysApply: false
+---
+
+# TypeScript
+
+## Typing
+- Prefer explicit types for props, API responses, and public APIs. Use `interface` for object shapes.
+- Avoid `any`; use `unknown` or generics when type is uncertain.
+
+```typescript
+// ✅ GOOD: typed props and return
+interface IProps {
+  request: API_REQ_FUNCTION
+  search?: { schema: Schema }
+}
+const fn = (config: RequestConfig): Promise<IRequest<T>> => { ... }
+```
+
+## Error handling
+- Don’t swallow errors. Log and rethrow or return a typed error result.
+
+```typescript
+// ❌ BAD
+try { await fetchData() } catch (e) {}
+
+// ✅ GOOD
+try {
+  await fetchData()
+} catch (e) {
+  console.error('Failed to fetch', e)
+  throw e
+}
+```
+
+## Imports
+- Use path aliases: `client/...`, `server/...`, `utils/...`, `types/...`
+- Prefer `type` for type-only imports when applicable.
