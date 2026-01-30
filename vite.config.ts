@@ -57,6 +57,7 @@ export default defineConfig(({ command, mode }) => {
         : { copyPublicDir: false },
     resolve: {
       alias: {
+        api: path.resolve(__dirname, './api'),
         client: path.resolve(__dirname, './client'),
         server: path.resolve(__dirname, './server'),
         utils: path.resolve(__dirname, './utils'),

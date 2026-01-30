@@ -117,7 +117,7 @@ type RequestNodeWithMethods<PathSchema extends Record<string, Endpoint>> = Reque
     [M in DeclaredMethods<PathSchema>]: ReqMethod<PathSchema[`$${Lowercase<M>}`]>
   }
 
-/** Legacy: untyped request function for THIRD_API / manual api.ts */
+/** 第三方 API 用：入参、method、返回值均不限制，仅提供链式调用形态 */
 export interface API_REQ_FUNCTION<T = any> extends Promise<IRequest<T>> {
   (config?: RequestConfig): Promise<IRequest<T>>
   get: API_REQ_FUNCTION<T>
@@ -130,8 +130,13 @@ export interface API_REQ_FUNCTION<T = any> extends Promise<IRequest<T>> {
   url: string
 }
 
+/** 第三方 API 树：叶子为 string 或 { method?, url? } 时视为请求节点，统一为 API_REQ_FUNCTION<any> */
 export type THIRD_API<T> = {
-  [X in keyof T]: T[X] extends string ? API_REQ_FUNCTION : THIRD_API<T[X]>
+  [X in keyof T]: T[X] extends string
+    ? API_REQ_FUNCTION<any>
+    : T[X] extends { method?: any; url?: string }
+      ? API_REQ_FUNCTION<any>
+      : THIRD_API<T[X]>
 }
 
 // --- PathToChain: path string -> nested object, leaf = RequestNode from Schema[path] ---
@@ -148,6 +153,17 @@ type PathToChain<Path extends string, E extends Schema, Original extends string 
       }
 
 export type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never
+
+/** 合并 Client 与 THIRD_API：键取并集 */
+export type MergeClientWithApi<C, A> = {
+  [K in keyof C | keyof A]: K extends keyof C
+    ? K extends keyof A
+      ? C[K] & A[K]
+      : C[K]
+    : K extends keyof A
+      ? A[K]
+      : never
+}
 
 /** Client type from Hono app: chain from Schema paths, only declared methods and typed query/body/params */
 export type Client<T> = T extends HonoBase<any, infer S, any>

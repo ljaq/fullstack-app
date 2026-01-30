@@ -1,4 +1,4 @@
-import { Client, Methods, RequestConfig, THIRD_API, UnionToIntersection } from './types'
+import { Client, MergeClientWithApi, Methods, RequestConfig, THIRD_API, UnionToIntersection } from './types'
 import { RequestBuilder, ResponseHandler, UrlProcessor } from './utils'
 
 export const Fetch = async <F = any, T = any>(config: RequestConfig<F>): Promise<T> => {
@@ -15,7 +15,9 @@ export function createApiProxy<T, K = Record<string, never>>(
   baseApi: K = {} as K,
   basePath: string[] = [],
   baseConfig: RequestConfig = {},
-): K extends Record<string, never> ? UnionToIntersection<Client<T>> : THIRD_API<K> & UnionToIntersection<Client<T>> {
+): K extends Record<string, never>
+  ? UnionToIntersection<Client<T>>
+  : MergeClientWithApi<UnionToIntersection<Client<T>>, THIRD_API<K>> {
   const proxyFunction = function () {}
   const base = (baseApi ?? {}) as Record<string, unknown>
 
@@ -52,5 +54,7 @@ export function createApiProxy<T, K = Record<string, never>>(
       const path = basePath.length ? (basePath.reduce((a, b) => (a as any)?.[b], base) ?? `/${basePath.join('/')}`) : '/'
       return Fetch({ url: path, ...baseConfig, ...(args[0] ?? {}) })
     },
-  }) as K extends Record<string, never> ? UnionToIntersection<Client<T>> : THIRD_API<K> & UnionToIntersection<Client<T>>
+  }) as K extends Record<string, never>
+    ? UnionToIntersection<Client<T>>
+    : MergeClientWithApi<UnionToIntersection<Client<T>>, THIRD_API<K>>
 }

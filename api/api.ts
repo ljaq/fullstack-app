@@ -7,6 +7,6 @@ export const authority = {
 export const zbt = {
   userInfo: {
     method: 'GET',
-    url: '/api/app/user-manage/{id}/user-info',
+    url: '/api/app/user-manage/:id/user-info',
   },
 }
