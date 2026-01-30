@@ -1,4 +1,4 @@
-import { getBaseRequest } from '../../api/utils'
+import { getBaseRequest } from '../../../api/utils'
 import { IFile } from './type'
 
 // 兼容支持 带域名的全量地址

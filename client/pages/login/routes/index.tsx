@@ -1,6 +1,5 @@
-import { ProductOutlined } from '@ant-design/icons'
 import { App, Button, Form, Input, Space, theme } from 'antd'
-import { request } from 'client/api'
+import { request } from 'api'
 import storages from 'client/storages'
 import { formatTime } from 'client/utils/time'
 import dayjs from 'dayjs'

@@ -20,7 +20,7 @@ import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } 
 import { CSS } from '@dnd-kit/utilities'
 import { Schema, useForm, SearchForm } from 'form-render'
 import { useStyle } from './useStyle'
-import { API_REQ_FUNCTION } from '../../api/types'
+import { API_REQ_FUNCTION } from '../../../api/types'
 
 interface IProps {
   tableTitle?: ReactNode

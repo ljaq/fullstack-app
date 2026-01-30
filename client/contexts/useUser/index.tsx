@@ -1,4 +1,4 @@
-import { request } from 'client/api'
+import { request } from 'api'
 import { ButtonAuthority, MenuAuthority } from 'client/utils/auth'
 import React, { createContext, useCallback, useContext, useMemo } from 'react'
 import { useLogout } from './hooks'

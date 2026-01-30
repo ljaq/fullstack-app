@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Divider, Pagination, Select, SelectProps, Spin } from 'antd'
-import { Fetch } from 'client/api/utils'
+import { Fetch } from 'api'
 import { debounce } from 'client/utils'
 import { useMemo, useState } from 'react'
 

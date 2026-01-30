@@ -1,6 +1,6 @@
 import { message } from 'antd'
 import storages from 'client/storages'
-import { downloadFile, querystring } from '../utils/common'
+import { downloadFile, querystring } from '../client/utils/common'
 import { RequestConfig } from './types'
 
 /**
