@@ -11,44 +11,46 @@ export const Fetch = async <F = any, T = any>(config: RequestConfig<F>): Promise
     : ResponseHandler.handleError(response, config.options)
 }
 
-export function createApiProxy<T, K>(
-  baseApi: K,
+export function createApiProxy<T, K = Record<string, never>>(
+  baseApi: K = {} as K,
   basePath: string[] = [],
   baseConfig: RequestConfig = {},
-): THIRD_API<K> & UnionToIntersection<Client<T>> {
+): K extends Record<string, never> ? UnionToIntersection<Client<T>> : THIRD_API<K> & UnionToIntersection<Client<T>> {
   const proxyFunction = function () {}
+  const base = (baseApi ?? {}) as Record<string, unknown>
 
   return new Proxy(proxyFunction, {
     get(_, prop) {
       /** 获取请求地址 */
       if (prop === 'url') {
         return UrlProcessor.build({
-          url: basePath.reduce((a, b) => a?.[b], baseApi) ?? `/${basePath.join('/')}`,
+          url: basePath.length ? (basePath.reduce((a, b) => (a as any)?.[b], base) ?? `/${basePath.join('/')}`) : '/',
           ...baseConfig,
         })
       }
 
       /** 绑定method */
-      if (['get', 'post', 'put', 'delete'].includes(prop as any)) {
+      if (['get', 'post', 'put', 'delete'].includes(prop as string)) {
         return createApiProxy(baseApi, basePath, { ...baseConfig, method: prop as Methods })
       }
 
       /** 绑定请求参数 */
-      if (['body', 'query', 'params'].includes(prop as any)) {
-        return (args: any) => createApiProxy(baseApi, basePath, { ...baseConfig, [prop as any]: args })
+      if (['body', 'query', 'params'].includes(prop as string)) {
+        return (args: any) => createApiProxy(baseApi, basePath, { ...baseConfig, [prop as string]: args })
       }
 
-      if (['then', 'catch', 'finally'].includes(prop as any)) {
-        const path = basePath.reduce((a, b) => a?.[b], baseApi) ?? `/${basePath.join('/')}`
-        return cb => Fetch({ ...baseConfig, url: path })[prop as any](cb)
+      if (['then', 'catch', 'finally'].includes(prop as string)) {
+        const path = basePath.length ? (basePath.reduce((a, b) => (a as any)?.[b], base) ?? `/${basePath.join('/')}`) : '/'
+        const promise = Fetch({ ...baseConfig, url: path })
+        return (cb: any) => (promise as any)[prop](cb)
       }
 
       const newPath = [...basePath, String(prop)]
       return createApiProxy(baseApi, newPath, baseConfig)
     },
     apply(_, __, args) {
-      const path = basePath.reduce((a, b) => a?.[b], baseApi) ?? `/${basePath.join('/')}`
-      return Fetch({ url: path, ...baseConfig, ...args[0] })
+      const path = basePath.length ? (basePath.reduce((a, b) => (a as any)?.[b], base) ?? `/${basePath.join('/')}`) : '/'
+      return Fetch({ url: path, ...baseConfig, ...(args[0] ?? {}) })
     },
-  }) as any
+  }) as K extends Record<string, never> ? UnionToIntersection<Client<T>> : THIRD_API<K> & UnionToIntersection<Client<T>>
 }

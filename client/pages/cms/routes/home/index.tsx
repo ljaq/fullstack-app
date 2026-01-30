@@ -2,8 +2,8 @@ import { HomeOutlined } from '@ant-design/icons'
 import CommonTable from 'client/components/CommonTable'
 import { ColumnsType } from 'antd/es/table'
 import { Schema } from 'form-render'
-import { IRequest } from 'types'
 import { API_REQ_FUNCTION } from 'client/api/types'
+import { request } from 'client/api'
 
 const schema: Schema = {
   type: 'object',
