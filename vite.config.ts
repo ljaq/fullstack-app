@@ -113,6 +113,7 @@ export default defineConfig(({ command, mode }) => {
           outputDir: './build',
           minify: false,
           port: Number(env.VITE_PORT),
+          external: ['art-template'],
         }),
     ].filter(v => v),
   }

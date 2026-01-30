@@ -6,7 +6,7 @@ import { proxy } from 'hono/proxy'
 import { prettyJSON } from 'hono/pretty-json'
 import path from 'path'
 import qs from 'querystring'
-import artTemplate from 'art-template'
+import { compileHtml } from 'utils/compileHtml.js'
 import helloRoute from './server/routes/hello'
 
 const isDev = import.meta.env.DEV
@@ -62,7 +62,8 @@ if (isDev) {
   pages.reduce(
     (app, page) =>
       app.get(`/${page}/*`, async c => {
-        return c.html(artTemplate(path.join(import.meta.dirname, `./client/pages/${page}/index.html`), process.env))
+        const htmlPath = path.join(import.meta.dirname, `./client/pages/${page}/index.html`)
+        return c.html(compileHtml(readFileSync(htmlPath, 'utf-8'), process.env))
       }),
     app,
   )
