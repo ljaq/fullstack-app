@@ -29,6 +29,32 @@ export default defineConfig(({ command, mode }) => {
               output: {
                 chunkFileNames: 'js/[name]-[hash].js',
                 entryFileNames: 'js/[name]-[hash].js',
+                manualChunks(id) {
+                  if (id.includes('node_modules')) {
+                    if (id.includes('docx-preview')) {
+                      return 'vendor-docx-preview'
+                    }
+                    if (id.includes('canvas-datagrid')) {
+                      return 'vendor-canvas-datagrid'
+                    }
+                    if (id.includes('xlsx')) {
+                      return 'vendor-xlsx'
+                    }
+                    if (id.includes('echarts')) {
+                      return 'vendor-echarts'
+                    }
+                    if (id.includes('/react-router/') || id.includes('/react-router-dom/')) {
+                      return 'vendor-react-router'
+                    }
+                    if (id.includes('/react/') || id.includes('/react-dom/')) {
+                      return 'vendor-react'
+                    }
+                    if (id.includes('/@tanstack/react-query/')) {
+                      return 'vendor-react-query'
+                    }
+                  }
+                  return null
+                },
                 assetFileNames(assetsInfo) {
                   if (assetsInfo.names[0]?.endsWith('.css')) {
                     return 'css/[name]-[hash].css'
@@ -51,21 +77,6 @@ export default defineConfig(({ command, mode }) => {
                   }
                   return 'assets/[name]-[hash].[ext]'
                 },
-              },
-              manualChunks(id) {
-                console.log(id)
-                if (
-                  id.includes('node_modules/react') ||
-                  id.includes('node_modules/react-dom') ||
-                  id.includes('node_modules/react-router') ||
-                  id.includes('node_modules/react-router-dom')
-                ) {
-                  return 'vendor-react'
-                }
-                if (id.includes('react-dom')) {
-                  return 'vendor-react-dom'
-                }
-                return null
               },
             },
           }
