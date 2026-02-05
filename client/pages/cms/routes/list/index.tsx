@@ -9,9 +9,9 @@ export default function List() {
 
   return outlet
 }
-
-List.pageConfig = {
+export const pageConfig = {
   name: 'list',
   order: 1,
   icon: <HomeOutlined />,
 }
+

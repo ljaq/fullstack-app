@@ -6,7 +6,6 @@ import dayjs from 'dayjs'
 import qs from 'querystring'
 import { useEffect, useRef, useState } from 'react'
 import { useLocalStorage } from 'react-use'
-import FOG from 'vanta/dist/vanta.fog.min'
 import './style.less'
 
 export default function Login() {
@@ -16,7 +15,9 @@ export default function Login() {
   const [_, setToken] = useLocalStorage(storages.TOKEN)
   const [form] = Form.useForm()
   const { message } = App.useApp()
-  const { token: { colorPrimary, colorPrimaryBgHover, colorPrimaryActive, colorPrimaryHover } } = theme.useToken()
+  const {
+    token: { colorPrimary, colorPrimaryBgHover, colorPrimaryActive, colorPrimaryHover },
+  } = theme.useToken()
 
   const handleFinish = async (fields: any) => {
     setLoading(true)
@@ -47,18 +48,21 @@ export default function Login() {
   }
 
   useEffect(() => {
-    FOG({
-      el: '.login',
-      mouseControls: true,
-      touchControls: true,
-      gyroControls: true,
-      minHeight: 200.0,
-      minWidth: 200.0,
-      zoom: 0.5,
-      highlightColor: colorPrimaryHover,
-      midtoneColor: colorPrimary,
-      lowlightColor: colorPrimaryActive,
-      baseColor: colorPrimaryBgHover,
+    let vantaEffect: { destroy?: () => void } | null = null
+    import('vanta/dist/vanta.fog.min').then(({ default: FOG }) => {
+      vantaEffect = FOG({
+        el: '.login',
+        mouseControls: true,
+        touchControls: true,
+        gyroControls: true,
+        minHeight: 200.0,
+        minWidth: 200.0,
+        zoom: 0.5,
+        highlightColor: colorPrimaryHover,
+        midtoneColor: colorPrimary,
+        lowlightColor: colorPrimaryActive,
+        baseColor: colorPrimaryBgHover,
+      })
     })
 
     timer.current = setInterval(() => {
@@ -67,6 +71,7 @@ export default function Login() {
 
     return () => {
       clearInterval(timer.current)
+      vantaEffect?.destroy?.()
     }
   }, [])
 

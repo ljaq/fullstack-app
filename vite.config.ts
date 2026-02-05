@@ -52,6 +52,21 @@ export default defineConfig(({ command, mode }) => {
                   return 'assets/[name]-[hash].[ext]'
                 },
               },
+              manualChunks(id) {
+                console.log(id)
+                if (
+                  id.includes('node_modules/react') ||
+                  id.includes('node_modules/react-dom') ||
+                  id.includes('node_modules/react-router') ||
+                  id.includes('node_modules/react-router-dom')
+                ) {
+                  return 'vendor-react'
+                }
+                if (id.includes('react-dom')) {
+                  return 'vendor-react-dom'
+                }
+                return null
+              },
             },
           }
         : { copyPublicDir: false },
@@ -95,13 +110,18 @@ export default defineConfig(({ command, mode }) => {
         Page({
           dirs: [{ dir: `client/pages/${page}/routes`, baseRoute: `/${page}` }],
           moduleId: `~react-page-${page}`,
-          importMode: 'sync',
+          importMode: 'async',
           routeStyle: 'next',
           exclude: ['**/components/*.tsx', '**/components/*.ts', '**/schema.ts', '**/style.ts'],
           onClientGenerated(clientCode) {
-            const routeCode = clientCode.replace(/"element":React\.createElement\((.*?)\)/g, (_, pageName) => {
-              return `meta: ${pageName}.pageConfig,${_}`
-            })
+            const routeCode = clientCode
+              .replace(/const (.*?) = React\.lazy\(\(\) => import\((.*?)\)\);/g, (match, pageName, comPath) => {
+                if (comPath === 'react') return match
+                return `${match}\r\nimport * as ${pageName}meta from ${comPath}`
+              })
+              .replace(/"element":React\.createElement\((.*?)\)/g, (_, pageName) => {
+                return `meta: ${pageName}meta.pageConfig,${_}`
+              })
             return routeCode
           },
         }),

@@ -8,8 +8,7 @@ export default function About() {
     </div>
   )
 }
-
-About.pageConfig = {
+export const pageConfig = {
   name: '关于',
   order: 2,
   icon: <HomeOutlined />,

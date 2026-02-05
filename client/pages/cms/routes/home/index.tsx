@@ -57,9 +57,9 @@ export default function Home() {
     />
   )
 }
-
-Home.pageConfig = {
+export const pageConfig = {
   name: 'Home',
   order: 0,
   icon: <HomeOutlined />,
 }
+

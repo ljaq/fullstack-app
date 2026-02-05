@@ -1,17 +1,19 @@
 import { Button, Modal, Result, Row, Space } from 'antd'
 import EasyModal from '../../utils/easyModal'
-import { useCallback, useMemo, useState } from 'react'
+import { lazy, Suspense, useCallback, useMemo, useState } from 'react'
 import { IFile, FileType, IProps } from './type'
 import { downloadFile } from './utils'
-import Doc from './PreviewCom/Doc'
 import Pdf from './PreviewCom/Pdf'
 import Image from './PreviewCom/Image'
-import Xls from './PreviewCom/Xls'
 import { CloseOutlined, DownloadOutlined, RollbackOutlined } from '@ant-design/icons'
 
 import './style.less'
 import Mp3 from './PreviewCom/Mp3'
 import Mp4 from './PreviewCom/Mp4'
+
+// docx-preview、xlsx、canvas-datagrid 较重，按需懒加载
+const Doc = lazy(() => import('./PreviewCom/Doc'))
+const Xls = lazy(() => import('./PreviewCom/Xls'))
 
 const PreviewComMap: { [key in FileType]: React.ComponentType<{ file: IFile }> } = {
   docx: Doc,
@@ -70,7 +72,9 @@ const PreviewModal = EasyModal.create<IProps>(modal => {
       closeIcon={null}
     >
       {PreviewCom ? (
-        <PreviewCom file={file} />
+        <Suspense fallback={<div style={{ minHeight: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>加载预览中...</div>}>
+          <PreviewCom file={file} />
+        </Suspense>
       ) : (
         <Result
           status={500}
