@@ -1,4 +1,3 @@
-import { HomeOutlined } from '@ant-design/icons'
 import CommonTable from 'client/components/CommonTable'
 import { ColumnsType } from 'antd/es/table'
 import { Schema } from 'form-render'
@@ -56,10 +55,5 @@ export default function Home() {
       request={(() => Promise.resolve({ data: [], total: 0, success: true, message: '' })) as API_REQ_FUNCTION<any>}
     />
   )
-}
-export const pageConfig = {
-  name: 'Home',
-  order: 0,
-  icon: <HomeOutlined />,
 }
 

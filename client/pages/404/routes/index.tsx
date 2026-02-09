@@ -36,5 +36,3 @@ export default function Page404({ crossPage = true }: { crossPage?: boolean }) {
     </div>
   )
 }
-
-export const pageConfig = {}

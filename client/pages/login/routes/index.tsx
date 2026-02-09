@@ -2,8 +2,8 @@ import { App, Button, Form, Input, Space, theme } from 'antd'
 import { request } from 'api'
 import storages from 'client/storages'
 import { formatTime } from 'client/utils/time'
+import { querystring } from 'client/utils/common'
 import dayjs from 'dayjs'
-import qs from 'querystring'
 import { useEffect, useRef, useState } from 'react'
 import { useLocalStorage } from 'react-use'
 import './style.less'
@@ -30,7 +30,7 @@ export default function Login() {
       }
       const res = await request.authority.login({
         method: 'POST',
-        body: qs.stringify(data),
+        body: querystring.stringify(data),
       })
       setToken(res)
       location.href = '/cms'
@@ -105,9 +105,4 @@ export default function Login() {
       </div>
     </div>
   )
-}
-
-export const pageConfig = {
-  icon: <div></div>,
-  name: 'login',
 }
