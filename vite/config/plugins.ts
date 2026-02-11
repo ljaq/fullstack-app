@@ -48,10 +48,7 @@ export function getPlugins(
             .replace(
               /const (.*?) = React\.lazy\(\(\) => import\((.*?)\)\);/g,
               (match, pageName, comPath) => {
-                console.log(pageName, comPath)
-                if (comPath === 'react') return match
                 const rawPath = comPath.replace(/^["']|["']$/g, '').trim()
-                if (rawPath.includes('.config.')) return match
                 const configPath = rawPath.replace(/(\.(tsx?|jsx?))$/, '.config$1')
                 if (existsSync(path.join(rootDir, configPath))) {
                   return `${match}\r\nimport { pageConfig as ${pageName}config } from "${configPath}"`
