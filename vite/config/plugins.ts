@@ -42,24 +42,19 @@ export function getPlugins(
         moduleId: `~react-page-${page}`,
         importMode: 'async',
         routeStyle: 'next',
-        exclude: ['**/components/*.tsx', '**/components/*.ts', '**/schema.ts', '**/style.ts', '**/*.meta.tsx', '**/*.meta.ts'],
+        exclude: ['**/components/*.tsx', '**/components/*.ts', '**/schema.ts', '**/style.ts', '**/*.config.tsx', '**/*.config.ts'],
         onClientGenerated(clientCode) {
           const code = clientCode
             .replace(
               /const (.*?) = React\.lazy\(\(\) => import\((.*?)\)\);/g,
               (match, pageName, comPath) => {
+                console.log(pageName, comPath)
                 if (comPath === 'react') return match
                 const rawPath = comPath.replace(/^["']|["']$/g, '').trim()
-                if (rawPath.includes('.meta.')) return match
-                const relativeFromRoot = rawPath.startsWith('/')
-                  ? path.relative(rootDir, rawPath)
-                  : rawPath.startsWith('client/')
-                    ? rawPath
-                    : path.join('client/pages', page, 'routes', rawPath)
-                const metaPathAbs = path.resolve(rootDir, relativeFromRoot.replace(/(\.(tsx?|jsx?))$/, '.meta$1'))
-                const quote = comPath.trim().startsWith('"') ? '"' : "'"
-                if (existsSync(metaPathAbs)) {
-                  return `${match}\r\nimport { pageConfig as ${pageName}config } from ${quote}${path.relative(rootDir, metaPathAbs).split(path.sep).join('/')}${quote}`
+                if (rawPath.includes('.config.')) return match
+                const configPath = rawPath.replace(/(\.(tsx?|jsx?))$/, '.config$1')
+                if (existsSync(path.join(rootDir, configPath))) {
+                  return `${match}\r\nimport { pageConfig as ${pageName}config } from "${configPath}"`
                 }
                 return `${match}\r\nconst ${pageName}config = {}`
               },
@@ -67,6 +62,7 @@ export function getPlugins(
             .replace(/"element":React\.createElement\((.*?)\)/g, (_, pageName) => {
               return `meta: ${pageName}config,${_}`
             })
+          console.log(code)
           return code
         },
       }),
