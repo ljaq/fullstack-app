@@ -7,11 +7,7 @@ import type { PluginOption } from 'vite'
 import Page from 'vite-plugin-pages'
 import { rootDir } from './env'
 
-export function getPlugins(
-  mode: string,
-  env: Record<string, string>,
-  pages: string[],
-): PluginOption[] {
+export function getPlugins(mode: string, env: Record<string, string>, pages: string[]): PluginOption[] {
   const port = Number(env.VITE_PORT)
 
   const base: PluginOption[] = [
@@ -42,24 +38,27 @@ export function getPlugins(
         moduleId: `~react-page-${page}`,
         importMode: 'async',
         routeStyle: 'next',
-        exclude: ['**/components/*.tsx', '**/components/*.ts', '**/schema.ts', '**/style.ts', '**/*.config.tsx', '**/*.config.ts'],
+        exclude: [
+          '**/components/*.tsx',
+          '**/components/*.ts',
+          '**/schema.ts',
+          '**/style.ts',
+          '**/*.config.tsx',
+          '**/*.config.ts',
+        ],
         onClientGenerated(clientCode) {
           const code = clientCode
-            .replace(
-              /const (.*?) = React\.lazy\(\(\) => import\((.*?)\)\);/g,
-              (match, pageName, comPath) => {
-                const rawPath = comPath.replace(/^["']|["']$/g, '').trim()
-                const configPath = rawPath.replace(/(\.(tsx?|jsx?))$/, '.config$1')
-                if (existsSync(path.join(rootDir, configPath))) {
-                  return `${match}\r\nimport { pageConfig as ${pageName}config } from "${configPath}"`
-                }
-                return `${match}\r\nconst ${pageName}config = {}`
-              },
-            )
+            .replace(/const (.*?) = React\.lazy\(\(\) => import\((.*?)\)\);/g, (match, pageName, comPath) => {
+              const rawPath = comPath.replace(/^["']|["']$/g, '').trim()
+              const configPath = rawPath.replace(/(\.(tsx?|jsx?))$/, '.config$1')
+              if (existsSync(path.join(rootDir, configPath))) {
+                return `${match}\r\nimport { pageConfig as ${pageName}config } from "${configPath}"`
+              }
+              return `${match}\r\nconst ${pageName}config = {}`
+            })
             .replace(/"element":React\.createElement\((.*?)\)/g, (_, pageName) => {
               return `meta: ${pageName}config,${_}`
             })
-          console.log(code)
           return code
         },
       }),

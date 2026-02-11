@@ -1,8 +1,8 @@
 import path from 'path'
-import type { ResolveOptions } from 'vite'
+import type { AliasOptions, ResolveOptions } from 'vite'
 import { rootDir } from './env'
 
-export function getSharedResolve(): ResolveOptions {
+export function getSharedResolve(): ResolveOptions & { alias: AliasOptions } {
   return {
     alias: {
       api: path.resolve(rootDir, './api'),
