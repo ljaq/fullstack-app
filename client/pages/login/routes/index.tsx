@@ -49,21 +49,46 @@ export default function Login() {
 
   useEffect(() => {
     let vantaEffect: { destroy?: () => void } | null = null
-    import('vanta/dist/vanta.fog.min').then(({ default: FOG }) => {
-      vantaEffect = FOG({
-        el: '.login',
-        mouseControls: true,
-        touchControls: true,
-        gyroControls: true,
-        minHeight: 200.0,
-        minWidth: 200.0,
-        zoom: 0.5,
-        highlightColor: colorPrimaryHover,
-        midtoneColor: colorPrimary,
-        lowlightColor: colorPrimaryActive,
-        baseColor: colorPrimaryBgHover,
+
+    const loadThree = () =>
+      new Promise<void>((resolve, reject) => {
+        if ((window as any).THREE) {
+          resolve()
+          return
+        }
+        const script = document.createElement('script')
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js'
+        script.onload = () => resolve()
+        script.onerror = reject
+        document.head.appendChild(script)
       })
-    })
+
+    const initVanta = () => {
+      loadThree()
+        .then(() => import('vanta/dist/vanta.fog.min'))
+        .then(({ default: FOG }) => {
+          vantaEffect = FOG({
+            el: '.login',
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: true,
+            minHeight: 200.0,
+            minWidth: 200.0,
+            zoom: 0.5,
+            highlightColor: colorPrimaryHover,
+            midtoneColor: colorPrimary,
+            lowlightColor: colorPrimaryActive,
+            baseColor: colorPrimaryBgHover,
+          })
+        })
+    }
+
+    // 延迟加载 vanta，先渲染表单减少白屏
+    if (typeof requestIdleCallback !== 'undefined') {
+      requestIdleCallback(initVanta, { timeout: 2000 })
+    } else {
+      setTimeout(initVanta, 500)
+    }
 
     timer.current = setInterval(() => {
       setTime(formatTime(dayjs(), 'YYYY/MM/DD HH:mm'))

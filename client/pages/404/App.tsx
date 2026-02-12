@@ -1,4 +1,5 @@
-import { ConfigProvider, Spin } from 'antd'
+import { ConfigProvider } from 'antd'
+import PageSkeleton from 'client/components/PageSkeleton'
 import zh_CN from 'antd/locale/zh_CN'
 import { useUser } from 'client/contexts/useUser'
 import { Suspense } from 'react'
@@ -10,7 +11,7 @@ function App() {
   const [{ themeConfig }] = useUser()
   return (
     <ConfigProvider locale={zh_CN} theme={{ token: { colorPrimary: themeConfig.color } }}>
-      <Suspense fallback={<Spin spinning />}>
+      <Suspense fallback={<PageSkeleton />}>
         <div key={pathname}>{useRoutes(routes)}</div>
       </Suspense>
     </ConfigProvider>

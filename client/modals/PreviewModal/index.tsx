@@ -3,17 +3,17 @@ import EasyModal from '../../utils/easyModal'
 import { lazy, Suspense, useCallback, useMemo, useState } from 'react'
 import { IFile, FileType, IProps } from './type'
 import { downloadFile } from './utils'
-import Pdf from './PreviewCom/Pdf'
-import Image from './PreviewCom/Image'
 import { CloseOutlined, DownloadOutlined, RollbackOutlined } from '@ant-design/icons'
 
 import './style.less'
-import Mp3 from './PreviewCom/Mp3'
-import Mp4 from './PreviewCom/Mp4'
 
-// docx-preview、xlsx、canvas-datagrid 较重，按需懒加载
+// 预览组件按需懒加载，避免 docx-preview、xlsx、canvas-datagrid 等重依赖进入主包
 const Doc = lazy(() => import('./PreviewCom/Doc'))
 const Xls = lazy(() => import('./PreviewCom/Xls'))
+const Pdf = lazy(() => import('./PreviewCom/Pdf'))
+const Image = lazy(() => import('./PreviewCom/Image'))
+const Mp3 = lazy(() => import('./PreviewCom/Mp3'))
+const Mp4 = lazy(() => import('./PreviewCom/Mp4'))
 
 const PreviewComMap: { [key in FileType]: React.ComponentType<{ file: IFile }> } = {
   docx: Doc,
