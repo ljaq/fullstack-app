@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --mode development --host",
-    "dev:production": "vite --mode production --host",
+    "dev": "node ./scripts/injectSkeleton.mjs && vite --mode development --host",
+    "dev:production": "node ./scripts/injectSkeleton.mjs && vite --mode production --host",
     "build": "rm -rf ./build && pnpm build:client && pnpm build:server",
-    "build:client": "vite build --mode client && node ./scripts/rmtml.mjs",
+    "build:client": "node ./scripts/injectSkeleton.mjs && vite build --mode client && node ./scripts/rmtml.mjs",
     "build:server": "vite build --mode server",
     "start:test": "cross-env mode=development node ./build/app.js",
     "start:prod": "cross-env mode=production node ./build/app.js",

@@ -1,24 +1,9 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <link rel="stylesheet" href="/reset.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    {{if NODE_ENV === 'development'}}
-    <script type="module">
-      import RefreshRuntime from '/@react-refresh'
-      RefreshRuntime.injectIntoGlobalHook(window)
-      window.$RefreshReg$ = () => {}
-      window.$RefreshSig$ = () => type => type
-      window.__vite_plugin_react_preamble_installed__ = true
-    </script>
-    {{/if}}
-    <title>Fullstack app</title>
-  </head>
-  <body>
-    <div id="root">
-      <style>
+/**
+ * 骨架屏 HTML 生成逻辑，供 Vite 插件与 compileHtml 共用
+ * 根据页面名生成对应的 Ant Design Skeleton 结构
+ */
+
+const SKELETON_CSS = `
 .ant-skeleton { display: block; }
 .ant-skeleton-content { padding-top: 16px; }
 .ant-skeleton-title { height: 16px; margin-top: 16px; border-radius: 4px; background: linear-gradient(90deg,rgba(0,0,0,0.06) 25%,rgba(0,0,0,0.15) 37%,rgba(0,0,0,0.06) 63%); background-size: 400% 100%; animation: skeleton-loading 1.4s ease infinite; }
@@ -30,8 +15,11 @@
 .ant-skeleton-button { height: 32px; width: 64px; border-radius: 6px; background: linear-gradient(90deg,rgba(0,0,0,0.06) 25%,rgba(0,0,0,0.15) 37%,rgba(0,0,0,0.06) 63%); background-size: 400% 100%; animation: skeleton-loading 1.4s ease infinite; }
 .ant-skeleton-avatar { border-radius: 4px; background: linear-gradient(90deg,rgba(0,0,0,0.06) 25%,rgba(0,0,0,0.15) 37%,rgba(0,0,0,0.06) 63%); background-size: 400% 100%; animation: skeleton-loading 1.4s ease infinite; }
 @keyframes skeleton-loading { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
-</style>
-      <div style="width:100vw;height:100vh;display:flex;background:linear-gradient(#fff,#f5f5f5 28%)">
+`
+
+function getCmsSkeleton() {
+  return `
+    <div style="width:100vw;height:100vh;display:flex;background:linear-gradient(#fff,#f5f5f5 28%)">
       <aside style="width:200px;flex-shrink:0;height:100vh;display:flex;flex-direction:column;border-right:1px solid rgba(0,0,0,0.06)">
         <div style="height:56px;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid rgba(0,0,0,0.06)">
           <div class="ant-skeleton-avatar" style="width:32px;height:32px"></div>
@@ -78,7 +66,59 @@
         </div>
       </main>
     </div>
+  `
+}
+
+function getLoginSkeleton() {
+  return `
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(#fff,#f5f5f5)">
+      <div style="width:360px;padding:32px;border:1px solid rgba(0,0,0,0.06);border-radius:8px;background:#fff">
+        <div class="ant-skeleton-title" style="width:120px;margin-top:0;height:24px"></div>
+        <div class="ant-skeleton-input" style="width:100%;margin-top:24px"></div>
+        <div class="ant-skeleton-input" style="width:100%;margin-top:16px"></div>
+        <div class="ant-skeleton-button" style="width:100%;height:40px;margin-top:24px"></div>
+      </div>
     </div>
-    <script type="module" src="/client/pages/cms/main.tsx"></script>
-  </body>
-</html>
+  `
+}
+
+function get404Skeleton() {
+  return `
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(#fff,#f5f5f5)">
+      <div style="text-align:center;padding:40px">
+        <div class="ant-skeleton-title" style="width:200px;height:32px;margin:0 auto"></div>
+        <div class="ant-skeleton-paragraph" style="margin-top:24px"><li style="width:160px;margin:8px auto"></li><li style="width:120px;margin:8px auto"></li></div>
+      </div>
+    </div>
+  `
+}
+
+function getDefaultSkeleton() {
+  return `
+    <div style="padding:24px 40px">
+      <div class="ant-skeleton"><div class="ant-skeleton-content"><div class="ant-skeleton-title"></div><div class="ant-skeleton-paragraph"><li></li><li></li><li></li><li></li></div></div></div>
+      <div class="ant-skeleton" style="margin-top:24px"><div class="ant-skeleton-content"><div class="ant-skeleton-title"></div><div class="ant-skeleton-paragraph"><li></li><li></li><li></li><li></li><li></li><li></li></div></div></div>
+    </div>
+  `
+}
+
+const PAGE_SKELETONS = {
+  cms: getCmsSkeleton,
+  login: getLoginSkeleton,
+  '404': get404Skeleton,
+}
+
+export function getSkeletonForPage(pageName) {
+  const fn = PAGE_SKELETONS[pageName]
+  return fn ? fn() : getDefaultSkeleton()
+}
+
+/** 将 HTML 中 #root 内的内容替换为指定页面的骨架屏 */
+export function injectSkeleton(html, pageName) {
+  if (!pageName) return html
+  // 贪婪匹配整个 #root div（含嵌套），兼容源码（</div> 后跟 <script>）与构建后（</div> 后跟 </body>）
+  const rootContentRegex = /<div id="root">[\s\S]*<\/div>(?=\s*<script|\s*<\/body>)/m
+  const skeleton = getSkeletonForPage(pageName)
+  const rootWithSkeleton = `<div id="root">\n      <style>${SKELETON_CSS}</style>\n      ${skeleton.trim()}\n    </div>`
+  return html.replace(rootContentRegex, rootWithSkeleton)
+}
