@@ -1,5 +1,5 @@
 import { ConfigProvider } from 'antd'
-import LoginSkeleton from 'client/components/PageSkeleton/LoginSkeleton'
+import Skeleton from './Skeleton'
 import zh_CN from 'antd/locale/zh_CN'
 import { Suspense } from 'react'
 import { useLocation, useRoutes } from 'react-router'
@@ -12,7 +12,7 @@ function App() {
   const [{ themeConfig }] = useUser()
   return (
     <ConfigProvider locale={zh_CN} theme={{ token: { colorPrimary: themeConfig.color } }}>
-      <Suspense fallback={<LoginSkeleton />}>
+      <Suspense fallback={<Skeleton />}>
         <div key={pathname}>{useRoutes(routes)}</div>
       </Suspense>
     </ConfigProvider>
