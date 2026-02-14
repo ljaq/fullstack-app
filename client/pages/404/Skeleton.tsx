@@ -1,10 +1,11 @@
 import React from 'react'
+import { Skeleton } from 'antd'
 
 /**
  * 404 页骨架屏：简单居中
- * 单路由页面，pathname 可忽略
+ * 使用 antd Skeleton 组件
  */
-export default function Skeleton(_props?: { pathname?: string }) {
+export default function PageSkeleton(_props?: { pathname?: string }) {
   return (
     <div
       style={{
@@ -16,11 +17,7 @@ export default function Skeleton(_props?: { pathname?: string }) {
       }}
     >
       <div style={{ textAlign: 'center', padding: 40 }}>
-        <div className="ant-skeleton-title" style={{ width: 200, height: 32, margin: '0 auto' }} />
-        <ul className="ant-skeleton-paragraph" style={{ marginTop: 24 }}>
-          <li style={{ width: 160, margin: '8px auto' }} />
-          <li style={{ width: 120, margin: '8px auto' }} />
-        </ul>
+        <Skeleton active title={{ width: 200 }} paragraph={{ rows: 2 }} />
       </div>
     </div>
   )

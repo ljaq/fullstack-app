@@ -1,5 +1,5 @@
 import { ConfigProvider } from 'antd'
-import Skeleton from './Skeleton'
+import { ContentSkeleton } from './Skeleton'
 import zh_CN from 'antd/locale/zh_CN'
 import Translate from 'client/components/Animation/Translate'
 import { useUser } from 'client/contexts/useUser'
@@ -30,7 +30,7 @@ function App() {
     <ConfigProvider locale={zh_CN} theme={{ token: { colorPrimary: themeConfig.color } }}>
       <EasyModal.Provider>
         <Layout>
-          <Suspense fallback={<Skeleton />}>
+          <Suspense fallback={<ContentSkeleton />}>
             <Translate distance={40}>
               <div key={pathname} style={{ padding: '0 40px 32px' }}>
                 {useRoutes(useAuthorityRoutes(routes))}

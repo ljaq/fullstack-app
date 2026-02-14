@@ -1,10 +1,11 @@
 import React from 'react'
+import { Skeleton } from 'antd'
 
 /**
  * 登录页骨架屏：居中表单卡片
- * 单路由页面，pathname 可忽略
+ * 使用 antd Skeleton 组件
  */
-export default function Skeleton(_props?: { pathname?: string }) {
+export default function LoginSkeleton(_props?: { pathname?: string }) {
   return (
     <div
       style={{
@@ -24,10 +25,10 @@ export default function Skeleton(_props?: { pathname?: string }) {
           background: '#fff',
         }}
       >
-        <div className="ant-skeleton-title" style={{ width: 120, marginTop: 0, height: 24 }} />
-        <div className="ant-skeleton-input" style={{ width: '100%', marginTop: 24 }} />
-        <div className="ant-skeleton-input" style={{ width: '100%', marginTop: 16 }} />
-        <div className="ant-skeleton-button" style={{ width: '100%', height: 40, marginTop: 24 }} />
+        <Skeleton active title={{ width: 120 }} paragraph={false} />
+        <Skeleton.Input active style={{ width: '100%', marginTop: 24 }} />
+        <Skeleton.Input active style={{ width: '100%', marginTop: 16 }} />
+        <Skeleton.Button active style={{ width: '100%', height: 40, marginTop: 24 }} />
       </div>
     </div>
   )

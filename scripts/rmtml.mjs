@@ -1,16 +1,34 @@
 #!/usr/bin/env node
 
 import fs from 'fs'
+import path from 'path'
 import { compileHtml } from '../utils/compileHtml.js'
+import { renderSkeleton } from '../utils/renderSkeleton.js'
 
 const dirNames = fs.readdirSync('./build/public/client/pages')
+const skeletonMap = {} // { page: { pathname: skeletonHtml } }
 
-// 与开发模式相同：用 art-template 编译模板，构建时 NODE_ENV=production 会去掉 {{if NODE_ENV === 'development'}} 块
 for (let i = 0; i < dirNames.length; i++) {
-  const src = `./build/public/client/pages/${dirNames[i]}/index.html`
-  const dest = `./build/public/${dirNames[i]}.html`
+  const page = dirNames[i]
+  const src = `./build/public/client/pages/${page}/index.html`
+  const dest = `./build/public/${page}.html`
   const content = fs.readFileSync(src, 'utf-8')
-  // skeleton 占位符保留供运行时 art-template 动态注入
-  fs.writeFileSync(dest, compileHtml(content, { NODE_ENV: 'production', skeleton: '{{skeleton}}' }))
+
+  let pathnames = [`/${page}`]
+  try {
+    const skeletonSrc = fs.readFileSync(path.resolve(`./client/pages/${page}/Skeleton.tsx`), 'utf-8')
+    const keys = [...skeletonSrc.matchAll(/^\s*['"](\/[^'"]+)['"]\s*:/gm)].map(m => m[1]).filter(k => k.startsWith(`/${page}`))
+    if (keys.length) pathnames = [...new Set([`/${page}`, ...keys])]
+  } catch {
+    /* no routeSkeletons */
+  }
+  skeletonMap[page] = {}
+  for (const pathname of pathnames) {
+    skeletonMap[page][pathname] = renderSkeleton(page, pathname)
+  }
+
+  fs.writeFileSync(dest, compileHtml(content, { NODE_ENV: 'production', skeleton: '{{@ skeleton }}' }))
 }
+
+fs.writeFileSync('./build/skeleton-map.json', JSON.stringify(skeletonMap))
 fs.rmSync('./build/public/client', { recursive: true })

@@ -60,16 +60,32 @@ Object.entries(proxyConf).reduce(
 
 const projectRoot = path.join(import.meta.dirname, isDev ? '.' : '..')
 
-function getSkeletonForPage(page, pathname) {
-  const skeletonPath = path.join(projectRoot, 'client/pages', page, 'Skeleton.tsx')
-  if (existsSync(skeletonPath)) {
-    return renderSkeleton(page, pathname)
+let skeletonMap: Record<string, Record<string, string>> = {}
+if (!isDev) {
+  try {
+    const mapPath = path.join(import.meta.dirname, 'skeleton-map.json')
+    skeletonMap = JSON.parse(readFileSync(mapPath, 'utf-8'))
+  } catch {
+    /* no skeleton map */
   }
-  return ''
 }
 
-pages = readdirSync(path.join(import.meta.dirname, './client/pages'))
+function getSkeletonForPage(page, pathname) {
+  if (isDev) {
+    const skeletonPath = path.join(projectRoot, 'client/pages', page, 'Skeleton.tsx')
+    if (existsSync(skeletonPath)) {
+      return renderSkeleton(page, pathname)
+    }
+    return ''
+  }
+  const map = skeletonMap[page]
+  if (!map) return ''
+  const normalized = pathname.replace(/\/$/, '') || `/${page}`
+  return map[normalized] ?? map[`/${page}`] ?? ''
+}
+
 if (isDev) {
+  pages = readdirSync(path.join(import.meta.dirname, 'client/pages'))
   pages.reduce(
     (app, page) =>
       app.get(`/${page}/*`, async c => {
@@ -81,7 +97,7 @@ if (isDev) {
     app,
   )
 } else {
-  app.get('/*', serveStatic({ root: path.join(import.meta.dirname, 'public') }))
+  app.get('/*', serveStatic({ root: 'build/public' }))
   pages = readdirSync(path.join(import.meta.dirname, 'public'))
     .filter(item => item.endsWith('.html'))
     .map(item => item.replace(/\.html$/, ''))

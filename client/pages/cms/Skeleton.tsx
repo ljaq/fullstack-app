@@ -1,9 +1,45 @@
 import React from 'react'
+import { Skeleton } from 'antd'
 
 /**
  * CMS 页骨架屏：支持按路由配置不同骨架，默认表格布局
- * 用于 HTML 注入与 Suspense fallback
+ * 使用 antd Skeleton 组件，样式由 antd 提供
  */
+
+export function ContentSkeleton() {
+  return (
+    <div style={{ flex: 1, overflowY: 'auto', padding: '0 40px 32px', position: 'relative' }}>
+      <div style={{ marginBottom: 16, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+        <Skeleton.Input active style={{ width: 160 }} />
+        <Skeleton.Input active style={{ width: 120 }} />
+        <Skeleton.Input active style={{ width: 200 }} />
+        <Skeleton.Button active />
+      </div>
+      <div
+        style={{
+          border: '1px solid rgba(0,0,0,0.06)',
+          borderRadius: 8,
+          padding: 16,
+          background: '#fff',
+        }}
+      >
+        <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+          <Skeleton.Input active size='small' style={{ width: 60 }} />
+          <Skeleton.Input active size='small' style={{ width: 60 }} />
+          <Skeleton.Input active size='small' style={{ width: 60 }} />
+        </div>
+        <Skeleton active paragraph={{ rows: 5 }} />
+        <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Skeleton.Input active size='small' style={{ width: 80 }} />
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Skeleton.Button active size='small' style={{ width: 32 }} />
+            <Skeleton.Button active size='small' style={{ width: 32 }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function DefaultSkeleton() {
   return (
@@ -27,18 +63,18 @@ function DefaultSkeleton() {
             borderBottom: '1px solid rgba(0,0,0,0.06)',
           }}
         >
-          <div className="ant-skeleton-avatar" style={{ width: 32, height: 32 }} />
-          <div className="ant-skeleton-title" style={{ width: 80, marginLeft: 8, marginTop: 0 }} />
+          <Skeleton.Avatar active size={32} />
+          <Skeleton.Input active size='small' style={{ width: 80, marginLeft: 8 }} />
         </div>
         <div style={{ flex: 1, padding: 8 }}>
-          <div className="ant-skeleton-title" style={{ width: '100%' }} />
-          <div className="ant-skeleton-title" style={{ width: '70%' }} />
-          <div className="ant-skeleton-title" style={{ width: '90%' }} />
-          <div className="ant-skeleton-title" style={{ width: '60%' }} />
+          <Skeleton active title={{ width: '100%' }} paragraph={false} style={{ marginBottom: 16 }} />
+          <Skeleton active title={{ width: '70%' }} paragraph={false} style={{ marginBottom: 16 }} />
+          <Skeleton active title={{ width: '90%' }} paragraph={false} style={{ marginBottom: 16 }} />
+          <Skeleton active title={{ width: '60%' }} paragraph={false} style={{ marginBottom: 16 }} />
         </div>
         <div style={{ height: 56, padding: '0 8px', display: 'flex', alignItems: 'center' }}>
-          <div className="ant-skeleton-avatar" style={{ width: 24, height: 24 }} />
-          <div className="ant-skeleton-title" style={{ width: 48, marginLeft: 8, marginTop: 0 }} />
+          <Skeleton.Avatar active size={24} />
+          <Skeleton.Input active size='small' style={{ width: 48, marginLeft: 8 }} />
         </div>
       </aside>
       <main style={{ flex: 1, height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
@@ -49,48 +85,12 @@ function DefaultSkeleton() {
             display: 'flex',
             alignItems: 'center',
             padding: '0 40px',
-            borderBottom: '1px solid rgba(0,0,0,0.06)',
           }}
         >
-          <div className="ant-skeleton-title" style={{ width: 120, marginTop: 0 }} />
-          <div className="ant-skeleton-title" style={{ width: 80, marginLeft: 16, marginTop: 0 }} />
+          <Skeleton.Input active size='small' style={{ width: 120 }} />
+          <Skeleton.Input active size='small' style={{ width: 80, marginLeft: 16 }} />
         </header>
-        <div style={{ flex: 1, overflowY: 'auto', padding: '24px 40px 32px' }}>
-          <div style={{ marginBottom: 16, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <div className="ant-skeleton-input" style={{ width: 160 }} />
-            <div className="ant-skeleton-input" style={{ width: 120 }} />
-            <div className="ant-skeleton-input" style={{ width: 200 }} />
-            <div className="ant-skeleton-button" />
-          </div>
-          <div
-            style={{
-              border: '1px solid rgba(0,0,0,0.06)',
-              borderRadius: 8,
-              padding: 16,
-              background: '#fff',
-            }}
-          >
-            <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-              <div className="ant-skeleton-title" style={{ width: 60, marginTop: 0 }} />
-              <div className="ant-skeleton-title" style={{ width: 60, marginTop: 0 }} />
-              <div className="ant-skeleton-title" style={{ width: 60, marginTop: 0 }} />
-            </div>
-            <ul className="ant-skeleton-paragraph">
-              <li style={{ width: '100%' }} />
-              <li style={{ width: '95%' }} />
-              <li style={{ width: '98%' }} />
-              <li style={{ width: '90%' }} />
-              <li style={{ width: '92%' }} />
-            </ul>
-            <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div className="ant-skeleton-title" style={{ width: 80, marginTop: 0 }} />
-              <div style={{ display: 'flex', gap: 8 }}>
-                <div className="ant-skeleton-button" style={{ width: 32 }} />
-                <div className="ant-skeleton-button" style={{ width: 32 }} />
-              </div>
-            </div>
-          </div>
-        </div>
+        <ContentSkeleton />
       </main>
     </div>
   )
@@ -98,11 +98,17 @@ function DefaultSkeleton() {
 
 /** 可扩展：为不同路由配置不同骨架组件 */
 export const routeSkeletons: Record<string, React.ComponentType> = {
-  // '/cms/about': AboutSkeleton,
+  '/cms/about': function AboutSkeleton() {
+    return (
+      <div>
+        <Skeleton active title={{ width: '100%' }} paragraph={false} style={{ marginBottom: 16 }} />
+      </div>
+    )
+  },
   // '/cms/list': ListSkeleton,
 }
 
-export default function Skeleton({ pathname }: { pathname?: string }) {
+export default function CmsSkeleton({ pathname }: { pathname?: string }) {
   const SkeletonComponent = (pathname && routeSkeletons[pathname]) || DefaultSkeleton
   return <SkeletonComponent />
 }
