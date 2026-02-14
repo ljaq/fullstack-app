@@ -17,9 +17,19 @@
     <title>找不到页面</title>
   </head>
   <body>
-    <div id="root">
-      {{@ skeleton }}
+    {{if skeleton}}
+    <div id="root-container" style="position:relative;min-height:100vh">
+      <div id="root"></div>
+      <div id="skeleton-overlay" style="position:absolute;inset:0;z-index:1;transition:opacity .25s ease-out;pointer-events:none">
+        {{@ skeleton }}
+      </div>
     </div>
+    <script>
+    (function(){var o=document.getElementById("skeleton-overlay");if(!o)return;var r=document.getElementById("root");var m=new MutationObserver(function(){if(r.children.length>0){o.style.opacity="0";o.addEventListener("transitionend",function(){o.remove();m.disconnect()})}});m.observe(r,{childList:true,subtree:true})})();
+    </script>
+    {{else}}
+    <div id="root"></div>
+    {{/if}}
     <script type="module" src="/client/pages/404/main.tsx"></script>
   </body>
 </html>
