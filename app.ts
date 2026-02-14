@@ -1,12 +1,13 @@
 import { serveStatic } from '@hono/node-server/serve-static'
 import dotenv from 'dotenv'
-import { readFileSync, readdirSync } from 'fs'
+import { existsSync, readFileSync, readdirSync } from 'fs'
 import { Hono } from 'hono'
 import { proxy } from 'hono/proxy'
 import { prettyJSON } from 'hono/pretty-json'
 import path from 'path'
 import qs from 'querystring'
 import { compileHtml } from 'utils/compileHtml.js'
+import { renderSkeleton } from 'utils/renderSkeleton.js'
 import helloRoute from './server/routes/hello'
 
 const isDev = import.meta.env.DEV
@@ -57,27 +58,41 @@ Object.entries(proxyConf).reduce(
   app,
 )
 
+const projectRoot = path.join(import.meta.dirname, isDev ? '.' : '..')
+
+function getSkeletonForPage(page, pathname) {
+  const skeletonPath = path.join(projectRoot, 'client/pages', page, 'Skeleton.tsx')
+  if (existsSync(skeletonPath)) {
+    return renderSkeleton(page, pathname)
+  }
+  return ''
+}
+
+pages = readdirSync(path.join(import.meta.dirname, './client/pages'))
 if (isDev) {
-  pages = readdirSync(path.join(import.meta.dirname, './client/pages'))
   pages.reduce(
     (app, page) =>
       app.get(`/${page}/*`, async c => {
-        const htmlPath = path.join(import.meta.dirname, `./client/pages/${page}/index.html`)
-        return c.html(compileHtml(readFileSync(htmlPath, 'utf-8'), process.env))
+        const htmlPath = path.join(projectRoot, 'client/pages', page, 'index.html')
+        const pathname = c.req.path
+        const skeleton = getSkeletonForPage(page, pathname)
+        return c.html(compileHtml(readFileSync(htmlPath, 'utf-8'), { ...process.env, skeleton }))
       }),
     app,
   )
 } else {
-  app.get('/*', serveStatic({ root: '/build/public' }))
-  pages = readdirSync(path.join(import.meta.dirname, './public'))
+  app.get('/*', serveStatic({ root: path.join(import.meta.dirname, 'public') }))
+  pages = readdirSync(path.join(import.meta.dirname, 'public'))
     .filter(item => item.endsWith('.html'))
     .map(item => item.replace(/\.html$/, ''))
   pages.reduce(
     (app, page) =>
       app.get(`/${page}/*`, async c => {
-        const html = readFileSync(path.join(import.meta.dirname, `./public/${page}.html`), 'utf-8')
-
-        return c.html(html)
+        const htmlPath = path.join(import.meta.dirname, 'public', `${page}.html`)
+        const html = readFileSync(htmlPath, 'utf-8')
+        const pathname = c.req.path
+        const skeleton = getSkeletonForPage(page, pathname)
+        return c.html(compileHtml(html, { ...process.env, NODE_ENV: 'production', skeleton }))
       }),
     app,
   )

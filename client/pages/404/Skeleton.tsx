@@ -1,8 +1,10 @@
+import React from 'react'
+
 /**
  * 404 页骨架屏：简单居中
- * 用于 HTML 注入与 Suspense fallback
+ * 单路由页面，pathname 可忽略
  */
-export default function Skeleton() {
+export default function Skeleton(_props?: { pathname?: string }) {
   return (
     <div
       style={{

@@ -1,16 +1,12 @@
-#!/usr/bin/env node
 /**
- * 在 dev/build 前执行，将各页面的 Skeleton.tsx 渲染为 HTML 注入 index.html
- * 无 Skeleton.tsx 的页面不注入，保持原样
+ * 服务端渲染 Skeleton.tsx 为 HTML，供 art-template 动态注入
+ * 使用 spawn 调用 renderSkeleton.mts，带缓存
+ * .ant-skeleton 样式与骨架屏一起注入
  */
-import fs from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
 import { spawnSync } from 'child_process'
+import path from 'path'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const rootDir = path.resolve(__dirname, '..')
-const pagesDir = path.join(rootDir, 'client/pages')
+const rootDir = process.cwd()
 
 const SKELETON_CSS = `
 .ant-skeleton { display: block; }
@@ -26,32 +22,29 @@ const SKELETON_CSS = `
 @keyframes skeleton-loading { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
 `
 
-function injectSkeleton(html, skeletonHtml) {
-  const rootContentRegex = /<div id="root">[\s\S]*<\/div>(?=\s*<script|\s*<\/body>)/m
-  const rootWithSkeleton = `<div id="root">\n      <style>${SKELETON_CSS}</style>\n      ${skeletonHtml.trim()}\n    </div>`
-  return html.replace(rootContentRegex, rootWithSkeleton)
+const cache = new Map()
+
+function getCacheKey(pageName, pathname) {
+  return `${pageName}:${pathname || ''}`
 }
 
-const pageNames = fs.readdirSync(pagesDir).filter(name => {
-  const stat = fs.statSync(path.join(pagesDir, name))
-  return stat.isDirectory() && fs.existsSync(path.join(pagesDir, name, 'index.html'))
-})
+export function renderSkeleton(pageName, pathname) {
+  const cacheKey = getCacheKey(pageName, pathname)
+  if (cache.has(cacheKey)) {
+    return cache.get(cacheKey)
+  }
 
-for (const pageName of pageNames) {
-  const skeletonPath = path.join(pagesDir, pageName, 'Skeleton.tsx')
-  if (!fs.existsSync(skeletonPath)) continue
+  const scriptPath = path.join(rootDir, 'scripts/renderSkeleton.mts')
+  const args = [pageName]
+  if (pathname) args.push(pathname)
 
-  const result = spawnSync('pnpm', ['exec', 'tsx', 'scripts/renderSkeleton.mts', pageName], {
+  const result = spawnSync('pnpm', ['exec', 'tsx', scriptPath, ...args], {
     cwd: rootDir,
     encoding: 'utf-8',
   })
-  if (result.status !== 0 || !result.stdout) continue
 
-  const htmlPath = path.join(pagesDir, pageName, 'index.html')
-  const html = fs.readFileSync(htmlPath, 'utf-8')
-  const newHtml = injectSkeleton(html, result.stdout.trim())
-  if (newHtml !== html) {
-    fs.writeFileSync(htmlPath, newHtml)
-    console.log(`[injectSkeleton] ${pageName}/index.html`)
-  }
+  const skeletonHtml = result.status === 0 && result.stdout ? result.stdout.trim() : ''
+  const html = skeletonHtml ? `<style>${SKELETON_CSS}</style>${skeletonHtml}` : ''
+  cache.set(cacheKey, html)
+  return html
 }

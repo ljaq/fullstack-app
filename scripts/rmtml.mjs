@@ -10,6 +10,7 @@ for (let i = 0; i < dirNames.length; i++) {
   const src = `./build/public/client/pages/${dirNames[i]}/index.html`
   const dest = `./build/public/${dirNames[i]}.html`
   const content = fs.readFileSync(src, 'utf-8')
-  fs.writeFileSync(dest, compileHtml(content, { NODE_ENV: 'production' }))
+  // skeleton 占位符保留供运行时 art-template 动态注入
+  fs.writeFileSync(dest, compileHtml(content, { NODE_ENV: 'production', skeleton: '{{skeleton}}' }))
 }
 fs.rmSync('./build/public/client', { recursive: true })

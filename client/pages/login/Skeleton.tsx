@@ -2,9 +2,9 @@ import React from 'react'
 
 /**
  * 登录页骨架屏：居中表单卡片
- * 用于 HTML 注入与 Suspense fallback
+ * 单路由页面，pathname 可忽略
  */
-export default function Skeleton() {
+export default function Skeleton(_props?: { pathname?: string }) {
   return (
     <div
       style={{

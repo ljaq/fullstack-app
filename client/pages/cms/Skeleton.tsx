@@ -1,8 +1,11 @@
+import React from 'react'
+
 /**
- * CMS 页骨架屏：Layout(Sider + Header) + 表格内容区
- * 用于 HTML 注入与 Suspense fallback，使用 ant-skeleton 类名配合内联样式
+ * CMS 页骨架屏：支持按路由配置不同骨架，默认表格布局
+ * 用于 HTML 注入与 Suspense fallback
  */
-export default function Skeleton() {
+
+function DefaultSkeleton() {
   return (
     <div style={{ width: '100vw', height: '100vh', display: 'flex', background: 'linear-gradient(#fff,#f5f5f5 28%)' }}>
       <aside
@@ -91,4 +94,15 @@ export default function Skeleton() {
       </main>
     </div>
   )
+}
+
+/** 可扩展：为不同路由配置不同骨架组件 */
+export const routeSkeletons: Record<string, React.ComponentType> = {
+  // '/cms/about': AboutSkeleton,
+  // '/cms/list': ListSkeleton,
+}
+
+export default function Skeleton({ pathname }: { pathname?: string }) {
+  const SkeletonComponent = (pathname && routeSkeletons[pathname]) || DefaultSkeleton
+  return <SkeletonComponent />
 }
