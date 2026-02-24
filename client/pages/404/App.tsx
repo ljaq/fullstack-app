@@ -3,18 +3,15 @@ import Skeleton from './Skeleton'
 import zh_CN from 'antd/locale/zh_CN'
 import { useUser } from 'client/contexts/useUser'
 import { Suspense } from 'react'
-import { useLocation, createBrowserRouter, RouterProvider } from 'react-router'
+import { createBrowserRouter, RouterProvider } from 'react-router'
 import routes from '~react-page-404'
 
 function App() {
-  const { pathname } = useLocation()
   const [{ themeConfig }] = useUser()
   return (
     <ConfigProvider locale={zh_CN} theme={{ token: { colorPrimary: themeConfig.color } }}>
       <Suspense fallback={<Skeleton />}>
-        <div key={pathname}>
-          <RouterProvider router={createBrowserRouter(routes)} />
-        </div>
+        <RouterProvider router={createBrowserRouter(routes)} />
       </Suspense>
     </ConfigProvider>
   )
