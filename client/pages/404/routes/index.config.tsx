@@ -1,1 +1,1 @@
-export const pageConfig = {}
+export const meta = {}

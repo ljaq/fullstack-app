@@ -41,9 +41,7 @@ export const useStyle = createStyles(({ token, css }) => {
       }
     `,
     content: css`
-      /* height: calc(100vh - 56px); */
-      /* overflow-y: auto;
-      overflow-x: hidden; */
+      padding: 0 40px 32px;
     `,
     sider: css`
       max-width: unset !important;

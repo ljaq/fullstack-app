@@ -52,12 +52,12 @@ export function getPlugins(mode: string, env: Record<string, string>, pages: str
               const rawPath = comPath.replace(/^["']|["']$/g, '').trim()
               const configPath = rawPath.replace(/(\.(tsx?|jsx?))$/, '.config$1')
               if (existsSync(path.join(rootDir, configPath))) {
-                return `${match}\r\nimport { pageConfig as ${pageName}config } from "${configPath}"`
+                return `${match}\r\nimport * as ${pageName}config from "${configPath}"`
               }
               return `${match}\r\nconst ${pageName}config = {}`
             })
             .replace(/"element":React\.createElement\((.*?)\)/g, (_, pageName) => {
-              return `meta: ${pageName}config,${_}`
+              return `meta:${pageName}config.meta,loader:${pageName}config.loader,action:${pageName}config.action,${_}`
             })
           return code
         },

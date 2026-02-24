@@ -2,8 +2,7 @@ import React from 'react'
 import { Skeleton } from 'antd'
 
 /**
- * CMS 页骨架屏：支持按路由配置不同骨架，默认表格布局
- * 使用 antd Skeleton 组件，样式由 antd 提供
+ * CMS 页骨架屏
  */
 
 export function ContentSkeleton() {
@@ -97,16 +96,7 @@ function DefaultSkeleton() {
 }
 
 /** 可扩展：为不同路由配置不同骨架组件 */
-export const routeSkeletons: Record<string, React.ComponentType> = {
-  '/cms/about': function AboutSkeleton() {
-    return (
-      <div>
-        <Skeleton active title={{ width: '100%' }} paragraph={false} style={{ marginBottom: 16 }} />
-      </div>
-    )
-  },
-  // '/cms/list': ListSkeleton,
-}
+export const routeSkeletons: Record<string, React.ComponentType> = {}
 
 export default function CmsSkeleton({ pathname }: { pathname?: string }) {
   const SkeletonComponent = (pathname && routeSkeletons[pathname]) || DefaultSkeleton

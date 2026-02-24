@@ -6,11 +6,12 @@ interface IProps {
   distance?: number
   children: React.ReactNode
   animationProps?: UseTransitionProps
+  onRest?: (result, children) => void
   style?: CSSProperties
 }
 
 const Translate = (props: IProps) => {
-  const { direction = 'left', distance = 40, children, animationProps = {}, style = {} } = props
+  const { direction = 'left', distance = 40, children, animationProps = {}, style = {}, onRest } = props
   const items = React.Children.toArray(children)
 
   const fromConf = useMemo(() => {
@@ -62,6 +63,9 @@ const Translate = (props: IProps) => {
     trail: 50,
     unique: false,
     exitBeforeEnter: false,
+    onRest(result) {
+      onRest?.(result, children)
+    },
     ...animationProps,
   })
 

@@ -2,8 +2,7 @@ import React from 'react'
 import { Skeleton } from 'antd'
 
 /**
- * 登录页骨架屏：居中表单卡片
- * 使用 antd Skeleton 组件
+ * 登录页骨架屏
  */
 export default function LoginSkeleton(_props?: { pathname?: string }) {
   return (

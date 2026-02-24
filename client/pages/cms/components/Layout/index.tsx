@@ -1,22 +1,25 @@
 import { Splitter } from 'antd'
-import { ReactNode, useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router'
+import { Suspense, useEffect, useState } from 'react'
+import { useLocation, useNavigate, useNavigation, useOutlet } from 'react-router'
 import { LayoutProvider, useLayoutState } from './context'
 import Header from './Header'
 import Sider from './Sider'
 import { useStyle } from './style'
 import Bg from './Bg'
-
-interface IProps {
-  children: ReactNode
-}
-
-function Layout(props: IProps) {
+import Translate from 'client/components/Animation/Translate'
+import { ContentSkeleton } from '../../Skeleton'
+function Layout() {
+  const outlet = useOutlet()
   const { styles, cx } = useStyle()
   const { collapsed, setCollapsed, isMobile } = useLayoutState()
   const [siderWidth, setSiderWidth] = useState(200)
   const { pathname } = useLocation()
   const navigate = useNavigate()
+  const navigation = useNavigation();
+  const isNavigating = Boolean(navigation.location);
+
+  console.log('isNavigating', isNavigating, navigation)
+
 
   const handleSpliterSizeChange = ([size]) => {
     setSiderWidth(size > 128 ? size : 66)
@@ -50,7 +53,13 @@ function Layout(props: IProps) {
         <Splitter.Panel>
           <div style={{ height: '100vh', flexGrow: 1, overflowY: 'auto', overflowX: 'hidden' }}>
             <Header />
-            <div className={styles.content}>{props.children}</div>
+            <Suspense fallback={<ContentSkeleton />}>
+              <Translate distance={40}>
+                <div key={pathname} className={styles.content}>
+                  {outlet}
+                </div>
+              </Translate>
+            </Suspense>
           </div>
         </Splitter.Panel>
       </Splitter>
@@ -62,7 +71,13 @@ function Layout(props: IProps) {
       <Sider />
       <Header />
       <div style={{ height: '100vh', flexGrow: 1 }}>
-        <div className={styles.content}>{props.children}</div>
+        <Suspense fallback={<ContentSkeleton />}>
+          <Translate distance={40}>
+            <div key={pathname} className={styles.content}>
+              {outlet}
+            </div>
+          </Translate>
+        </Suspense>
       </div>
     </div>
   )
@@ -70,10 +85,10 @@ function Layout(props: IProps) {
   return <div className={cx(styles.layout, 'layout')}>{isMobile ? mobileLayout : pcLayout}</div>
 }
 
-export default function (props: IProps) {
+export default function () {
   return (
     <LayoutProvider>
-      <Layout {...props} />
+      <Layout />
     </LayoutProvider>
   )
 }

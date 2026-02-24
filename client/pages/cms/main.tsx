@@ -10,22 +10,18 @@ if (import.meta.env.DEV) {
   const { ReactQueryDevtools } = await import('@tanstack/react-query-devtools')
   createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <UserProvider>
-          <App />
-        </UserProvider>
-      </BrowserRouter>
+      <UserProvider>
+        <App />
+      </UserProvider>
       <ReactQueryDevtools />
     </QueryClientProvider>,
   )
 } else {
   createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <UserProvider>
-          <App />
-        </UserProvider>
-      </BrowserRouter>
+      <UserProvider>
+        <App />
+      </UserProvider>
     </QueryClientProvider>,
   )
 }

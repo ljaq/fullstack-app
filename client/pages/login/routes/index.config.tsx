@@ -1,4 +1,4 @@
-export const pageConfig = {
+export const meta = {
   icon: <div />,
   name: 'login',
 }

@@ -2,8 +2,7 @@ import React from 'react'
 import { Skeleton } from 'antd'
 
 /**
- * 404 页骨架屏：简单居中
- * 使用 antd Skeleton 组件
+ * 404 页骨架屏
  */
 export default function PageSkeleton(_props?: { pathname?: string }) {
   return (
