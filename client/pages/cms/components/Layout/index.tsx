@@ -15,11 +15,10 @@ function Layout() {
   const [siderWidth, setSiderWidth] = useState(200)
   const { pathname } = useLocation()
   const navigate = useNavigate()
-  const navigation = useNavigation();
-  const isNavigating = Boolean(navigation.location);
+  const navigation = useNavigation()
+  const isNavigating = Boolean(navigation.location)
 
   console.log('isNavigating', isNavigating, navigation)
-
 
   const handleSpliterSizeChange = ([size]) => {
     setSiderWidth(size > 128 ? size : 66)
@@ -53,13 +52,11 @@ function Layout() {
         <Splitter.Panel>
           <div style={{ height: '100vh', flexGrow: 1, overflowY: 'auto', overflowX: 'hidden' }}>
             <Header />
-            <Suspense fallback={<ContentSkeleton />}>
-              <Translate distance={40}>
-                <div key={pathname} className={styles.content}>
-                  {outlet}
-                </div>
-              </Translate>
-            </Suspense>
+            <Translate distance={40}>
+              <Suspense key={pathname} fallback={<ContentSkeleton />}>
+                <div className={styles.content}>{outlet}</div>
+              </Suspense>
+            </Translate>
           </div>
         </Splitter.Panel>
       </Splitter>

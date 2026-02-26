@@ -91,7 +91,7 @@ export default function Sider() {
               <Avatar name='Admin' variant='beam' size={24} colors={[colorPrimaryBorder, colorPrimary]} />
               {!collapsed && <span style={{ marginLeft: 8 }}>Admin</span>}
             </Flex>
-            <Space direction={collapsed ? 'vertical' : 'horizontal'}>
+            <Space orientation={collapsed ? 'vertical' : 'horizontal'}>
               <Button type='text' icon={<LogoutOutlined />} onClick={logout} />
             </Space>
           </Flex>
