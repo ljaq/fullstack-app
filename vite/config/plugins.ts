@@ -5,12 +5,14 @@ import { existsSync } from 'fs'
 import path from 'path'
 import type { PluginOption } from 'vite'
 import Page from 'vite-plugin-pages'
+import serverRoute from '../../core/vite-plugin-server-route/index'
 import { rootDir } from './env'
 
 export function getPlugins(mode: string, env: Record<string, string>, pages: string[]): PluginOption[] {
   const port = Number(env.VITE_PORT)
 
   const base: PluginOption[] = [
+    serverRoute({ dir: 'server/routes', baseRoute: '/jaq' }),
     react({ include: /\.(mdx|js|jsx|ts|tsx)$/ }),
     devServer({
       entry: './app.ts',

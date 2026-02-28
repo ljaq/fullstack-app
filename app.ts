@@ -8,7 +8,7 @@ import path from 'path'
 import qs from 'querystring'
 import { compileHtml } from 'utils/compileHtml.js'
 import { renderSkeleton } from 'utils/renderSkeleton.js'
-import helloRoute from './server/routes/hello'
+import route from 'server/routes/_route.gen'
 
 const isDev = import.meta.env.DEV
 const isServer = import.meta.env.MODE === 'server'
@@ -22,7 +22,7 @@ const app = new Hono()
 
 app.use(prettyJSON())
 
-const routes = app.basePath('/jaq').route('/hello', helloRoute)
+const routes = app.route('/', route)
 
 const proxyConf = {
   '/api/*': {
@@ -40,7 +40,7 @@ Object.entries(proxyConf).reduce(
         const method = ctx.req.method
         const headers = ctx.req.header()
 
-        let body = null
+        let body: any = null
         if (method !== 'GET' && method !== 'HEAD') {
           body = await ctx.req.raw.clone().text()
         }

@@ -1,0 +1,14 @@
+import * as z from 'zod'
+import { zValidator } from '@hono/zod-validator'
+import { createFactory, createMiddleware } from 'hono/factory'
+
+const factory = createFactory()
+
+export const GET = factory.createHandlers(zValidator('query', z.object({ name: z.string().min(1) })), c => {
+  const { name } = c.req.valid('query')
+  return c.json({ result: `Hello ${name}!` })
+})
+
+export const POST = factory.createHandlers(c => {
+  return c.json({ result: 'Hello World!' })
+})
