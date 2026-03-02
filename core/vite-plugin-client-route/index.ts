@@ -63,6 +63,7 @@ async function writeRoutes(dir: string, baseRoute: string, flatRoutes: IRouteIte
         },
       )}
     }]
+
     export default route
   `
   const formatedCode = await prettier.format(code, FORMAT_CONFIG)
@@ -79,7 +80,9 @@ export default function clientRoute(config: IServerRouteConfig): PluginOption {
     async buildStart() {
       const { flatRoutes, treeRoutes } = fileBaseRoutes(absolureDir, exclude)
       await writeRoutes(dir, baseRoute, flatRoutes, treeRoutes)
-      console.log(`${logTimeStamp()} ${colors.bold(colors.blue('[client-route]'))} client route generated`)
+      console.log(
+        `${logTimeStamp()} ${colors.bold(colors.magenta('[client-route]'))} client ${colors.yellow(baseRoute)} route generated`,
+      )
     },
     // 配置开发服务器
     configureServer(server) {
@@ -98,7 +101,7 @@ export default function clientRoute(config: IServerRouteConfig): PluginOption {
           const updateRoute = flatRoutes.find(item => item.filePath === changedPath)
           const filePath = updateRoute.filePath.replace(process.cwd(), '')
           console.log(
-            `${logTimeStamp()} ${colors.bold(colors.blue('[client-route]'))} ${colors.green('client route updated')} ${colors.dim(filePath)}`,
+            `${logTimeStamp()} ${colors.bold(colors.magenta('[client-route]'))} ${colors.green(colors.yellow(baseRoute) + ' route updated')} ${colors.dim(filePath)}`,
           )
         }
       })

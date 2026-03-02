@@ -4,7 +4,7 @@ import zh_CN from 'antd/locale/zh_CN'
 import { Suspense } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { useUser } from 'client/contexts/useUser'
-import routes from '~react-page-login'
+import routes from 'client/pages/login/routes/_route.gen'
 import './index.less'
 
 function App() {

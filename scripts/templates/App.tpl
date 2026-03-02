@@ -4,7 +4,7 @@ import { Suspense } from 'react'
 import { useLocation, useRoutes } from 'react-router'
 import { useUser } from 'client/contexts/useUser'
 import EasyModal from 'client/utils/easyModal'
-import routes from '~react-page-{{pageName}}'
+import routes from 'client/pages/{{pageName}}/routes/_route.gen'
 import './index.less'
 
 function App() {

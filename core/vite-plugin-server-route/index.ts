@@ -62,7 +62,7 @@ export default function serverRoute(config: IServerRouteConfig): PluginOption {
     async buildStart() {
       const { flatRoutes } = fileBaseRoutes(absolureDir, exclude)
       await writeRoutes(dir, baseRoute, flatRoutes)
-      console.log(`${logTimeStamp()} ${colors.bold(colors.blue('[server-route]'))} server route generated`)
+      console.log(`${logTimeStamp()} ${colors.bold(colors.magenta('[server-route]'))} server route generated`)
     },
     // 配置开发服务器
     configureServer(server) {
@@ -81,7 +81,7 @@ export default function serverRoute(config: IServerRouteConfig): PluginOption {
           const updateRoute = flatRoutes.find(item => item.filePath === changedPath)
           const filePath = updateRoute.filePath.replace(process.cwd(), '')
           console.log(
-            `${logTimeStamp()} ${colors.bold(colors.blue('[server-route]'))} ${colors.green('server route updated')} ${colors.dim(filePath)}`,
+            `${logTimeStamp()} ${colors.bold(colors.magenta('[server-route]'))} ${colors.green('server route updated')} ${colors.dim(filePath)}`,
           )
         }
       })

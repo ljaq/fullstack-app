@@ -78,10 +78,11 @@ function scanPagesDir(dirPath, parentRoute = '', parentPath = '', flatList = [],
     if (entry.name.startsWith('_')) continue
 
     const { type, param, segment } = parseSegment(entry.name)
-    const routeName = [...parentRoute.split('/'), segment]
-      .filter(Boolean)
-      .map(r => r.replace(/:/g, ''))
-      .join('_')
+    const routeName =
+      [...parentRoute.split('/'), segment]
+        .filter(Boolean)
+        .map(r => r.replace(/:/g, ''))
+        .join('_') || 'index'
 
     if (entry.isDirectory()) {
       const dirNode = {
