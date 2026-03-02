@@ -33,13 +33,9 @@ export function getClientBuildConfig(pages: string[]): BuildOptions {
           if (fontExts.some(ext => assetsInfo.names[0]?.endsWith(ext))) {
             return 'font/[name]-[hash].[ext]'
           }
-          const imgExts = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.icon']
+          const imgExts = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.icon', '.svg']
           if (imgExts.some(ext => assetsInfo.names[0]?.endsWith(ext))) {
             return 'img/[name]-[hash].[ext]'
-          }
-          const imgSvg = ['.svg']
-          if (imgSvg.some(ext => assetsInfo.names[0]?.endsWith(ext))) {
-            return 'assest/icons/[name].[ext]'
           }
           const videoExts = ['.mp4', '.avi', '.wmv', '.ram', '.mpg', 'mpeg']
           if (videoExts.some(ext => assetsInfo.names[0]?.endsWith(ext))) {

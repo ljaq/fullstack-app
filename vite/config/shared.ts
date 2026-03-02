@@ -10,6 +10,7 @@ export function getSharedResolve(): ResolveOptions & { alias: AliasOptions } {
       server: path.resolve(rootDir, './server'),
       utils: path.resolve(rootDir, './utils'),
       types: path.resolve(rootDir, './types'),
+      core: path.resolve(rootDir, './core'),
     },
   }
 }

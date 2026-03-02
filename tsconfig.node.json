@@ -22,7 +22,7 @@
   },
   "include": [
     "vite.config.ts",
-    "vite/config/**",
+    "vite/config/*.ts",
     "app.ts",
     "vite-env.d.ts",
     "core"

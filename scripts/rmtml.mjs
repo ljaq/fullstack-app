@@ -2,8 +2,8 @@
 
 import fs from 'fs'
 import path from 'path'
-import { compileHtml } from '../utils/compileHtml.js'
-import { renderSkeleton } from '../utils/renderSkeleton.js'
+import { compileHtml } from '../core/compileHtml.js'
+import { renderSkeleton } from '../core/renderSkeleton.js'
 
 const dirNames = fs.readdirSync('./build/public/client/pages')
 const skeletonMap = {} // { page: { pathname: skeletonHtml } }

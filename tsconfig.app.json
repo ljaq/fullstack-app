@@ -34,6 +34,7 @@
     "server",
     "types",
     "utils",
-    "vite-env.d.ts"
-, "api", "core/compileHtml.js", "core/renderSkeleton.js"  ]
+    "vite-env.d.ts",
+    "api",
+  ]
 }

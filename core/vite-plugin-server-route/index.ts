@@ -1,4 +1,4 @@
-import { PluginOption } from 'vite'
+import { PluginOption, ResolvedConfig } from 'vite'
 import path from 'path'
 import colors from 'picocolors'
 import fs from 'fs'
@@ -55,14 +55,20 @@ async function writeRoutes(dir: string, baseRoute: string, routes: IRouteItem[])
 export default function serverRoute(config: IServerRouteConfig): PluginOption {
   const { dir, baseRoute, exclude = [] } = config
   const absolureDir = path.resolve(process.cwd(), dir)
+  let resolveConfig: ResolvedConfig = {} as ResolvedConfig
+
   return {
     name: 'vite-plugin-server-route',
     enforce: 'pre',
-    configResolved(config) {},
+    configResolved(config) {
+      resolveConfig = config
+    },
     async buildStart() {
-      const { flatRoutes } = fileBaseRoutes(absolureDir, exclude)
-      await writeRoutes(dir, baseRoute, flatRoutes)
-      console.log(`${logTimeStamp()} ${colors.bold(colors.magenta('[server-route]'))} server route generated`)
+      if (resolveConfig.command === 'serve' || resolveConfig.mode === 'server') {
+        const { flatRoutes } = fileBaseRoutes(absolureDir, exclude)
+        await writeRoutes(dir, baseRoute, flatRoutes)
+        console.log(`${logTimeStamp()} ${colors.bold(colors.magenta('[server-route]'))} server route generated`)
+      }
     },
     // 配置开发服务器
     configureServer(server) {
