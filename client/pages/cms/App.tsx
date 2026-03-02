@@ -4,7 +4,7 @@ import { useUser } from 'client/contexts/useUser'
 import EasyModal from 'client/utils/easyModal'
 import { lazy, useEffect, useMemo } from 'react'
 import { createBrowserRouter, RouteObject, RouterProvider } from 'react-router'
-import cmsRoutes from '~react-page-cms'
+import cmsRoutes from 'client/pages/cms/routes/_route.gen'
 import { useAuthorityRoutes } from 'client/hooks/useAuthorityRoutes'
 import Layout from './components/Layout/index'
 

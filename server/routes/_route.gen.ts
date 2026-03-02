@@ -3,9 +3,9 @@
  * 不要修改
  */
 import { Hono } from 'hono'
-import * as hello from "/Users/lijiaqi/Documents/恭喜发财/fullstack-app/server/routes/hello/index.ts"
-import * as hello_text from "/Users/lijiaqi/Documents/恭喜发财/fullstack-app/server/routes/hello/text/index.ts"
-import * as hello_user_name from "/Users/lijiaqi/Documents/恭喜发财/fullstack-app/server/routes/hello/user/[name].ts"
+import * as hello from 'server/routes/hello/index.ts'
+import * as hello_text from 'server/routes/hello/text/index.ts'
+import * as hello_user_name from 'server/routes/hello/user/[name].ts'
 
 const route = new Hono()
   .basePath('/jaq')

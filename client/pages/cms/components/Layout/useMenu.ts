@@ -1,6 +1,6 @@
 import { useAuthorityRoutes } from 'client/hooks/useAuthorityRoutes'
 import { useMemo } from 'react'
-import routes from '~react-page-cms'
+import routes from 'client/pages/cms/routes/_route.gen'
 
 const parse = (route, prefix = '') => {
   let { path, meta, children } = route
@@ -51,6 +51,8 @@ export function useMenu() {
   const authorityRoutes = useAuthorityRoutes(routes)
 
   const menu = useMemo(() => sorter(authorityRoutes.map(item => parse(item, ''))[0]?.children || []), [authorityRoutes])
+
+  console.log('menu', menu)
 
   return menu
 }

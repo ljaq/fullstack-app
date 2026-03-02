@@ -3,7 +3,7 @@ import { Button, Space } from 'antd'
 import { useStyle } from './style'
 import { useMemo } from 'react'
 import { useLocation } from 'react-router'
-import routes from '~react-page-cms'
+import routes from 'client/pages/cms/routes/_route.gen'
 
 interface IProps {
   children?: React.ReactNode

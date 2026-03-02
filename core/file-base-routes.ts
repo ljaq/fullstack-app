@@ -10,18 +10,9 @@ export interface IRouteItem {
   param?: string
   segment: string
   filePath: string
+  relativePath: string
   children?: IRouteItem[]
 }
-
-// 默认忽略模式（可根据需要修改）
-const DEFAULT_IGNORE_PATTERNS = [
-  '**/components/*.tsx',
-  '**/components/*.ts',
-  '**/schema.ts',
-  '**/style.ts',
-  '**/*.config.tsx',
-  '**/*.config.ts',
-]
 
 /**
  * 解析文件名或目录名，返回类型、参数名和路由片段（segment）
@@ -87,7 +78,10 @@ function scanPagesDir(dirPath, parentRoute = '', parentPath = '', flatList = [],
     if (entry.name.startsWith('_')) continue
 
     const { type, param, segment } = parseSegment(entry.name)
-    const routeName = [...parentRoute.split('/'), segment].filter(Boolean).map(r => r.replace(/:/g, '')).join('_')
+    const routeName = [...parentRoute.split('/'), segment]
+      .filter(Boolean)
+      .map(r => r.replace(/:/g, ''))
+      .join('_')
 
     if (entry.isDirectory()) {
       const dirNode = {
@@ -118,6 +112,7 @@ function scanPagesDir(dirPath, parentRoute = '', parentPath = '', flatList = [],
         type,
         ...(param && { param }),
         route,
+        relativePath,
         path: fullPath,
         children: [],
       }
@@ -129,6 +124,7 @@ function scanPagesDir(dirPath, parentRoute = '', parentPath = '', flatList = [],
         type,
         param,
         segment,
+        relativePath,
         filePath: fullPath,
       })
     }
@@ -145,14 +141,9 @@ function scanPagesDir(dirPath, parentRoute = '', parentPath = '', flatList = [],
  */
 export default function fileBaseRoutes(
   pagesDir,
-  ignorePatterns = DEFAULT_IGNORE_PATTERNS,
-): { tree: IRouteItem[]; flatRoutes: IRouteItem[] } {
+  ignorePatterns = [],
+): { treeRoutes: IRouteItem[]; flatRoutes: IRouteItem[] } {
   const flatRoutes = []
-  const tree = scanPagesDir(pagesDir, '', '', flatRoutes, ignorePatterns)
-  return { tree, flatRoutes }
+  const treeRoutes = scanPagesDir(pagesDir, '', '', flatRoutes, ignorePatterns)
+  return { treeRoutes, flatRoutes }
 }
-
-// ========== 使用示例 ==========
-// const pagesDir = path.resolve(process.cwd(), 'client/pages/cms/routes');
-// const result = generateRouteInfo(pagesDir);
-// console.log(JSON.stringify(result, null, 2));
