@@ -6,8 +6,8 @@ import { proxy } from 'hono/proxy'
 import { prettyJSON } from 'hono/pretty-json'
 import path from 'path'
 import qs from 'querystring'
-import { compileHtml } from 'core/compileHtml.js'
-import { renderSkeleton } from 'core/renderSkeleton.js'
+import { compileHtml } from './scripts/compileHtml.js'
+import { renderSkeleton } from './scripts/renderSkeleton.js'
 import route from 'server/routes/_route.gen'
 
 const isDev = import.meta.env.DEV

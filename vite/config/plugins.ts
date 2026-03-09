@@ -2,8 +2,8 @@ import build from '@hono/vite-build/node'
 import devServer from '@hono/vite-dev-server'
 import react from '@vitejs/plugin-react'
 import type { PluginOption } from 'vite'
-import serverRoute from '../../core/vite-plugin-server-route'
-import clientRoute from '../../core/vite-plugin-client-route'
+import serverRoute from '../plugins/vite-plugin-server-route'
+import clientRoute from '../plugins/vite-plugin-client-route'
 
 export function getPlugins(mode: string, env: Record<string, string>, pages: string[]): PluginOption[] {
   const port = Number(env.VITE_PORT)

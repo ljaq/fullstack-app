@@ -26,5 +26,5 @@
     "app.ts",
     "vite-env.d.ts",
     "core"
-  ]
+, "vite/plugins/vite-plugin-client-route", "vite/plugins/vite-plugin-server-route", "vite/plugins/file-base-routes.ts", "vite/plugins/utils.ts", "scripts/compileHtml.js", "scripts/renderSkeleton.js"  ]
 }

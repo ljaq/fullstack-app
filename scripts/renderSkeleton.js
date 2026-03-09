@@ -20,7 +20,7 @@ export function renderSkeleton(pageName, pathname) {
     return cache.get(cacheKey)
   }
 
-  const scriptPath = path.join(rootDir, 'scripts/renderSkeleton.mts')
+  const scriptPath = path.join(rootDir, 'scripts/getSkeletonCode.mts')
   const args = [pageName]
   if (pathname) args.push(pathname)
 
