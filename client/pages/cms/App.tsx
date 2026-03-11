@@ -7,6 +7,7 @@ import { createBrowserRouter, RouteObject, RouterProvider } from 'react-router'
 import cmsRoutes from 'client/pages/cms/routes/_route.gen'
 import { useAuthorityRoutes } from 'client/hooks/useAuthorityRoutes'
 import Layout from './components/Layout/index'
+import { themeToken } from 'client/utils/theme'
 
 const NotFound = lazy(() => import('client/pages/404/routes/index'))
 
@@ -34,7 +35,7 @@ function App() {
     getUser()
   }, [])
   return (
-    <ConfigProvider locale={zh_CN} theme={{ token: { colorPrimary: themeConfig.color } }}>
+    <ConfigProvider locale={zh_CN} theme={themeToken}>
       <EasyModal.Provider>
         <RouterProvider router={router} />
       </EasyModal.Provider>

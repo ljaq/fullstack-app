@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react'
 import type { PluginOption } from 'vite'
 import serverRoute from '../plugins/vite-plugin-server-route'
 import clientRoute from '../plugins/vite-plugin-client-route'
+import skeletonTransform from '../plugins/vite-plugin-skeleton/index'
 
 export function getPlugins(mode: string, env: Record<string, string>, pages: string[]): PluginOption[] {
   const port = Number(env.VITE_PORT)
@@ -25,6 +26,7 @@ export function getPlugins(mode: string, env: Record<string, string>, pages: str
       }),
     ),
     react({ include: /\.(mdx|js|jsx|ts|tsx)$/ }),
+    skeletonTransform(),
     devServer({
       entry: './app.ts',
       injectClientScript: true,
@@ -49,7 +51,7 @@ export function getPlugins(mode: string, env: Record<string, string>, pages: str
       entry: './app.ts',
       output: 'app.js',
       outputDir: './build',
-      minify: false,
+      minify: true,
       port,
       external: ['art-template'],
     })

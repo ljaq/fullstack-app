@@ -1,13 +1,12 @@
 import { serveStatic } from '@hono/node-server/serve-static'
 import dotenv from 'dotenv'
-import { existsSync, readFileSync, readdirSync } from 'fs'
+import { readFileSync, readdirSync } from 'fs'
 import { Hono } from 'hono'
 import { proxy } from 'hono/proxy'
 import { prettyJSON } from 'hono/pretty-json'
 import path from 'path'
 import qs from 'querystring'
 import { compileHtml } from './scripts/compileHtml.js'
-import { renderSkeleton } from './scripts/renderSkeleton.js'
 import route from 'server/routes/_route.gen'
 
 const isDev = import.meta.env.DEV
@@ -16,8 +15,6 @@ dotenv.config({ path: `.env.${isServer ? process.env.mode : import.meta.env.MODE
 
 const isHttps = process.env.VITE_SSL_KEY_FILE && process.env.VITE_SSL_CRT_FILE
 let pages: string[] = []
-const url = `http${isHttps ? 's' : ''}://localhost:${process.env.VITE_PORT}`
-
 const app = new Hono()
 
 app.use(prettyJSON())
@@ -60,39 +57,13 @@ Object.entries(proxyConf).reduce(
 
 const projectRoot = path.join(import.meta.dirname, isDev ? '.' : '..')
 
-let skeletonMap: Record<string, Record<string, string>> = {}
-if (!isDev) {
-  try {
-    const mapPath = path.join(import.meta.dirname, 'skeleton-map.json')
-    skeletonMap = JSON.parse(readFileSync(mapPath, 'utf-8'))
-  } catch {
-    /* no skeleton map */
-  }
-}
-
-function getSkeletonForPage(page, pathname) {
-  if (isDev) {
-    const skeletonPath = path.join(projectRoot, 'client/pages', page, 'Skeleton.tsx')
-    if (existsSync(skeletonPath)) {
-      return renderSkeleton(page, pathname)
-    }
-    return ''
-  }
-  const map = skeletonMap[page]
-  if (!map) return ''
-  const normalized = pathname.replace(/\/$/, '') || `/${page}`
-  return map[normalized] ?? map[`/${page}`] ?? ''
-}
-
 if (isDev) {
   pages = readdirSync(path.join(import.meta.dirname, 'client/pages'))
   pages.reduce(
     (app, page) =>
       app.get(`/${page}/*`, async c => {
         const htmlPath = path.join(projectRoot, 'client/pages', page, 'index.html')
-        const pathname = c.req.path
-        const skeleton = getSkeletonForPage(page, pathname)
-        return c.html(compileHtml(readFileSync(htmlPath, 'utf-8'), { ...process.env, skeleton }))
+        return c.html(compileHtml(readFileSync(htmlPath, 'utf-8'), { ...process.env }))
       }),
     app,
   )
@@ -101,17 +72,6 @@ if (isDev) {
   pages = readdirSync(path.join(import.meta.dirname, 'public'))
     .filter(item => item.endsWith('.html'))
     .map(item => item.replace(/\.html$/, ''))
-  pages.reduce(
-    (app, page) =>
-      app.get(`/${page}/*`, async c => {
-        const htmlPath = path.join(import.meta.dirname, 'public', `${page}.html`)
-        const html = readFileSync(htmlPath, 'utf-8')
-        const pathname = c.req.path
-        const skeleton = getSkeletonForPage(page, pathname)
-        return c.html(compileHtml(html, { ...process.env, NODE_ENV: 'production', skeleton }))
-      }),
-    app,
-  )
 }
 
 app.get('/', c => c.redirect('/cms')).get('/*', c => c.redirect('/404'))

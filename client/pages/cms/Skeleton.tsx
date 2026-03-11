@@ -5,7 +5,7 @@ import { Skeleton } from 'antd'
  * CMS 页骨架屏
  */
 
-export function ContentSkeleton() {
+export default function ContentSkeleton() {
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: '0 40px 32px', position: 'relative' }}>
       <div style={{ marginBottom: 16, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
@@ -93,12 +93,4 @@ function DefaultSkeleton() {
       </main>
     </div>
   )
-}
-
-/** 可扩展：为不同路由配置不同骨架组件 */
-export const routeSkeletons: Record<string, React.ComponentType> = {}
-
-export default function CmsSkeleton({ pathname }: { pathname?: string }) {
-  const SkeletonComponent = (pathname && routeSkeletons[pathname]) || DefaultSkeleton
-  return <SkeletonComponent />
 }
