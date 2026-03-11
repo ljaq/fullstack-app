@@ -5,7 +5,7 @@ import { Skeleton } from 'antd'
  * CMS 页骨架屏
  */
 
-export default function ContentSkeleton() {
+export function ContentSkeleton() {
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: '0 40px 32px', position: 'relative' }}>
       <div style={{ marginBottom: 16, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
@@ -40,7 +40,7 @@ export default function ContentSkeleton() {
   )
 }
 
-function DefaultSkeleton() {
+export default function DefaultSkeleton() {
   return (
     <div style={{ width: '100vw', height: '100vh', display: 'flex', background: 'linear-gradient(#fff,#f5f5f5 28%)' }}>
       <aside
