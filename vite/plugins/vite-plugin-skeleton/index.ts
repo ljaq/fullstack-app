@@ -1,4 +1,5 @@
 import type { IndexHtmlTransformContext, PluginOption, ResolvedConfig } from 'vite'
+import fs from 'fs'
 import { spawnSync } from 'child_process'
 import path from 'path'
 import { compileHtml } from '../../../scripts/compileHtml.js'
@@ -30,7 +31,7 @@ function getSkeletonHtml(pageName: string, rootDir: string): string {
     return cache.get(cacheKey) as string
   }
 
-  const scriptPath = path.join(rootDir, 'scripts/getSkeletonCode.mts')
+  const scriptPath = path.join(rootDir, 'vite/plugins/get-skeleton-code.mts')
   const result = spawnSync('pnpm', ['exec', 'tsx', scriptPath, pageName], {
     cwd: rootDir,
     encoding: 'utf-8',
@@ -66,11 +67,24 @@ export default function skeletonTransform(): PluginOption {
 
       const skeleton = getSkeletonHtml(pageName, rootDir)
       const env =
-        config.command === 'serve'
-          ? { NODE_ENV: 'development', skeleton }
-          : { NODE_ENV: 'production', skeleton }
+        config.command === 'serve' ? { NODE_ENV: 'development', skeleton } : { NODE_ENV: 'production', skeleton }
 
       return compileHtml(html, env)
+    },
+    writeBundle() {
+      if (config.mode === 'client') {
+        const dirNames = fs.readdirSync('./build/public/client/pages')
+
+        for (let i = 0; i < dirNames.length; i++) {
+          const page = dirNames[i]
+          const src = `./build/public/client/pages/${page}/index.html`
+          const dest = `./build/public/${page}.html`
+          const content = fs.readFileSync(src, 'utf-8')
+          fs.writeFileSync(dest, compileHtml(content, { NODE_ENV: 'production' }))
+        }
+
+        fs.rmSync('./build/public/client', { recursive: true })
+      }
     },
   }
 }
