@@ -89,16 +89,32 @@ type ConfigUnion<S extends Record<string, Endpoint>> = DeclaredMethods<S> extend
     : never
   : never
 
+/** 去掉联合类型里“空对象 {}”的辅助类型 */
+type WithoutEmptyObject<T> = T extends any ? (keyof T extends never ? never : T) : never
+
 /** Response body union from all endpoints at this path (from route's c.json(...)) */
 type OutputUnion<S extends Record<string, Endpoint>> = S[keyof S] extends infer E
   ? E extends Endpoint
-    ? E['output']
+    ? WithoutEmptyObject<E['output']>
     : never
   : never
 
-/** Single method on request node: thenable + no-arg call, resolves to route response body */
-export interface ReqMethod<E extends Endpoint = Endpoint> extends Promise<E['output']> {
-  (): Promise<E['output']>
+// --- Helpers for extracting input fields from an Endpoint ---
+type QueryOf<E extends Endpoint> = E['input'] extends { query?: infer Q } ? Q : undefined
+type JsonOf<E extends Endpoint> = E['input'] extends { json?: infer J } ? J : undefined
+type FormOf<E extends Endpoint> = E['input'] extends { form?: infer F } ? F : undefined
+type BodyOf<E extends Endpoint> = JsonOf<E> | FormOf<E> extends undefined ? undefined : JsonOf<E> | FormOf<E>
+type ParamsOf<E extends Endpoint> = E['input'] extends { param?: infer P } ? P : undefined
+
+type MethodOutput<E extends Endpoint> = WithoutEmptyObject<E['output']>
+
+/** Single method on request node: thenable + optional config arg, resolves to route response body */
+export interface ReqMethod<E extends Endpoint = Endpoint> extends Promise<MethodOutput<E>> {
+  (config?: {
+    query?: QueryOf<E>
+    body?: BodyOf<E>
+    params?: ParamsOf<E>
+  }): Promise<MethodOutput<E>>
 }
 
 /** Request node at one path: only declared methods + query/body/params + call(config) + url */

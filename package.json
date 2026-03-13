@@ -4,6 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "db:init": "tsx scripts/init-turso-db.ts",
+    "seed": "tsx scripts/seed.ts",
     "dev": "vite --mode development --host",
     "dev:production": "vite --mode production --host",
     "build": "rm -rf ./build && pnpm build:client && pnpm build:server",
@@ -13,6 +15,9 @@
     "start:prod": "cross-env mode=production node ./build/app.js",
     "commit": "git add . && git-cz",
     "generate": "node ./scripts/generate.mjs"
+  },
+  "prisma": {
+    "seed": "tsx scripts/seed.ts"
   },
   "config": {
     "commitizen": {
@@ -36,6 +41,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@hono/node-server": "^1.14.2",
     "@hono/zod-validator": "^0.7.6",
+    "@libsql/client": "^0.14.0",
     "@ljaq/editor": "^0.1.1",
     "@react-spring/web": "^9.7.5",
     "@react-three/drei": "^10.1.2",
@@ -46,6 +52,7 @@
     "antd": "^6.2.2",
     "antd-img-crop": "^4.24.0",
     "antd-style": "^3.7.1",
+    "bcryptjs": "^2.4.3",
     "boring-avatars": "^1.11.2",
     "canvas-datagrid": "^0.4.6",
     "dayjs": "^1.11.13",
@@ -54,14 +61,18 @@
     "echarts-for-react": "^3.0.2",
     "form-render": "^2.5.3",
     "hono": "^4.11.7",
+    "jsonwebtoken": "^9.0.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router": "^7.5.3",
     "react-router-dom": "^7.5.3",
     "react-use": "^17.6.0",
+    "reflect-metadata": "^0.2.2",
+    "sqlite3": "^6.0.1",
     "three": "^0.177.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.4",
+    "typeorm": "^0.3.28",
     "vanta": "^0.5.24",
     "xlsx": "^0.18.5",
     "zod": "^4.3.6"

@@ -4,9 +4,8 @@ export const authority = {
   login: '/connect/token',
 }
 
-export const zbt = {
-  userInfo: {
-    method: 'GET',
-    url: '/api/app/user-manage/:id/user-info',
-  },
+export const auth = {
+  login: '/jaq/auth/login',
+  register: '/jaq/auth/register',
+  me: '/jaq/auth/me',
 }

@@ -1,18 +1,14 @@
 import { App, Button, Form, Input, Space, theme } from 'antd'
 import { request } from 'api'
-import storages from 'client/storages'
 import { formatTime } from 'client/utils/time'
-import { querystring } from 'client/utils/common'
 import dayjs from 'dayjs'
 import { useEffect, useRef, useState } from 'react'
-import { useLocalStorage } from 'react-use'
 import './style.less'
 
 export default function Login() {
   const timer = useRef<any>(null)
   const [time, setTime] = useState(formatTime(dayjs(), 'YYYY/MM/DD HH:mm'))
   const [loading, setLoading] = useState(false)
-  const [_, setToken] = useLocalStorage(storages.TOKEN)
   const [form] = Form.useForm()
   const { message } = App.useApp()
   const {
@@ -22,20 +18,12 @@ export default function Login() {
   const handleFinish = async (fields: any) => {
     setLoading(true)
     try {
-      const data = {
-        ...fields,
-        grant_type: 'password',
-        scope: 'NonWasteCity offline_access',
-        client_id: 'NonWasteCity_App',
-      }
-      const res = await request.authority.login({
-        method: 'POST',
-        body: querystring.stringify(data),
+      await request.jaq.auth.login.post({
+        body: fields,
       })
-      setToken(res)
       location.href = '/cms'
     } catch (err: any) {
-      const msg = err?.response.data?.error?.message
+      const msg = err?.message || '登录失败'
       message.error({
         content: msg,
         className: 'login-msg',

@@ -1,5 +1,4 @@
 import { request } from 'api'
-import { ButtonAuthority, MenuAuthority } from 'client/utils/auth'
 import React, { createContext, useCallback, useContext, useMemo } from 'react'
 import { useLogout } from './hooks'
 import { useLocalStorage } from 'react-use'
@@ -15,9 +14,10 @@ type IThemeConfig = {
 
 export type UserState = {
   userName?: string
-  authList?: (MenuAuthority | ButtonAuthority)[]
   roleName?: typeof Role.valueType
-  id?: string
+  id?: number | string
+  roles?: string[]
+  allowedPages?: string[]
   themeConfig: IThemeConfig
 }
 
@@ -34,28 +34,27 @@ export default function UserProvider({ children }: { children: React.ReactNode }
   const logout = useLogout()
 
   const getUser = useCallback(async () => {
-    let user: Omit<UserState, 'themeConfig'>
     try {
-      const res = await request.authority.getXSRF({ method: 'GET' })
-      const roleName = res?.data?.currentUser?.roles?.[0]
-      const auth = res?.data?.auth?.grantedPolicies || {}
-      const userName = res?.data?.currentUser?.userName
-      const authList = Object.keys(auth).filter(item => item.includes('SinodacServerPermissions.'))
-      if (roleName === 'admin') authList.push(MenuAuthority.超级管理员)
-      user = {
-        userName: userName,
-        roleName: roleName,
-        authList: authList as (MenuAuthority | ButtonAuthority)[],
+      const res = await request.jaq.auth.me.get()
+      const u = res.user || {}
+      const primaryRole = (u.roles && u.roles[0]) || Role.ADMIN.value
+      const user: Omit<UserState, 'themeConfig'> = {
+        id: u.id,
+        userName: u.username,
+        roleName: primaryRole,
+        roles: u.roles || [],
+        allowedPages: u.allowedPages || [],
       }
+      setUser(user)
+      return user
     } catch (err) {
-      user = {
+      const emptyUser: Omit<UserState, 'themeConfig'> = {
         id: '',
         userName: '',
-        authList: [],
       }
+      setUser(emptyUser)
+      return emptyUser
     }
-    setUser(user)
-    return user
   }, [])
 
   return (

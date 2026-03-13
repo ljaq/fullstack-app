@@ -46,19 +46,8 @@ export const useStyle = createStyles(({ token, css }) => {
       flex-grow: 1;
       overflow-y: auto;
       overflow-x: hidden;
-      background-color: ${token.colorBgContainer}80;
+      background-color: ${token.colorBgContainer}90;
       backdrop-filter: blur(1px);
-      /* &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: ${token.colorBgContainer};
-        opacity: 0.9;
-        z-index: 0;
-      } */
     `,
     content: css`
       padding: 16px 32px;

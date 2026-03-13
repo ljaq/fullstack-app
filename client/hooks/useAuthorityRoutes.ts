@@ -1,48 +1,46 @@
 import { useAuthority } from './useAuthority'
 import { IRouteObject } from 'client/types'
 
-const parse = route => {
-  let children = route.children
+export function useAuthorityRoutes(routes: IRouteObject[]) {
+  const { allowedPages } = useAuthority()
 
-  let meta = route.meta
-  if (!meta && children && children[0]?.path === '') {
-    meta = children[0].meta
-  }
+  function withFullPath(route: IRouteObject, parentPath = ''): IRouteObject & { fullPath?: string } {
+    const path = route.path || ''
+    const fullPath = [parentPath, path].filter(Boolean).join('/')
 
-  if (!children?.length) {
+    const children = route.children?.map(child => withFullPath(child, fullPath))
+
     return {
-      meta,
       ...route,
+      fullPath: fullPath ? `/${fullPath}` : '',
+      children,
     }
   }
 
-  return {
-    meta,
-    ...route,
-    children: children.map(item => parse(item)),
-  }
-}
+  function filterByAllowedPages(routes: (IRouteObject & { fullPath?: string })[]): IRouteObject[] {
+    if (!allowedPages || allowedPages.length === 0) {
+      return routes
+    }
 
-export function useAuthorityRoutes(routes: IRouteObject[]) {
-  const { hasAuthority } = useAuthority()
-
-  function filterRoutes(routes: IRouteObject[]): IRouteObject[] {
     return routes
-      .filter(route => hasAuthority(route.meta?.authority))
       .map(route => {
-        if (route.children) {
-          return {
-            ...route,
-            children: filterRoutes(route.children),
-          }
+        const children = route.children ? filterByAllowedPages(route.children as any) : []
+        const isLeaf = !route.children || route.children.length === 0
+        const canVisit = route.fullPath && allowedPages.includes(route.fullPath)
+
+        if (isLeaf) {
+          return canVisit ? { ...route, children: [] } : null
         }
-        return route
+
+        if (children.length > 0 || canVisit) {
+          return { ...route, children }
+        }
+
+        return null
       })
+      .filter(Boolean) as IRouteObject[]
   }
 
-  const parsed = routes.map(item => parse(item))
-
-  const res = filterRoutes(parsed)
-
-  return res
+  const withPath = routes.map(r => withFullPath(r))
+  return filterByAllowedPages(withPath as any)
 }
