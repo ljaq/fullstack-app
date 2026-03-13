@@ -6,7 +6,7 @@ export const useStyle = createStyles(({ token, css }) => {
       position: relative;
       display: flex;
       flex-wrap: nowrap;
-      background: linear-gradient(#ffffff, #f5f5f5 28%);
+      background: ${token.colorBgBase};
       .ant-splitter-bar-dragger {
         &::before,
         &::after {
@@ -34,21 +34,43 @@ export const useStyle = createStyles(({ token, css }) => {
       align-items: center;
       justify-content: space-between;
       height: 56px;
-      padding: 0 20px 0 40px;
-      /* margin-left: -8px; */
+      padding: 0 20px 0 32px;
+      border-bottom: 1px solid ${token.colorBorder};
       &.mobile {
         margin-left: 0px;
       }
     `,
+    contentWrapper: css`
+      position: relative;
+      height: 100vh;
+      flex-grow: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      background-color: ${token.colorBgContainer}80;
+      backdrop-filter: blur(1px);
+      /* &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: ${token.colorBgContainer};
+        opacity: 0.9;
+        z-index: 0;
+      } */
+    `,
     content: css`
-      padding: 0 40px 32px;
+      padding: 16px 32px;
     `,
     sider: css`
+      position: relative;
       max-width: unset !important;
       min-width: unset !important;
       flex: unset !important;
       background-color: transparent;
       height: 100vh;
+      z-index: 2;
       .ant-layout-sider-children {
         display: flex;
         flex-direction: column;
@@ -66,7 +88,7 @@ export const useStyle = createStyles(({ token, css }) => {
       }
       .menu {
         flex-grow: 1;
-        padding: 0 8px;
+        padding: 0px 0px;
         overflow: auto;
       }
       .ant-menu,
@@ -96,7 +118,6 @@ export const useStyle = createStyles(({ token, css }) => {
       font-size: 16px;
       font-weight: 500;
       height: 56px;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
       white-space: nowrap;
       padding: 0 16px;
       margin: 0 8px;

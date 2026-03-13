@@ -1,4 +1,4 @@
-import { MenuOutlined } from '@ant-design/icons'
+import { MenuFoldOutlined, MenuOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
 import { Button, Space, Typography } from 'antd'
 import { Fragment } from 'react'
 import { useLayoutState } from './context'
@@ -20,12 +20,14 @@ export default function Header() {
       <div className={cx(styles.header, isMobile && 'mobile')}>
         <Space>
           {!isMobile && (
-            // <Button
-            //   icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            //   type='text'
-            //   onClick={() => setCollapsed(!collapsed)}
-            // />
-            <Typography.Text type='secondary'>当前位置：</Typography.Text>
+            <>
+              <Button
+                icon={collapsed ? <MenuOutlined /> : <MenuOutlined />}
+                type='text'
+                onClick={() => setCollapsed(!collapsed)}
+              />
+              <Typography.Text type='secondary'>当前位置：</Typography.Text>
+            </>
           )}
           <Breadcrumb />
         </Space>

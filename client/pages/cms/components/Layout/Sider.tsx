@@ -63,7 +63,7 @@ export default function Sider() {
           <Menu mode='inline' items={menu} selectedKeys={defaultOpenKeys} onSelect={e => navigate(e.key)} />
         </Drawer>
       ) : (
-        <Layout.Sider theme='light' className={styles.sider} collapsed={collapsed} collapsedWidth={64} width={'100%'}>
+        <Layout.Sider theme='light' className={styles.sider} collapsed={collapsed} collapsedWidth={73} width={'100%'}>
           <div className={styles.logo} style={{ justifyContent: collapsed ? 'center' : 'flex-start' }}>
             <Logo style={{ width: 32, height: 32, marginRight: collapsed ? 0 : 8, flexShrink: 0 }} />
             {!collapsed && <span>Fullstack App</span>}

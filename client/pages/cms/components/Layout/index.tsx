@@ -21,15 +21,15 @@ function Layout() {
   console.log('isNavigating', isNavigating, navigation)
 
   const handleSpliterSizeChange = ([size]) => {
-    setSiderWidth(size > 128 ? size : 66)
+    setSiderWidth(size > 128 ? size : 73)
     setCollapsed(size < 128)
   }
 
   useEffect(() => {
     if (collapsed) {
-      setSiderWidth(65)
+      setSiderWidth(74)
       setTimeout(() => {
-        setSiderWidth(66)
+        setSiderWidth(73)
       }, 300)
     } else {
       setSiderWidth(200)
@@ -46,11 +46,11 @@ function Layout() {
     <div style={{ width: '100vw', height: '100vh' }}>
       <Bg />
       <Splitter onResize={handleSpliterSizeChange}>
-        <Splitter.Panel size={siderWidth} defaultSize={200} min={66} max={360} style={{ overflow: 'hidden' }}>
+        <Splitter.Panel size={siderWidth} defaultSize={200} min={73} max={360} style={{ overflow: 'hidden' }}>
           <Sider />
         </Splitter.Panel>
         <Splitter.Panel>
-          <div style={{ height: '100vh', flexGrow: 1, overflowY: 'auto', overflowX: 'hidden' }}>
+          <div className={styles.contentWrapper}>
             <Header />
             <Translate distance={40}>
               <Suspense key={pathname} fallback={<ContentSkeleton />}>
