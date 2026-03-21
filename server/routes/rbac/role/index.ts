@@ -35,7 +35,7 @@ export const GET = factory.createHandlers(requireAuth, async c => {
 export const POST = factory.createHandlers(
   requireAuth,
   zValidator('json', roleBody),
-  zValidator('query', z.object({ id: z.string() })),
+  zValidator('query', z.object({ id: z.coerce.number() })),
   async c => {
     const ds = await getDataSource()
     const repo = ds.getRepository(RoleEntity)
@@ -48,11 +48,11 @@ export const POST = factory.createHandlers(
 export const PUT = factory.createHandlers(
   requireAuth,
   zValidator('json', roleBody),
-  zValidator('query', z.object({ id: z.string() })),
+  zValidator('query', z.object({ id: z.coerce.number() })),
   async c => {
     const ds = await getDataSource()
     const repo = ds.getRepository(RoleEntity)
-    const id = Number(c.req.query('id'))
+    const { id } = c.req.valid('query')
     const body = c.req.valid('json')
     const role = await repo.save({ id, ...body })
     return c.json(role)

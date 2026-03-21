@@ -1,6 +1,6 @@
-import { Button, Form, Modal, Space, Tree } from 'antd'
+import { Button, Modal, Space, Tree } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { request } from 'api'
 import routes from 'client/pages/cms/routes/_route.gen'
 import CommonTable, { CommonTableInstance } from 'client/components/CommonTable'
@@ -122,7 +122,7 @@ export default function RolePage() {
     setMenuLoading(true)
     try {
       const res = (await request.jaq.rbac.role.menus.get({
-        query: { id: String(role.id) },
+        query: { id: role.id },
       })) as { pageKeys?: string[] }
       setCheckedKeys(res.pageKeys || [])
     } finally {
@@ -137,7 +137,7 @@ export default function RolePage() {
     tableRef.current?.fetchData()
   }
 
-  const handleEditRole = async (id: string, values: any) => {
+  const handleEditRole = async (id: number, values: any) => {
     await request.jaq.rbac.role.put({
       query: { id },
       body: values,
@@ -148,7 +148,7 @@ export default function RolePage() {
   const handleSaveMenus = async () => {
     if (!menuRole) return
     await request.jaq.rbac.role.menus.post({
-      query: { id: String(menuRole.id) },
+      query: { id: menuRole.id },
       body: { pageKeys: checkedKeys as string[] },
     })
     setMenuModalOpen(false)

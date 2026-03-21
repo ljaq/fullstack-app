@@ -11,21 +11,25 @@ const menusBody = z.object({
   pageKeys: z.array(z.string()),
 })
 
-export const GET = factory.createHandlers(requireAuth, async c => {
-  const id = Number(c.req.query('id'))
-  const ds = await getDataSource()
-  const repo = ds.getRepository(RoleEntity)
-  const role = await repo.findOne({ where: { id } })
-  const pageKeys = role?.pages ? (JSON.parse(role.pages) as string[]) : []
-  return c.json({ pageKeys })
-})
+export const GET = factory.createHandlers(
+  requireAuth,
+  zValidator('query', z.object({ id: z.coerce.number() })),
+  async c => {
+    const { id } = c.req.valid('query')
+    const ds = await getDataSource()
+    const repo = ds.getRepository(RoleEntity)
+    const role = await repo.findOne({ where: { id } })
+    const pageKeys = role?.pages ? (JSON.parse(role.pages) as string[]) : []
+    return c.json({ pageKeys })
+  },
+)
 
 export const POST = factory.createHandlers(
   requireAuth,
   zValidator('json', menusBody),
   zValidator('query', z.object({ id: z.coerce.number() })),
   async c => {
-    const id = Number(c.req.query('id'))
+    const { id } = c.req.valid('query')
     const { pageKeys } = c.req.valid('json')
 
     const ds = await getDataSource()

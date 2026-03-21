@@ -31,6 +31,11 @@ export type Schema = {
   }
 }
 
+/** Hono + zod-validator types query input as string | string[]; allow number (serialized in URL). */
+type QueryClient<Q> = {
+  [K in keyof Q]: [Exclude<Q[K], undefined>] extends [string | string[]] ? Q[K] | number : Q[K]
+}
+
 // --- Helpers for PathSchema (Record<$method, Endpoint> at one path) ---
 type DollarMethod = `$${Lowercase<string>}`
 
@@ -45,7 +50,9 @@ type DeclaredMethods<S extends Record<string, Endpoint>> = keyof S extends Dolla
 type QueryUnion<S extends Record<string, Endpoint>> = S[keyof S] extends infer E
   ? E extends Endpoint
     ? E['input'] extends { query?: infer Q }
-      ? Q
+      ? Q extends Record<string, unknown>
+        ? QueryClient<Q>
+        : Q
       : never
     : never
   : never
@@ -70,12 +77,19 @@ type ParamUnion<S extends Record<string, Endpoint>> = S[keyof S] extends infer E
     : never
   : never
 
+/** Query field type for one endpoint (allows number for query string values). */
+type QueryOf<E extends Endpoint> = E['input'] extends { query?: infer Q }
+  ? Q extends Record<string, unknown>
+    ? QueryClient<Q>
+    : Q
+  : undefined
+
 /** Config for one method: method + optional query/body/param from that endpoint */
 type ConfigForMethod<S extends Record<string, Endpoint>, M extends string> = S[`$${Lowercase<M>}`] extends infer E
   ? E extends Endpoint
     ? {
         method: M
-        query?: E['input'] extends { query?: infer Q } ? Q : never
+        query?: QueryOf<E>
         body?: E['input'] extends { json?: infer J } ? J : E['input'] extends { form?: infer F } ? F : never
         params?: E['input'] extends { param?: infer P } ? P : never
       }
@@ -100,7 +114,6 @@ type OutputUnion<S extends Record<string, Endpoint>> = S[keyof S] extends infer 
   : never
 
 // --- Helpers for extracting input fields from an Endpoint ---
-type QueryOf<E extends Endpoint> = E['input'] extends { query?: infer Q } ? Q : undefined
 type JsonOf<E extends Endpoint> = E['input'] extends { json?: infer J } ? J : undefined
 type FormOf<E extends Endpoint> = E['input'] extends { form?: infer F } ? F : undefined
 type BodyOf<E extends Endpoint> = JsonOf<E> | FormOf<E> extends undefined ? undefined : JsonOf<E> | FormOf<E>
