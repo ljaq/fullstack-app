@@ -23,6 +23,7 @@ export const GET = factory.createHandlers(requireAuth, async c => {
 export const POST = factory.createHandlers(
   requireAuth,
   zValidator('json', menusBody),
+  zValidator('query', z.object({ id: z.coerce.number() })),
   async c => {
     const id = Number(c.req.query('id'))
     const { pageKeys } = c.req.valid('json')

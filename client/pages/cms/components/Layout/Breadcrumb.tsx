@@ -4,7 +4,6 @@ import { useMemo } from 'react'
 import { Link, useLocation } from 'react-router'
 import { useMenu } from './useMenu'
 import Translate from 'client/components/Animation/Translate'
-import { RightOutlined } from '@ant-design/icons'
 
 export default function Breadcrumb() {
   const { pathname } = useLocation()
@@ -52,6 +51,6 @@ export default function Breadcrumb() {
     return breadcrumbs
   }, [menu, pathname])
   return (
-    <AntBreadcrumb style={{ height: 22 }} items={breadcrumbs} separator={<Translate direction='right'><RightOutlined /></Translate>} />
+    <AntBreadcrumb style={{ height: 22 }} items={breadcrumbs} separator={<Translate direction='right'>/</Translate>} />
   )
 }

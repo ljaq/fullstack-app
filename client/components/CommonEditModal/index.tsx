@@ -72,7 +72,6 @@ function CommonEditModal(props: IProps, ref) {
 
   const onCancel = useCallback(() => {
     setShowModal(false)
-    form.resetFields()
     setLoading(false)
     setReadonly(false)
   }, [setShowModal, form, setLoading])
@@ -82,6 +81,7 @@ function CommonEditModal(props: IProps, ref) {
       setLoading(true)
       try {
         if (typeof showModal === 'object') {
+          console.log(showModal[idKey], values, showModal)
           await onEdit?.(showModal[idKey], values, showModal)
           message.success('编辑成功')
         } else {
@@ -90,6 +90,7 @@ function CommonEditModal(props: IProps, ref) {
         }
         onCancel()
       } catch (error) {
+        console.error(error)
         setLoading(false)
       }
     },
@@ -105,6 +106,7 @@ function CommonEditModal(props: IProps, ref) {
       okText={okText}
       okButtonProps={{ loading }}
       onCancel={onCancel}
+      afterClose={form.resetFields}
       footer={readonly ? null : undefined}
     >
       <Spin spinning={initLoading}>

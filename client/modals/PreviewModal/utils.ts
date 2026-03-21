@@ -1,4 +1,4 @@
-import { getBaseRequest } from '../../../api/utils'
+import { Fetch } from 'api'
 import { IFile } from './type'
 
 // 兼容支持 带域名的全量地址
@@ -8,7 +8,7 @@ export const compatibleOrigin = (str: string) => {
 
 export const getFileBuffer = async (file: IFile) => {
   if (typeof file === 'string') {
-    return getBaseRequest({
+    return Fetch({
       url: file,
       method: 'GET',
       responseType: 'arraybuffer',
@@ -34,7 +34,7 @@ export const getFileUrl = async (file: IFile, type?: string) => {
   }
   let _file: any
   if (typeof file === 'string') {
-    _file = await getBaseRequest({
+    _file = await Fetch({
       url: file,
       method: 'GET',
       responseType: 'arraybuffer',

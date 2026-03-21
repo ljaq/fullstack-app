@@ -1,4 +1,4 @@
-import { ConfigProvider } from 'antd'
+import { ConfigProvider, App as AntdApp } from 'antd'
 import zh_CN from 'antd/locale/zh_CN'
 import { useUser } from 'client/contexts/useUser'
 import EasyModal from 'client/utils/easyModal'
@@ -36,9 +36,11 @@ function App() {
   }, [])
   return (
     <ConfigProvider locale={zh_CN} theme={themeToken}>
+      <AntdApp>
       <EasyModal.Provider>
         <RouterProvider router={router} />
       </EasyModal.Provider>
+      </AntdApp>
     </ConfigProvider>
   )
 }

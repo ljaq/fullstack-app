@@ -85,7 +85,7 @@ export default function serverRoute(config: IServerRouteConfig): PluginOption {
             data: { timestamp: Date.now() },
           })
           const updateRoute = flatRoutes.find(item => item.filePath === changedPath)
-          const filePath = updateRoute.filePath.replace(process.cwd(), '')
+          const filePath = updateRoute?.filePath?.replace(process.cwd(), '')
           console.log(
             `${logTimeStamp()} ${colors.bold(colors.magenta('[server-route]'))} ${colors.green('server route updated')} ${colors.dim(filePath)}`,
           )

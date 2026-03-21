@@ -50,7 +50,7 @@ function Layout() {
           <Sider />
         </Splitter.Panel>
         <Splitter.Panel>
-          <div className={styles.contentWrapper}>
+          <div>
             <Header />
             <Translate distance={40}>
               <Suspense key={pathname} fallback={<ContentSkeleton />}>

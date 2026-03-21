@@ -21,11 +21,11 @@ export default function Header() {
         <Space>
           {!isMobile && (
             <>
-              <Button
+              {/* <Button
                 icon={collapsed ? <MenuOutlined /> : <MenuOutlined />}
                 type='text'
                 onClick={() => setCollapsed(!collapsed)}
-              />
+              /> */}
               <Typography.Text type='secondary'>当前位置：</Typography.Text>
             </>
           )}

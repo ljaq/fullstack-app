@@ -14,15 +14,28 @@ const roleBody = z.object({
 })
 
 export const GET = factory.createHandlers(requireAuth, async c => {
+  const page = Number(c.req.query('page')) || 1
+  const pageSize = Number(c.req.query('pageSize')) || 10
+
   const ds = await getDataSource()
   const repo = ds.getRepository(RoleEntity)
-  const roles = await repo.find({ order: { id: 'ASC' } })
-  return c.json({ data: roles })
+  const [roles, total] = await repo.findAndCount({
+    order: { id: 'ASC' },
+    skip: (page - 1) * pageSize,
+    take: pageSize,
+  })
+  return c.json({
+    data: roles,
+    total,
+    page,
+    pageSize,
+  })
 })
 
 export const POST = factory.createHandlers(
   requireAuth,
   zValidator('json', roleBody),
+  zValidator('query', z.object({ id: z.string() })),
   async c => {
     const ds = await getDataSource()
     const repo = ds.getRepository(RoleEntity)
@@ -35,7 +48,7 @@ export const POST = factory.createHandlers(
 export const PUT = factory.createHandlers(
   requireAuth,
   zValidator('json', roleBody),
-  zValidator('query',  z.object({ id: z.number() })),
+  zValidator('query', z.object({ id: z.string() })),
   async c => {
     const ds = await getDataSource()
     const repo = ds.getRepository(RoleEntity)
@@ -63,4 +76,3 @@ export const DELETE = factory.createHandlers(requireAuth, async c => {
   await roleRepo.delete({ id })
   return c.json({ success: true })
 })
-

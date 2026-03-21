@@ -1,5 +1,4 @@
 import { Image as AntImage, ImageProps } from 'antd';
-import { getFileFromName } from 'utils/file';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { getFileUrl } from '../utils';
 import { IFile } from '../type';

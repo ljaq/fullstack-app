@@ -20,19 +20,15 @@ import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } 
 import { CSS } from '@dnd-kit/utilities'
 import { Schema, useForm, SearchForm } from 'form-render'
 import { useStyle } from './useStyle'
-import { API_REQ_FUNCTION } from '../../../api/types'
+import { RequestNode, Endpoint } from '../../../api/types'
 
 interface IProps {
   tableTitle?: ReactNode
   search?: { schema: Schema }
-  request: API_REQ_FUNCTION
+  request: RequestNode<{ $get: Endpoint }>
   extra?: ReactElement
   ghost?: boolean
-  dragable?:
-    | boolean
-    | {
-        request: API_REQ_FUNCTION
-      }
+  dragable?: boolean | { request: RequestNode<{ $post: Endpoint }> }
   selectable?: boolean
   getSelectProps?: TableRowSelection['getCheckboxProps']
   selectExtra?: ReactNode
@@ -126,10 +122,10 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
     placeholderData: prevData => prevData,
     queryFn: () =>
       request({
-        method: 'GET',
+        method: 'get',
         query: {
           page: pageInfo.page,
-          page_size: pageInfo.size,
+          pageSize: pageInfo.size,
           sorting: sortInfo.join(' '),
           ...query,
           ...filters,
@@ -137,6 +133,8 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
         },
       }),
   })
+
+  console.log(data)
 
   const total = useMemo(() => data?.total || 0, [data])
 
@@ -180,7 +178,7 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
         setLoading(true)
         dragable
           .request({
-            method: 'POST',
+            method: 'post',
             body: {
               [rowKey.toString()]: active.id,
               dir: overIndex - activeIndex,
@@ -271,7 +269,7 @@ function CommonTable(props: CommonTableProps, ref: ForwardedRef<CommonTableInsta
         {search?.schema && (
           <ConfigProvider variant='filled'>
             <SearchForm
-              style={{ border: `1px solid ${token.colorBorderSecondary}`, borderRadius: token.borderRadius }}
+              style={{ border: `1px solid ${token.colorBorderSecondary}`, borderRadius: token.borderRadiusLG }}
               form={form}
               schema={search.schema}
               searchOnMount={false}

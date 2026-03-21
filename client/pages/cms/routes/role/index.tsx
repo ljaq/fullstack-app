@@ -1,8 +1,13 @@
-import { Button, Form, Input, Modal, Space, Table, Tree } from 'antd'
+import { Button, Form, Modal, Space, Tree } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { request } from 'api'
 import routes from 'client/pages/cms/routes/_route.gen'
+import CommonTable, { CommonTableInstance } from 'client/components/CommonTable'
+import CommonEditModal, { CommonEditModalInstance } from 'client/components/CommonEditModal'
+import { createSchema, searchSchema } from './index.config'
+import EasyModal from 'client/utils/easyModal'
+import CommonConfirmModal from 'client/modals/CommonConfirmModal'
 
 type Role = {
   id: number
@@ -55,11 +60,8 @@ const buildPageTree = (): PageNode[] => {
 }
 
 export default function RolePage() {
-  const [roles, setRoles] = useState<Role[]>([])
-  const [loading, setLoading] = useState(false)
-  const [modalOpen, setModalOpen] = useState(false)
-  const [editing, setEditing] = useState<Role | null>(null)
-  const [form] = Form.useForm()
+  const tableRef = useRef<CommonTableInstance>(null)
+  const modelRef = useRef<CommonEditModalInstance>(null)
 
   const [menuModalOpen, setMenuModalOpen] = useState(false)
   const [menuRole, setMenuRole] = useState<Role | null>(null)
@@ -67,20 +69,6 @@ export default function RolePage() {
   const [menuLoading, setMenuLoading] = useState(false)
 
   const pageTreeData = useMemo(() => buildPageTree(), [])
-
-  const loadRoles = async () => {
-    setLoading(true)
-    try {
-      const res = (await request.jaq.rbac.role.get()) as { data?: Role[] }
-      setRoles(res.data || [])
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    loadRoles()
-  }, [])
 
   const columns: ColumnsType<Role> = [
     { title: 'ID', dataIndex: 'id', width: 80 },
@@ -94,9 +82,7 @@ export default function RolePage() {
           <Button
             type='link'
             onClick={() => {
-              setEditing(record)
-              form.setFieldsValue(record)
-              setModalOpen(true)
+              modelRef.current?.show(record)
             }}
           >
             编辑
@@ -114,10 +100,14 @@ export default function RolePage() {
             type='link'
             danger
             onClick={async () => {
-              await request.jaq.rbac.role.delete({
-                query: { id: String(record.id) },
-              })
-              loadRoles()
+              EasyModal.show(CommonConfirmModal, {
+                tip: '确定$删除$该角色吗？',
+                onOk: async () => {
+                  await request.jaq.rbac.role.delete({
+                    query: { id: String(record.id) },
+                  })
+                },
+              }).then(() => tableRef.current?.fetchData())
             }}
           >
             删除
@@ -140,22 +130,19 @@ export default function RolePage() {
     }
   }
 
-  const handleSaveRole = async () => {
-    const values = await form.validateFields()
-    if (editing) {
-      await request.jaq.rbac.role.put({
-        query: { id: String(editing.id) },
-        body: values,
-      })
-    } else {
-      await request.jaq.rbac.role.post({
-        body: values,
-      })
-    }
-    setModalOpen(false)
-    setEditing(null)
-    form.resetFields()
-    loadRoles()
+  const handleCreateRole = async (values: any) => {
+    await request.jaq.rbac.role.post({
+      body: values,
+    })
+    tableRef.current?.fetchData()
+  }
+
+  const handleEditRole = async (id: string, values: any) => {
+    await request.jaq.rbac.role.put({
+      query: { id },
+      body: values,
+    })
+    tableRef.current?.fetchData()
   }
 
   const handleSaveMenus = async () => {
@@ -170,38 +157,26 @@ export default function RolePage() {
 
   return (
     <div>
-      <Space style={{ marginBottom: 16 }}>
-        <Button
-          type='primary'
-          onClick={() => {
-            setEditing(null)
-            form.resetFields()
-            setModalOpen(true)
-          }}
-        >
-          新建角色
-        </Button>
-      </Space>
-      <Table rowKey='id' loading={loading} dataSource={roles} columns={columns} pagination={false} />
+      <CommonTable
+        tableTitle='角色管理'
+        ref={tableRef}
+        search={{ schema: searchSchema }}
+        request={request.jaq.rbac.role}
+        columns={columns}
+        extra={
+          <Button type='primary' onClick={() => modelRef.current?.show(true)}>
+            新建
+          </Button>
+        }
+      />
 
-      <Modal
-        open={modalOpen}
-        title={editing ? '编辑角色' : '新建角色'}
-        onOk={handleSaveRole}
-        onCancel={() => {
-          setModalOpen(false)
-          setEditing(null)
-        }}
-      >
-        <Form form={form} layout='vertical'>
-          <Form.Item name='name' label='角色名' rules={[{ required: true, message: '请输入角色名' }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item name='description' label='描述'>
-            <Input.TextArea rows={3} />
-          </Form.Item>
-        </Form>
-      </Modal>
+      <CommonEditModal
+        ref={modelRef}
+        name='角色'
+        schema={createSchema}
+        onCreate={handleCreateRole}
+        onEdit={handleEditRole}
+      />
 
       <Modal
         open={menuModalOpen}

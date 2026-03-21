@@ -128,7 +128,7 @@ export interface RequestNode<PathSchema extends Record<string, Endpoint>> {
 }
 
 /** Add only declared method keys to RequestNode (no index signature so undeclared methods error) */
-type RequestNodeWithMethods<PathSchema extends Record<string, Endpoint>> = RequestNode<PathSchema> &
+export type RequestNodeWithMethods<PathSchema extends Record<string, Endpoint>> = RequestNode<PathSchema> &
   {
     [M in DeclaredMethods<PathSchema>]: ReqMethod<PathSchema[`$${Lowercase<M>}`]>
   }
