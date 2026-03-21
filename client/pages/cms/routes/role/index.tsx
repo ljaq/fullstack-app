@@ -15,6 +15,8 @@ type Role = {
   description?: string
 }
 
+const idPath = ':id' as const
+
 type PageNode = {
   key: string
   title: string
@@ -103,8 +105,8 @@ export default function RolePage() {
               EasyModal.show(CommonConfirmModal, {
                 tip: '确定$删除$该角色吗？',
                 onOk: async () => {
-                  await request.jaq.rbac.role.delete({
-                    query: { id: String(record.id) },
+                  await request.jaq.roles[idPath].delete({
+                    params: { id: String(record.id) },
                   })
                 },
               }).then(() => tableRef.current?.fetchData())
@@ -121,8 +123,8 @@ export default function RolePage() {
     setMenuModalOpen(true)
     setMenuLoading(true)
     try {
-      const res = (await request.jaq.rbac.role.menus.get({
-        query: { id: role.id },
+      const res = (await request.jaq.roles[idPath].menus.get({
+        params: { id: String(role.id) },
       })) as { pageKeys?: string[] }
       setCheckedKeys(res.pageKeys || [])
     } finally {
@@ -131,15 +133,15 @@ export default function RolePage() {
   }
 
   const handleCreateRole = async (values: any) => {
-    await request.jaq.rbac.role.post({
+    await request.jaq.roles.post({
       body: values,
     })
     tableRef.current?.fetchData()
   }
 
   const handleEditRole = async (id: number, values: any) => {
-    await request.jaq.rbac.role.put({
-      query: { id },
+    await request.jaq.roles[idPath].put({
+      params: { id: String(id) },
       body: values,
     })
     tableRef.current?.fetchData()
@@ -147,8 +149,8 @@ export default function RolePage() {
 
   const handleSaveMenus = async () => {
     if (!menuRole) return
-    await request.jaq.rbac.role.menus.post({
-      query: { id: menuRole.id },
+    await request.jaq.roles[idPath].menus.put({
+      params: { id: String(menuRole.id) },
       body: { pageKeys: checkedKeys as string[] },
     })
     setMenuModalOpen(false)
@@ -161,7 +163,7 @@ export default function RolePage() {
         tableTitle='角色管理'
         ref={tableRef}
         search={{ schema: searchSchema }}
-        request={request.jaq.rbac.role}
+        request={request.jaq.roles}
         columns={columns}
         extra={
           <Button type='primary' onClick={() => modelRef.current?.show(true)}>

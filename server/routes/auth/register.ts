@@ -1,5 +1,5 @@
 import * as z from 'zod'
-import { zValidator } from '@hono/zod-validator'
+import { zValidator } from 'server/utils/zod-validator'
 import { createFactory } from 'hono/factory'
 import { getDataSource } from 'server/db'
 import { UserEntity } from 'server/entities/User'

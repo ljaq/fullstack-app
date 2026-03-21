@@ -1,16 +1,21 @@
-import { Button, Space } from 'antd'
+import { Button, message, Space } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { useRef } from 'react'
 import { request } from 'api'
 import CommonTable, { CommonTableInstance } from 'client/components/CommonTable'
 import CommonEditModal, { CommonEditModalInstance } from 'client/components/CommonEditModal'
 import { createSchema, searchSchema } from './index.config'
+import EasyModal from 'client/utils/easyModal'
+import CommonConfirmModal from 'client/modals/CommonConfirmModal'
 
 type UserItem = {
   id: number
   username: string
   roles: string[]
+  roleIds?: number[]
 }
+
+const idPath = ':id' as const
 
 export default function UserPage() {
   const tableRef = useRef<CommonTableInstance>(null)
@@ -26,11 +31,35 @@ export default function UserPage() {
     },
     {
       title: '操作',
-      width: 160,
+      width: 260,
       render: (_, record) => (
         <Space>
-          <Button type='link' onClick={() => {}}>
-            分配角色
+          <Button
+            type='link'
+            onClick={() => {
+              modelRef.current?.show({
+                ...record,
+                password: '',
+              })
+            }}
+          >
+            编辑
+          </Button>
+          <Button
+            type='link'
+            danger
+            onClick={async () => {
+              EasyModal.show(CommonConfirmModal, {
+                tip: '确定$删除$该用户吗？',
+                onOk: async () => {
+                  await request.jaq.users[idPath].delete({
+                    params: { id: String(record.id) },
+                  })
+                },
+              }).then(() => tableRef.current?.fetchData())
+            }}
+          >
+            删除
           </Button>
         </Space>
       ),
@@ -38,16 +67,28 @@ export default function UserPage() {
   ]
 
   const handleCreateUser = async (values: any) => {
-    await request.jaq.rbac.user.post({
-      body: values,
+    const { username, password, roleIds } = values
+    if (!password) {
+      message.warning('请填写密码')
+      throw new Error('请填写密码')
+    }
+    await request.jaq.users.post({
+      body: { username, password, roleIds: roleIds ?? [] },
     })
     tableRef.current?.fetchData()
   }
 
-  const handleEditUser = async (id: string, values: any) => {
-    await request.jaq.rbac.user.put({
-      query: { id },
-      body: values,
+  const handleEditUser = async (_id: string | number, values: any) => {
+    const body: { username?: string; password?: string; roleIds?: number[] } = {
+      username: values.username,
+      roleIds: values.roleIds ?? [],
+    }
+    if (values.password) {
+      body.password = values.password
+    }
+    await request.jaq.users[idPath].put({
+      params: { id: String(_id) },
+      body,
     })
     tableRef.current?.fetchData()
   }
@@ -58,7 +99,7 @@ export default function UserPage() {
         tableTitle='用户管理'
         ref={tableRef}
         search={{ schema: searchSchema }}
-        request={request.jaq.rbac.user}
+        request={request.jaq.users}
         columns={columns}
         extra={
           <Button type='primary' onClick={() => modelRef.current?.show(true)}>

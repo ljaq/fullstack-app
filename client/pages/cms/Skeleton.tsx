@@ -18,7 +18,7 @@ export function ContentSkeleton() {
         style={{
           border: '1px solid rgba(0,0,0,0.06)',
           borderRadius: 8,
-          padding: 16,
+          padding: 24,
           background: '#fff',
         }}
       >

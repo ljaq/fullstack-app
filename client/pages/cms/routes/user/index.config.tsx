@@ -8,14 +8,33 @@ export const meta = {
   icon: <HomeOutlined />,
 }
 
+export const searchSchema: Schema = {
+  type: 'object',
+  properties: {
+    name: {
+      type: 'string',
+      title: '用户名',
+      placeholder: '请输入用户名',
+    },
+  },
+}
+
 export const createSchema: Schema = {
   type: 'object',
   displayType: 'row',
   properties: {
-    name: {
+    username: {
       type: 'string',
-      title: '姓名',
+      title: '用户名',
+      placeholder: '请输入用户名',
       required: true,
+    },
+    password: {
+      type: 'string',
+      title: '密码',
+      props: {
+        placeholder: '新增必填；编辑时留空表示不修改',
+      },
     },
     roleIds: {
       type: 'array',
@@ -23,20 +42,12 @@ export const createSchema: Schema = {
       widget: 'pageSelector',
       required: true,
       props: {
-        url: request.jaq.rbac.role.url,
+        url: request.jaq.roles.url,
+        placeholder: '请选择角色',
         labelKey: 'name',
         valueKey: 'id',
         mode: 'multiple',
-      }
-    }
-  },
-}
-export const searchSchema: Schema = {
-  type: 'object',
-  properties: {
-    name: {
-      type: 'string',
-      title: '姓名',
+      },
     },
   },
 }

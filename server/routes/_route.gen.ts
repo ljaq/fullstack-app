@@ -10,9 +10,11 @@ import * as auth_register from 'server/routes/auth/register.ts'
 import * as hello from 'server/routes/hello/index.ts'
 import * as hello_text from 'server/routes/hello/text/index.ts'
 import * as hello_user_name from 'server/routes/hello/user/[name].ts'
-import * as rbac_role from 'server/routes/rbac/role/index.ts'
-import * as rbac_role_menus from 'server/routes/rbac/role/menus.ts'
-import * as rbac_user from 'server/routes/rbac/user/index.ts'
+import * as roles_id_menus from 'server/routes/roles/[id]/menus.ts'
+import * as roles_id from 'server/routes/roles/[id].ts'
+import * as roles from 'server/routes/roles/index.ts'
+import * as users_id from 'server/routes/users/[id].ts'
+import * as users from 'server/routes/users/index.ts'
 
 const route = new Hono()
   .basePath('/jaq')
@@ -24,13 +26,17 @@ const route = new Hono()
   .post('/hello', ...hello.POST)
   .get('/hello/text', ...hello_text.GET)
   .get('/hello/user/:name', ...hello_user_name.GET)
-  .get('/rbac/role', ...rbac_role.GET)
-  .post('/rbac/role', ...rbac_role.POST)
-  .put('/rbac/role', ...rbac_role.PUT)
-  .delete('/rbac/role', ...rbac_role.DELETE)
-  .get('/rbac/role/menus', ...rbac_role_menus.GET)
-  .post('/rbac/role/menus', ...rbac_role_menus.POST)
-  .get('/rbac/user', ...rbac_user.GET)
-  .post('/rbac/user', ...rbac_user.POST)
+  .get('/roles/:id/menus', ...roles_id_menus.GET)
+  .put('/roles/:id/menus', ...roles_id_menus.PUT)
+  .get('/roles/:id', ...roles_id.GET)
+  .put('/roles/:id', ...roles_id.PUT)
+  .delete('/roles/:id', ...roles_id.DELETE)
+  .get('/roles', ...roles.GET)
+  .post('/roles', ...roles.POST)
+  .get('/users/:id', ...users_id.GET)
+  .put('/users/:id', ...users_id.PUT)
+  .delete('/users/:id', ...users_id.DELETE)
+  .get('/users', ...users.GET)
+  .post('/users', ...users.POST)
 
 export default route

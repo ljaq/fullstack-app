@@ -49,9 +49,7 @@ export async function getCurrentUser(c: Context) {
 
     const roles = roleEntities.map(r => r.name)
     const allowedPages = Array.from(
-      new Set(
-        roleEntities.flatMap(r => (r.pages ? (JSON.parse(r.pages) as string[]) : [])),
-      ),
+      new Set(roleEntities.flatMap(r => (r.pages ? (JSON.parse(r.pages) as string[]) : []))),
     )
 
     return {
@@ -73,4 +71,3 @@ export async function requireAuth(c: Context, next: () => Promise<void>) {
   c.set('user', currentUser)
   await next()
 }
-

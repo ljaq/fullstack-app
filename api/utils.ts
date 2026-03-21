@@ -119,7 +119,15 @@ export const ResponseHandler = {
       return Promise.resolve('')
     }
 
-    return response.json()
+    if (response.status === 204 || response.status === 205) {
+      return null
+    }
+
+    const text = await response.text()
+    if (!text) {
+      return null
+    }
+    return JSON.parse(text)
   },
 
   // 根据 MIME 类型获取文件扩展名
@@ -166,7 +174,14 @@ export const ResponseHandler = {
       }
     })()
 
-    const errorMessage = typeof error === 'string' ? error : error.message
+    const errorMessage =
+      typeof error === 'string'
+        ? error
+        : ((error as { message?: string; issues?: { message: string }[] }).message ??
+            (Array.isArray((error as { issues?: { message: string }[] }).issues)
+              ? (error as { issues: { message: string }[] }).issues.map(i => i.message).join('；')
+              : undefined)) ||
+          ''
     const handler =
       ResponseHandler.errorHandlers[response.status as keyof typeof ResponseHandler.errorHandlers] ||
       ResponseHandler.errorHandlers.default
