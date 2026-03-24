@@ -11,7 +11,8 @@ const factory = createFactory()
 const paramSchema = z.object({ id: z.coerce.number().int() })
 
 const roleBody = z.object({
-  name: z.string().min(1),
+  roleName: z.string().min(1),
+  role: z.string().min(1),
   description: z.string().optional(),
 })
 
@@ -42,8 +43,8 @@ export const PUT = factory.createHandlers(
       return c.json({ message: '角色不存在' }, 404)
     }
 
-    if (body.name !== existing.name) {
-      const taken = await repo.findOne({ where: { name: body.name } })
+    if (body.role !== existing.role) {
+      const taken = await repo.findOne({ where: { role: body.role } })
       if (taken) {
         return c.json({ message: '角色名已存在' }, 400)
       }

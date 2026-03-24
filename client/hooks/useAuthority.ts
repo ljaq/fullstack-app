@@ -3,10 +3,10 @@ import { useCallback } from 'react'
 import { Role } from 'types/enum'
 
 export const useAuthority = () => {
-  const [{ roleName, allowedPages }] = useUser()
+  const [{ roleName, paegs }] = useUser()
 
   const hasAuthority = useCallback(
-    (auth?: typeof Role.valueType | (typeof Role.valueType)[]) => {
+    (auth?: string | string[]) => {
       if (!auth) {
         return true
       }
@@ -21,5 +21,5 @@ export const useAuthority = () => {
     [roleName],
   )
 
-  return { hasAuthority, roleName, allowedPages }
+  return { hasAuthority, roleName }
 }

@@ -2,11 +2,13 @@ import { EntitySchema } from 'typeorm'
 
 export interface Role {
   id: number
-  name: string
-  description: string | null
-  createdAt: Date
-  updatedAt: Date
-  pages: string | null
+  roleName: string
+  role: string
+  description?: string
+  createdAt: string
+  updatedAt: string
+  pages?: string[]
+  buttons?: string[]
 }
 
 export const RoleEntity = new EntitySchema<Role>({
@@ -18,24 +20,40 @@ export const RoleEntity = new EntitySchema<Role>({
       primary: true,
       generated: true,
     },
-    name: {
+    /** 角色名 */
+    roleName: {
       type: String,
       unique: true,
     },
+    /** 角色编码（旧库同步时可为空一帧，启动后由 db 回填） */
+    role: {
+      type: String,
+      unique: true,
+      nullable: true,
+    },
+    /** 角色描述 */
     description: {
       type: 'text',
       nullable: true,
     },
+    /** 创建时间 */
     createdAt: {
       type: 'datetime',
       createDate: true,
     },
+    /** 更新时间 */
     updatedAt: {
       type: 'datetime',
       updateDate: true,
     },
+    /** 页面权限 */
     pages: {
-      type: 'text',
+      type: 'simple-array',
+      nullable: true,
+    },
+    /** 按钮权限 */
+    buttons: {
+      type: 'simple-array',
       nullable: true,
     },
   },

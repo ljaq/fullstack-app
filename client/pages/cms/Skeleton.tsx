@@ -1,5 +1,5 @@
 import React from 'react'
-import { Skeleton } from 'antd'
+import { Card, Skeleton, Spin } from 'antd'
 
 /**
  * CMS 页骨架屏
@@ -7,36 +7,9 @@ import { Skeleton } from 'antd'
 
 export function ContentSkeleton() {
   return (
-    <div style={{ flex: 1, overflowY: 'auto', padding: '0 40px 32px', position: 'relative' }}>
-      <div style={{ marginBottom: 16, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-        <Skeleton.Input active style={{ width: 160 }} />
-        <Skeleton.Input active style={{ width: 120 }} />
-        <Skeleton.Input active style={{ width: 200 }} />
-        <Skeleton.Button active />
-      </div>
-      <div
-        style={{
-          border: '1px solid rgba(0,0,0,0.06)',
-          borderRadius: 8,
-          padding: 24,
-          background: '#fff',
-        }}
-      >
-        <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-          <Skeleton.Input active size='small' style={{ width: 60 }} />
-          <Skeleton.Input active size='small' style={{ width: 60 }} />
-          <Skeleton.Input active size='small' style={{ width: 60 }} />
-        </div>
-        <Skeleton active paragraph={{ rows: 5 }} />
-        <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Skeleton.Input active size='small' style={{ width: 80 }} />
-          <div style={{ display: 'flex', gap: 8 }}>
-            <Skeleton.Button active size='small' style={{ width: 32 }} />
-            <Skeleton.Button active size='small' style={{ width: 32 }} />
-          </div>
-        </div>
-      </div>
-    </div>
+    <Spin size='large' spinning>
+      <div style={{ height: 'calc(100vh - 130px)' }} />
+    </Spin>
   )
 }
 

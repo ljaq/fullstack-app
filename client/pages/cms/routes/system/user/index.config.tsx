@@ -1,11 +1,11 @@
-import { HomeOutlined } from '@ant-design/icons'
+import { UserOutlined } from '@ant-design/icons'
 import { request } from 'api'
 import { Schema } from 'form-render'
 
 export const meta = {
   name: '用户管理',
   order: 100,
-  icon: <HomeOutlined />,
+  icon: <UserOutlined />,
 }
 
 export const searchSchema: Schema = {

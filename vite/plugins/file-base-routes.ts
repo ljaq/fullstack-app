@@ -94,7 +94,7 @@ function scanPagesDir(
 
     const { type, param, segment } = parseSegment(entry.name)
     const routeName =
-      [...parentRoute.split('/'), segment]
+      [...parentRoute.split(/[/-]/), segment]
         .filter(Boolean)
         .map(r => r.replace(/:/g, ''))
         .join('_') || 'index'

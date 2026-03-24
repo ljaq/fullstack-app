@@ -2,7 +2,9 @@ import { createStyles } from 'antd-style'
 
 export const useStyle = createStyles(({ token, css }) => {
   return {
-    pageContainer: css``,
+    pageContainer: css`
+      height: 100%;
+    `,
     header: css`
       margin-bottom: 16px;
       .back {

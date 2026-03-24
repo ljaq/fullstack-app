@@ -8,13 +8,12 @@ import { requireAuth } from 'server/utils/auth'
 const factory = createFactory()
 
 const roleBody = z.object({
-  name: z.string().min(1),
+  roleName: z.string().min(1),
+  role: z.string().min(1),
   description: z.string().optional(),
 })
 
 export const GET = factory.createHandlers(requireAuth, async c => {
-  const page = Number(c.req.query('page')) || 1
-  const pageSize = Number(c.req.query('pageSize')) || Number(c.req.query('page_size')) || 10
   const name = c.req.query('name')?.trim()
 
   const ds = await getDataSource()
@@ -25,16 +24,11 @@ export const GET = factory.createHandlers(requireAuth, async c => {
     qb.andWhere('r.name LIKE :name', { name: `%${name}%` })
   }
 
-  const [roles, total] = await qb
-    .skip((page - 1) * pageSize)
-    .take(pageSize)
-    .getManyAndCount()
+  const [roles, total] = await qb.getManyAndCount()
 
   return c.json({
     data: roles,
     total,
-    page,
-    pageSize,
   })
 })
 
@@ -43,9 +37,9 @@ export const POST = factory.createHandlers(requireAuth, zValidator('json', roleB
   const repo = ds.getRepository(RoleEntity)
   const body = c.req.valid('json')
 
-  const exists = await repo.findOne({ where: { name: body.name } })
+  const exists = await repo.findOne({ where: { roleName: body.roleName, role: body.role } })
   if (exists) {
-    return c.json({ message: '角色名已存在' }, 400)
+    return c.json({ message: '角色已存在' }, 400)
   }
 
   const role = await repo.save(repo.create(body))

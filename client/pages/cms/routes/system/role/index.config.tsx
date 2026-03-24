@@ -1,10 +1,14 @@
-import { HomeOutlined } from '@ant-design/icons'
+import { ContactsOutlined } from '@ant-design/icons'
 import { Schema } from 'form-render'
 
 export const meta = {
   name: '角色管理',
   order: 99,
-  icon: <HomeOutlined />,
+  icon: <ContactsOutlined />,
+  actions: {
+    create: 'btn:role:create',
+    edit: 'btn:role:edit',
+  }
 }
 
 export const searchSchema: Schema = {
@@ -24,11 +28,18 @@ export const createSchema: Schema = {
   type: 'object',
   displayType: 'row',
   properties: {
-    name: {
+    roleName: {
       type: 'string',
       title: '角色名',
       required: true,
       placeholder: '请输入角色名',
+      widget: 'input',
+    },
+    role: {
+      type: 'string',
+      title: '角色编码',
+      required: true,
+      placeholder: '请输入角色编码',
       widget: 'input',
     },
     description: {

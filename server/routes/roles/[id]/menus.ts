@@ -21,7 +21,7 @@ export const GET = factory.createHandlers(requireAuth, zValidator('param', param
   if (!role) {
     return c.json({ message: '角色不存在' }, 404)
   }
-  const pageKeys = role.pages ? (JSON.parse(role.pages) as string[]) : []
+  const pageKeys = role.pages ? role.pages : []
   return c.json({ pageKeys })
 })
 
@@ -40,7 +40,7 @@ export const PUT = factory.createHandlers(
       return c.json({ message: '角色不存在' }, 404)
     }
 
-    await repo.update({ id }, { pages: JSON.stringify(pageKeys) })
+    await repo.update({ id }, { pages: pageKeys })
     return c.json({ success: true })
   },
 )

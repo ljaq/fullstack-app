@@ -2,7 +2,7 @@ import { useAuthority } from './useAuthority'
 import { IRouteObject } from 'client/types'
 
 export function useAuthorityRoutes(routes: IRouteObject[]) {
-  const { allowedPages } = useAuthority()
+  const { paegs } = useAuthority()
 
   function withFullPath(route: IRouteObject, parentPath = ''): IRouteObject & { fullPath?: string } {
     const path = route.path || ''
@@ -18,7 +18,7 @@ export function useAuthorityRoutes(routes: IRouteObject[]) {
   }
 
   function filterByAllowedPages(routes: (IRouteObject & { fullPath?: string })[]): IRouteObject[] {
-    if (!allowedPages || allowedPages.length === 0) {
+    if (!paegs || paegs.length === 0) {
       return routes
     }
 
@@ -26,7 +26,7 @@ export function useAuthorityRoutes(routes: IRouteObject[]) {
       .map(route => {
         const children = route.children ? filterByAllowedPages(route.children as any) : []
         const isLeaf = !route.children || route.children.length === 0
-        const canVisit = route.fullPath && allowedPages.includes(route.fullPath)
+        const canVisit = route.fullPath && paegs.includes(route.fullPath)
 
         if (isLeaf) {
           return canVisit ? { ...route, children: [] } : null

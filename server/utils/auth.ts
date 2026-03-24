@@ -47,16 +47,18 @@ export async function getCurrentUser(c: Context) {
     const roleIds: number[] = user.roles ? JSON.parse(user.roles) : []
     const roleEntities = roleIds.length ? await roleRepo.findBy({ id: In(roleIds) }) : []
 
-    const roles = roleEntities.map(r => r.name)
-    const allowedPages = Array.from(
-      new Set(roleEntities.flatMap(r => (r.pages ? (JSON.parse(r.pages) as string[]) : []))),
+    const roles = roleEntities.map(r => r.role)
+    const roleNames = roleEntities.map(r => r.roleName)
+    const paegs = Array.from(
+      new Set(roleEntities.flatMap(r => (r.pages ?? []))),
     )
 
     return {
       id: user.id,
       username: user.username,
       roles,
-      allowedPages,
+      roleNames,
+      paegs,
     }
   } catch {
     return null

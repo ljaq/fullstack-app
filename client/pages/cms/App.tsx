@@ -35,7 +35,7 @@ function App() {
     getUser()
   }, [])
   return (
-    <ConfigProvider locale={zh_CN} theme={themeToken}>
+    <ConfigProvider locale={zh_CN} theme={{}}>
       <AntdApp>
       <EasyModal.Provider>
         <RouterProvider router={router} />

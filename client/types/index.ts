@@ -1,7 +1,7 @@
 import { RouteObject } from 'react-router'
 import { Role } from 'types/enum'
 
-export interface IPageConfig {
+export interface IMeta {
   icon?: React.ReactNode
   name: string
   order?: number
@@ -9,5 +9,5 @@ export interface IPageConfig {
 }
 
 export type IRouteObject = RouteObject & {
-  meta?: IPageConfig
+  meta?: IMeta
 }

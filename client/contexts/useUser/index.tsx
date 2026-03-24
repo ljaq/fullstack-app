@@ -17,7 +17,7 @@ export type UserState = {
   roleName?: typeof Role.valueType
   id?: number | string
   roles?: string[]
-  allowedPages?: string[]
+  paegs?: string[]
   themeConfig: IThemeConfig
 }
 
@@ -43,7 +43,7 @@ export default function UserProvider({ children }: { children: React.ReactNode }
         userName: u.username,
         roleName: primaryRole,
         roles: u.roles || [],
-        allowedPages: u.allowedPages || [],
+        paegs: u.paegs || [],
       }
       setUser(user)
       return user
