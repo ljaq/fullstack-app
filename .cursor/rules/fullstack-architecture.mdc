@@ -1,0 +1,36 @@
+---
+description: 全栈项目结构、构建入口、路径别名与多页面前端
+alwaysApply: true
+---
+
+# Fullstack 架构概览
+
+## 技术栈
+
+- **运行时**：Vite 7、`@hono/vite-dev-server` / `@hono/vite-build`，开发时入口为根目录 `app.ts`。
+- **后端**：Hono 4、TypeORM、SQLite（`dev.db` / `prod.db`），环境变量来自 `.env.${mode}`。
+- **前端**：React 18、Ant Design、React Router 7、`@tanstack/react-query`。
+
+## 目录约定
+
+| 区域 | 路径 | 说明 |
+|------|------|------|
+| HTTP 入口 | `app.ts` | 挂载生成路由、多页 HTML、静态资源、`/api/*` 第三方代理 |
+| 后端路由 | `server/routes/` | 文件即路由，见 `server-hono-routes` 规则 |
+| 前端多页 | `client/pages/<page>/` | 每页独立 `index.html` + `routes/`，懒加载路由表由插件生成 |
+| 共享 API 层 | `api/` | `request` 代理 + `Fetch`，类型与 `app.ts` 导出类型对齐 |
+| 类型 / 工具 | `types/`、`utils/` | 枚举与通用工具 |
+
+## Vite 路径别名（`vite/config/shared.ts`）
+
+使用：`api`、`client`、`server`、`utils`、`types`、`core`。TypeScript `baseUrl` 为 `.`，故根目录 `app.ts` 可通过 `import … from 'app'` 被 `api/index.ts` 引用以推导 `AppType`。
+
+## 第三方接口
+
+- `app.ts` 将 **`/api/*`** 代理到 `VITE_THIRD_API`（与本地 `/jaq` 业务接口分离）。
+- `api/api.ts` 中 `authority` 等路径走 `/api/...`；自建后端走 `/jaq/...`（与 `vite-plugin-server-route` 的 `baseRoute` 一致）。
+
+## 构建脚本
+
+- `pnpm dev`：Vite development。
+- `pnpm build`：`build:client`（`mode=client`）+ `build:server`（`mode=server`），产物在 `build/`。

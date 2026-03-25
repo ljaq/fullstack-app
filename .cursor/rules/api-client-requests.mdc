@@ -1,0 +1,40 @@
+---
+description: 前端 request 链式调用、api/api.ts 路径与 Fetch
+globs: api/**/*
+alwaysApply: false
+---
+
+# API 客户端：`request` 与 `Fetch`
+
+## 核心机制
+
+- `api/index.ts`：`createApiProxy<AppType, typeof api>(api)`，`AppType` 来自 `app.ts` 导出，使 **`request` 的路径与方法与 Hono 路由类型对齐**。
+- `api/api.ts`：用嵌套对象描述 **URL 字符串**（与后端 `/jaq` 树一致），例如 `auth: { login: '/jaq/auth/login', ... }`。
+
+## 调用方式
+
+- 链式：**路径片段对应 `api/api.ts` 的键**，最后是 **HTTP 小写方法**（`.get` / `.post` / `.put` / `.delete`）。
+- 传参：`.post({ body: ... })`、`.get({ query: ... })`、动态段用 `.params({ id: '...' })`。
+- 可作为 Promise：`await request.jaq.auth.me.get()`；也可 `.get().then(...)`。
+
+```ts
+import { request } from 'api'
+
+await request.jaq.auth.login.post({ body: { username, password } })
+await request.jaq.auth.me.get()
+```
+
+## 与 `Fetch` 的区别
+
+- **`request`**：类型安全、走 `api/api.ts` 树 + 代理逻辑。
+- **`Fetch`**：`api/fetch.ts` 的底层方法，传入完整 `RequestConfig`（`url`、`method`、`body`、`query`、`params`），用于非树形或一次性请求。
+
+## 运行时行为（`api/utils.ts`）
+
+- 默认 `credentials: 'include'`，JSON `Content-Type`，`Authorization: Bearer <localStorage TOKEN>`。
+- 成功响应解析 JSON；带 `Content-Disposition` 等时触发下载。
+- **401**：默认跳转 `/login`；可用 `options.autoRedirect` 控制。
+
+## 第三方 API
+
+- `api/api.ts` 中 `authority` 等 **以 `/api/` 开头** 的路径走网关代理，与自建 `/jaq` 区分。

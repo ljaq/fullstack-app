@@ -1,0 +1,41 @@
+---
+description: Hono 文件路由、处理器导出与校验约定
+globs: server/routes/**/*.ts
+alwaysApply: false
+---
+
+# Server：Hono 文件路由
+
+## 生成文件
+
+- `server/routes/_route.gen.ts` **由 `vite-plugin-server-route` 自动生成，禁止手改**。
+- 开发/构建时会扫描 `server/routes`，按文件路径映射为 URL（`basePath` 为 `/jaq`）。
+- 动态段使用文件名如 `[id].ts`、目录 `[id]/index.ts`。
+
+## 处理器导出
+
+- 每个路由文件导出 **大写 HTTP 方法名**：`GET`、`POST`、`PUT`、`DELETE`。
+- 使用 `createFactory()` + `factory.createHandlers(...)` 组合中间件与处理函数。
+
+```ts
+// 典型顺序：鉴权 → zValidator → handler
+export const POST = factory.createHandlers(
+  requireAuth,
+  zValidator('json', bodySchema),
+  async c => { /* ... */ },
+)
+```
+
+## 校验与错误
+
+- 使用 **`server/utils/zod-validator` 的 `zValidator`**，校验失败返回 `{ message, issues }` 结构，便于前端展示。
+- 业务错误：`return c.json({ message: '...' }, 4xx)`。
+
+## 数据与鉴权
+
+- 数据库：`await getDataSource()`（`server/db.ts`），实体在 `server/entities/`。
+- 鉴权：`requireAuth`、`getCurrentUser`、`setAuthCookie` 等来自 `server/utils/auth.ts`。
+
+## 开发快照（可选）
+
+- `*.dev-snapshot.ts` 被插件排除，不进入 `_route.gen.ts`；用于本地快照/调试场景。

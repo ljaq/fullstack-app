@@ -1,0 +1,25 @@
+---
+description: 多页入口、文件路由与页面 config 约定
+globs: client/pages/**/*
+alwaysApply: false
+---
+
+# 前端：多页与文件路由
+
+## 多页入口
+
+- `client/pages/<应用名>/`：每个子目录一套 **独立 SPA**（`index.html`、`main.tsx`、`App.tsx`）。
+- 根路径：`app.ts` 开发态为 `/<page>/*` 返回对应 HTML；生产构建输出到 `build/public`。
+
+## 路由生成
+
+- `client/pages/<page>/routes/` 下文件由 **`vite-plugin-client-route`** 生成 **`_route.gen.ts`（勿手改）**。
+- 同路径可存在 **`*.config.tsx`**：导出 `meta`（菜单/标题等）、`loader` / `action`、`searchSchema` 等，供生成路由挂到 `RouteObject`。
+
+## 组件与样式
+
+- 路由组件默认 **React.lazy** 加载；复杂页面可把表单 schema、样式拆到 `index.config.tsx`、`style.ts`。
+
+## 数据请求
+
+- 页面与 Context 中统一 **`import { request } from 'api'`** 调用后端；列表分页等 query 与后端 `c.req.query()` 约定一致（如 `page`、`pageSize`）。
