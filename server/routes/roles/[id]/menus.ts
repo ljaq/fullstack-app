@@ -13,6 +13,7 @@ const menusBody = z.object({
   pageKeys: z.array(z.string()),
 })
 
+/** 获取角色菜单 */
 export const GET = factory.createHandlers(requireAuth, zValidator('param', paramSchema), async c => {
   const { id } = c.req.valid('param')
   const ds = await getDataSource()
@@ -25,6 +26,7 @@ export const GET = factory.createHandlers(requireAuth, zValidator('param', param
   return c.json({ pageKeys })
 })
 
+/** 更新角色菜单 */
 export const PUT = factory.createHandlers(
   requireAuth,
   zValidator('param', paramSchema),

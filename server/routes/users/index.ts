@@ -2,8 +2,8 @@ import * as z from 'zod'
 import { zValidator } from 'server/utils/zod-validator'
 import { createFactory } from 'hono/factory'
 import { getDataSource } from 'server/db'
-import { UserEntity } from 'server/entities/User'
-import { RoleEntity } from 'server/entities/Role'
+import { User, UserEntity } from 'server/entities/User'
+import { Role, RoleEntity } from 'server/entities/Role'
 import { hashPassword, requireAuth } from 'server/utils/auth'
 
 const factory = createFactory()
@@ -11,25 +11,24 @@ const factory = createFactory()
 const createBody = z.object({
   username: z.string().min(3).max(32),
   password: z.string().min(6).max(128),
-  roleIds: z.array(z.number().int()).optional(),
+  roles: z.array(z.string().min(1)).optional(),
 })
 
-function mapUserRow(
-  u: { id: number; username: string; roles: string | null; createdAt?: Date; updatedAt?: Date },
-  allRoles: { id: number; name: string }[],
-) {
-  const roleIds: number[] = u.roles ? JSON.parse(u.roles) : []
-  const userRoles = allRoles.filter(r => roleIds.includes(r.id)).map(r => r.name)
+function mapUserRow(u: User, allRoles: Role[]) {
+  const codes = u.roles ?? []
+  const matched = allRoles.filter(r => r.role && codes.includes(r.role))
+  const roleNames = matched.map(r => r.roleName)
   return {
     id: u.id,
     username: u.username,
-    roles: userRoles,
-    roleIds,
+    roles: codes,
+    roleNames,
     createdAt: u.createdAt,
     updatedAt: u.updatedAt,
   }
 }
 
+/** 获取用户列表 */
 export const GET = factory.createHandlers(requireAuth, async c => {
   const page = Number(c.req.query('page')) || 1
   const pageSize = Number(c.req.query('pageSize')) || Number(c.req.query('page_size')) || 10
@@ -60,8 +59,9 @@ export const GET = factory.createHandlers(requireAuth, async c => {
   })
 })
 
+/** 创建用户 */
 export const POST = factory.createHandlers(requireAuth, zValidator('json', createBody), async c => {
-  const { username, password, roleIds = [] } = c.req.valid('json')
+  const { username, password, roles: roleCodes = [] } = c.req.valid('json')
 
   const ds = await getDataSource()
   const userRepo = ds.getRepository(UserEntity)
@@ -76,7 +76,7 @@ export const POST = factory.createHandlers(requireAuth, zValidator('json', creat
     userRepo.create({
       username,
       passwordHash,
-      roles: JSON.stringify(roleIds),
+      roles: roleCodes,
     }),
   )
 

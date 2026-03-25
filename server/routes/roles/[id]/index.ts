@@ -16,6 +16,7 @@ const roleBody = z.object({
   description: z.string().optional(),
 })
 
+/** 获取角色 */
 export const GET = factory.createHandlers(requireAuth, zValidator('param', paramSchema), async c => {
   const { id } = c.req.valid('param')
   const ds = await getDataSource()
@@ -27,6 +28,7 @@ export const GET = factory.createHandlers(requireAuth, zValidator('param', param
   return c.json(role)
 })
 
+/** 更新角色 */
 export const PUT = factory.createHandlers(
   requireAuth,
   zValidator('param', paramSchema),
@@ -61,8 +63,14 @@ export const DELETE = factory.createHandlers(requireAuth, zValidator('param', pa
   const roleRepo = ds.getRepository(RoleEntity)
   const userRepo = ds.getRepository(UserEntity)
 
+  const role = await roleRepo.findOne({ where: { id } })
+  if (!role) {
+    return c.json({ message: '角色不存在' }, 404)
+  }
+
   const users = await userRepo.find()
-  const used = users.some(u => (u.roles ? (JSON.parse(u.roles) as number[]) : []).includes(id))
+  const code = role.role
+  const used = code != null && users.some(u => (u.roles ?? []).includes(code))
   if (used) {
     return c.json({ message: '该角色已分配给用户，不能删除' }, 400)
   }

@@ -13,6 +13,7 @@ const roleBody = z.object({
   description: z.string().optional(),
 })
 
+/** 获取角色列表 */
 export const GET = factory.createHandlers(requireAuth, async c => {
   const name = c.req.query('name')?.trim()
 
@@ -32,6 +33,7 @@ export const GET = factory.createHandlers(requireAuth, async c => {
   })
 })
 
+/** 创建角色 */
 export const POST = factory.createHandlers(requireAuth, zValidator('json', roleBody), async c => {
   const ds = await getDataSource()
   const repo = ds.getRepository(RoleEntity)

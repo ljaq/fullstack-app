@@ -1,4 +1,4 @@
-import { ConfigProvider } from 'antd'
+import { ConfigProvider, App as AntdApp } from 'antd'
 import Skeleton from './Skeleton'
 import zh_CN from 'antd/locale/zh_CN'
 import { Suspense } from 'react'
@@ -10,9 +10,11 @@ import './index.less'
 function App() {
   return (
     <ConfigProvider locale={zh_CN} theme={themeToken}>
-      <Suspense fallback={<Skeleton />}>
-        <RouterProvider router={createBrowserRouter(routes)} />
-      </Suspense>
+      <AntdApp>
+        <Suspense fallback={<Skeleton />}>
+          <RouterProvider router={createBrowserRouter(routes)} />
+        </Suspense>
+      </AntdApp>
     </ConfigProvider>
   )
 }

@@ -3,14 +3,29 @@ import devServer from '@hono/vite-dev-server'
 import react from '@vitejs/plugin-react'
 import type { PluginOption } from 'vite'
 import serverRoute from '../plugins/vite-plugin-server-route'
+import apiDevSnapshot from '../plugins/vite-plugin-api-dev-snapshot'
 import clientRoute from '../plugins/vite-plugin-client-route'
 import skeletonTransform from '../plugins/vite-plugin-skeleton/index'
+import { isHttps } from './env'
 
 export function getPlugins(mode: string, env: Record<string, string>, pages: string[]): PluginOption[] {
   const port = Number(env.VITE_PORT)
+  const apiSnapshotPluginEnabled = env.VITE_API_DEV_SNAPSHOT !== '0' && env.VITE_API_DEV_SNAPSHOT !== 'false'
 
   const base: PluginOption[] = [
-    serverRoute({ dir: 'server/routes', baseRoute: '/jaq' }),
+    serverRoute({
+      dir: 'server/routes',
+      baseRoute: '/jaq',
+      exclude: ['**/*.dev-snapshot.ts'],
+    }),
+    apiDevSnapshot({
+      dir: 'server/routes',
+      baseRoute: '/jaq',
+      port,
+      exclude: ['**/*.dev-snapshot.ts'],
+      enabled: apiSnapshotPluginEnabled,
+      https: isHttps(env),
+    }),
     ...pages.map(page =>
       clientRoute({
         dir: `client/pages/${page}/routes`,

@@ -12,6 +12,7 @@ const loginBody = z.object({
   password: z.string().min(1),
 })
 
+/** 登录 */
 export const POST = factory.createHandlers(zValidator('json', loginBody), async c => {
   const { username, password } = c.req.valid('json')
 

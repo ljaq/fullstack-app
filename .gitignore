@@ -21,3 +21,10 @@ build-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# API 开发快照
+**/*.dev-snapshot.json
+
+# SQLite WAL 侧车（若再次启用 WAL 会生成）
+*.db-wal
+*.db-shm

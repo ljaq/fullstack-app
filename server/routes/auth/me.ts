@@ -3,6 +3,7 @@ import { getCurrentUser } from 'server/utils/auth'
 
 const factory = createFactory()
 
+/** 获取当前用户 */
 export const GET = factory.createHandlers(async c => {
   const user = await getCurrentUser(c)
   if (!user) {

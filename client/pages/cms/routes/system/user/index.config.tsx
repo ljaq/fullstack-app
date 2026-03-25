@@ -36,7 +36,7 @@ export const createSchema: Schema = {
         placeholder: '新增必填；编辑时留空表示不修改',
       },
     },
-    roleIds: {
+    roles: {
       type: 'array',
       title: '角色',
       widget: 'pageSelector',
@@ -44,8 +44,8 @@ export const createSchema: Schema = {
       props: {
         url: request.jaq.roles.url,
         placeholder: '请选择角色',
-        labelKey: 'name',
-        valueKey: 'id',
+        labelKey: 'roleName',
+        valueKey: 'role',
         mode: 'multiple',
       },
     },

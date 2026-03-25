@@ -12,7 +12,7 @@ type UserItem = {
   id: number
   username: string
   roles: string[]
-  roleIds?: number[]
+  roleNames?: string[]
 }
 
 const idPath = ':id' as const
@@ -67,21 +67,21 @@ export default function UserPage() {
   ]
 
   const handleCreateUser = async (values: any) => {
-    const { username, password, roleIds } = values
+    const { username, password, roles: roleCodes } = values
     if (!password) {
       message.warning('请填写密码')
       throw new Error('请填写密码')
     }
     await request.jaq.users.post({
-      body: { username, password, roleIds: roleIds ?? [] },
+      body: { username, password, roles: roleCodes ?? [] },
     })
     tableRef.current?.fetchData()
   }
 
   const handleEditUser = async (_id: string | number, values: any) => {
-    const body: { username?: string; password?: string; roleIds?: number[] } = {
+    const body: { username?: string; password?: string; roles?: string[] } = {
       username: values.username,
-      roleIds: values.roleIds ?? [],
+      roles: values.roles ?? [],
     }
     if (values.password) {
       body.password = values.password

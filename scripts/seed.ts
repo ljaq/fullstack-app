@@ -23,7 +23,7 @@ const ALL_PAGE_KEYS = [
 
 const ADMIN_USERNAME = 'admin'
 const ADMIN_PASSWORD = 'admin123'
-const ADMIN_ROLE_NAME = 'admin'
+const ADMIN_ROLE_CODE = 'admin'
 
 async function main() {
   const ds = await getDataSource()
@@ -32,23 +32,26 @@ async function main() {
 
   try {
     // 1. 创建或获取管理员角色
-    let adminRole = await roleRepo.findOne({ where: { name: ADMIN_ROLE_NAME } })
+    let adminRole = await roleRepo.findOne({ where: { role: ADMIN_ROLE_CODE } })
     if (!adminRole) {
       adminRole = await roleRepo.save(
-        roleRepo.create({ name: ADMIN_ROLE_NAME, description: '超级管理员，拥有全部菜单权限' }),
+        roleRepo.create({
+          roleName: '管理员',
+          role: ADMIN_ROLE_CODE,
+          description: '超级管理员，拥有全部菜单权限',
+        }),
       )
-      console.log('已创建角色:', adminRole.name)
+      console.log('已创建角色:', adminRole.roleName)
     } else {
-      console.log('角色已存在:', adminRole.name)
+      console.log('角色已存在:', adminRole.roleName)
     }
 
     // 2. 为管理员角色分配全部页面权限
-    const existingKeys = new Set(
-      adminRole.pages ? (JSON.parse(adminRole.pages) as string[]) : [],
-    )
+    const pagesArr = Array.isArray(adminRole.pages) ? adminRole.pages : []
+    const existingKeys = new Set(pagesArr)
     const toAdd = ALL_PAGE_KEYS.filter(k => !existingKeys.has(k))
     const newPages = Array.from(new Set([...existingKeys, ...toAdd]))
-    await roleRepo.update({ id: adminRole.id }, { pages: JSON.stringify(newPages) })
+    await roleRepo.update({ id: adminRole.id }, { pages: newPages })
     console.log('已为角色添加页面权限:', newPages.length, '个')
 
     // 3. 创建或更新 admin 用户
@@ -64,14 +67,16 @@ async function main() {
       console.log('已更新用户密码:', adminUser.username)
     }
 
-    // 4. 将 admin 用户绑定到管理员角色
-    const currentRoleIds: number[] = adminUser.roles ? JSON.parse(adminUser.roles) : []
-    if (!currentRoleIds.includes(adminRole.id)) {
-      const updated = Array.from(new Set([...currentRoleIds, adminRole.id]))
-      await userRepo.update({ id: adminUser.id }, { roles: JSON.stringify(updated) })
-      console.log('已为用户分配角色:', adminRole.name)
+    // 4. 将 admin 用户绑定到管理员角色（User.roles 存角色编码 role，非 id）
+    const roleCode = adminRole.role || ADMIN_ROLE_CODE
+    const currentCodes: string[] = Array.isArray(adminUser.roles) ? adminUser.roles : []
+    if (!roleCode) {
+      console.log('角色缺少 role 编码，跳过用户绑定')
+    } else if (currentCodes.includes(roleCode)) {
+      console.log('用户已拥有角色:', adminRole.roleName)
     } else {
-      console.log('用户已拥有角色:', adminRole.name)
+      await userRepo.update({ id: adminUser.id }, { roles: [...new Set([...currentCodes, roleCode])] })
+      console.log('已为用户分配角色:', adminRole.roleName)
     }
 
     console.log('\n种子数据执行完成。')

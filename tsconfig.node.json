@@ -27,6 +27,7 @@
     "vite-env.d.ts",
     "core",
     "vite",
-    "scripts"
+    "scripts",
+    "server/dev-snapshot/**/*.ts"
   ]
 }

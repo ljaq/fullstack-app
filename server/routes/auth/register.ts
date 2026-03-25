@@ -12,6 +12,7 @@ const registerBody = z.object({
   password: z.string().min(6).max(128),
 })
 
+/** 注册 */
 export const POST = factory.createHandlers(zValidator('json', registerBody), async c => {
   const { username, password } = c.req.valid('json')
 

@@ -22,7 +22,9 @@ export default function Login() {
         body: fields,
       })
       location.href = '/cms'
+      setLoading(false)
     } catch (err: any) {
+      setLoading(false)
       const msg = err?.message || '登录失败'
       message.error({
         content: msg,
@@ -32,7 +34,6 @@ export default function Login() {
         form.setFields([{ name: 'password', errors: [''] }])
       }
     }
-    setLoading(false)
   }
 
   useEffect(() => {

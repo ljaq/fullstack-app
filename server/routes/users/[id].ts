@@ -5,6 +5,7 @@ import { getDataSource } from 'server/db'
 import { UserEntity } from 'server/entities/User'
 import { RoleEntity } from 'server/entities/Role'
 import { getCurrentUser, hashPassword, requireAuth } from 'server/utils/auth'
+import { Role } from 'server/entities/Role'
 
 const factory = createFactory()
 
@@ -13,25 +14,26 @@ const paramSchema = z.object({ id: z.coerce.number().int() })
 const updateBody = z.object({
   username: z.string().min(3).max(32).optional(),
   password: z.string().min(6).max(128).optional(),
-  roleIds: z.array(z.number().int()).optional(),
+  roles: z.array(z.string().min(1)).optional(),
 })
 
 function mapUserRow(
-  u: { id: number; username: string; roles: string | null; createdAt?: Date; updatedAt?: Date },
-  allRoles: { id: number; name: string }[],
+  u: { id: number; username: string; roles: string[] | null; createdAt?: Date; updatedAt?: Date },
+  allRoles: Role[],
 ) {
-  const roleIds: number[] = u.roles ? JSON.parse(u.roles) : []
-  const userRoles = allRoles.filter(r => roleIds.includes(r.id)).map(r => r.name)
+  const codes = u.roles ?? []
+  const matched = allRoles.filter(r => r.role && codes.includes(r.role))
   return {
     id: u.id,
     username: u.username,
-    roles: userRoles,
-    roleIds,
+    roles: codes,
+    roleNames: matched.map(r => r.roleName),
     createdAt: u.createdAt,
     updatedAt: u.updatedAt,
   }
 }
 
+/** 获取用户 */
 export const GET = factory.createHandlers(requireAuth, zValidator('param', paramSchema), async c => {
   const { id } = c.req.valid('param')
   const ds = await getDataSource()
@@ -47,6 +49,7 @@ export const GET = factory.createHandlers(requireAuth, zValidator('param', param
   return c.json(mapUserRow(user, roles))
 })
 
+/** 更新用户 */
 export const PUT = factory.createHandlers(
   requireAuth,
   zValidator('param', paramSchema),
@@ -71,10 +74,10 @@ export const PUT = factory.createHandlers(
       }
     }
 
-    const patch: Partial<{ username: string; passwordHash: string; roles: string }> = {}
+    const patch: Partial<{ username: string; passwordHash: string; roles: string[] }> = {}
     if (body.username !== undefined) patch.username = body.username
     if (body.password !== undefined) patch.passwordHash = await hashPassword(body.password)
-    if (body.roleIds !== undefined) patch.roles = JSON.stringify(body.roleIds)
+    if (body.roles !== undefined) patch.roles = body.roles
 
     await userRepo.update({ id }, patch)
 

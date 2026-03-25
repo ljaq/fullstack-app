@@ -6,7 +6,8 @@ export interface User {
   passwordHash: string
   createdAt: Date
   updatedAt: Date
-  roles: string | null
+  /** 角色编码（与 Role.role 一致），非 id */
+  roles: string[]
 }
 
 export const UserEntity = new EntitySchema<User>({
@@ -34,7 +35,7 @@ export const UserEntity = new EntitySchema<User>({
       updateDate: true,
     },
     roles: {
-      type: 'text',
+      type: 'simple-array',
       nullable: true,
     },
   },

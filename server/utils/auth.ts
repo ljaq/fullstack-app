@@ -3,7 +3,7 @@ import { getCookie, setCookie, deleteCookie } from 'hono/cookie'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { In } from 'typeorm'
-import { getDataSource } from 'server/db'
+import { getDataSource } from '../db'
 
 const AUTH_COOKIE_KEY = 'auth_token'
 
@@ -16,6 +16,11 @@ export async function hashPassword(password: string) {
 
 export async function verifyPassword(password: string, hash: string) {
   return bcrypt.compare(password, hash)
+}
+
+/** 与 setAuthCookie 使用同一密钥与 payload，仅供开发态快照等场景，不校验密码 */
+export function signAuthTokenForDevSnapshot(userId: number) {
+  return jwt.sign({ userId }, AUTH_SECRET, { expiresIn: '7d' })
 }
 
 export function setAuthCookie(c: Context, payload: { userId: number }) {
@@ -44,10 +49,12 @@ export async function getCurrentUser(c: Context) {
     const user = await userRepo.findOne({ where: { id: decoded.userId } })
     if (!user) return null
 
-    const roleIds: number[] = user.roles ? JSON.parse(user.roles) : []
-    const roleEntities = roleIds.length ? await roleRepo.findBy({ id: In(roleIds) }) : []
+    const roleCodes: string[] = (user.roles ?? []).filter(Boolean) as string[]
+    const roleEntities = roleCodes.length
+      ? await roleRepo.findBy({ role: In(roleCodes) })
+      : []
 
-    const roles = roleEntities.map(r => r.role)
+    const roles = roleCodes
     const roleNames = roleEntities.map(r => r.roleName)
     const paegs = Array.from(
       new Set(roleEntities.flatMap(r => (r.pages ?? []))),
@@ -60,7 +67,8 @@ export async function getCurrentUser(c: Context) {
       roleNames,
       paegs,
     }
-  } catch {
+  } catch (error) {
+    console.log(error)
     return null
   }
 }
