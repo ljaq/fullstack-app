@@ -4,6 +4,7 @@ import { rootDir } from './env'
 
 export function getClientBuildConfig(pages: string[]): BuildOptions {
   return {
+    chunkSizeWarningLimit: 1500,
     outDir: './build/public',
     rollupOptions: {
       input: pages.reduce<Record<string, string>>((acc, page) => {
