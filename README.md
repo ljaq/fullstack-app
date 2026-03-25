@@ -23,28 +23,64 @@
 
 ### 总体结构
 
+```mermaid
+flowchart TB
+  subgraph FE["前端 · 多页 SPA"]
+    direction TB
+    FE1["client/pages 下每目录一套入口"]
+    FE2["React Router · routes/_route.gen.ts"]
+    FE3["api/request · api/api.ts 路径树"]
+    FE1 --> FE2
+  end
+
+  subgraph GW["HTTP 入口 app.ts · Hono"]
+    direction TB
+    GW1["/jaq/* 业务 API"]
+    GW2["/api/* 转发至 VITE_THIRD_API"]
+    GW3["开发态多页 HTML · 生产态 build/public 静态"]
+  end
+
+  subgraph BE["服务端 server/"]
+    direction TB
+    BE1["routes 目录即 URL · 动态段 [id]"]
+    BE2["Handlers · zValidator · requireAuth"]
+    BE3["entities · TypeORM"]
+    BE4[(SQLite dev.db prod.db)]
+    BE1 --> BE2 --> BE3 --> BE4
+  end
+
+  subgraph PL["Vite 插件"]
+    direction TB
+    P1["server-route · 聚合后端路由"]
+    P2["client-route · 聚合前端路由"]
+    P3["api-dev-snapshot · 开发态请求快照"]
+    P4["skeleton · 注入首屏骨架"]
+    P1 -.-> BE1
+    P2 -.-> FE2
+    P3 -.-> BE1
+    P4 -.-> FE1
+  end
+
+  subgraph TY["类型线索 · 编译期"]
+    APP["app.ts 导出 AppType"]
+    APIIDX["api/index.ts createApiProxy"]
+    APP -.-> APIIDX
+    APIIDX -.-> FE3
+  end
+
+  FE3 -->|"fetch · credentials/include"| GW1
+  FE3 -->|"部分路径走 /api"| GW2
+  GW2 --> EXT["第三方服务"]
+  GW1 --> BE1
+  GW1 -.->|同源 · HTML 与 API| GW3
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  app.ts（Hono 入口）                                        │
-│  · 挂载业务 API：/jaq/*（由 server/routes 自动生成）        │
-│  · 第三方代理：/api/* → VITE_THIRD_API                      │
-│  · 多页 HTML（dev）或静态资源（prod）                       │
-└─────────────────────────────────────────────────────────────┘
-               ▲                              │
-               │  类型推导 AppType            │  HTTP
-               │                              ▼
-      ┌─────────────────┐            ┌─────────────────┐
-      │  api/           │            │  server/routes/ │
-      │  request / api  │  同构路径  │  文件路由 + 插件│
-      │  路径树         │  ←──────→  │  _route.gen.ts  │
-      └─────────────────┘            └─────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────────────────────────┐
-│  client/pages/<应用名>/  —  多页 SPA（cms / login / 404 …） │
-│  routes/_route.gen.ts 由 vite-plugin-client-route 生成      │
-└─────────────────────────────────────────────────────────────┘
-```
+
+**读图说明**
+
+- **纵向**：浏览器中的页面通过 `request` / `Fetch` 访问同源 `app.ts`；`/jaq` 进入文件路由与数据库，`/api` 穿出到配置的外部地址。
+- **GW1 ↔ GW3**：同一 `app.ts` 进程内，多页 HTML（开发）与 `build/public` 静态（生产）与业务 API 同源。
+- **虚线**：`server-route` / `client-route` 根据目录生成 `_route.gen.ts`（勿手改）；`api-dev-snapshot` 在开发时监听 `server/routes` 并落盘快照；`skeleton` 在构建 HTML 时注入骨架；`AppType` 将 Hono 应用类型接到 `request`。
+- **开发**：`@hono/vite-dev-server` 以 `app.ts` 为入口；**构建**：`mode=client` 产出静态资源，`mode=server` 产出 `build/app.js`。
 
 ### 目录说明
 
@@ -63,6 +99,15 @@
 - **自建后端**：统一前缀 **`/jaq`**（与 `vite-plugin-server-route` 的 `baseRoute` 一致）。
 - **第三方 / 网关**：路径 **`/api/*`**，由 `app.ts` 转发到环境变量 `VITE_THIRD_API`。
 - 前端通过 **`import { request } from 'api'`** 链式调用，例如 `request.jaq.auth.me.get()`；路径与 `api/api.ts` 中声明的字符串保持一致。
+
+### Vite 插件
+
+| 插件 | 作用 |
+|------|------|
+| **vite-plugin-server-route** | 扫描 `server/routes`，按文件路径与导出的 `GET`/`POST`/… 生成 `server/routes/_route.gen.ts`，并挂到 `basePath`（如 `/jaq`）。监听文件变更并热更新。 |
+| **vite-plugin-client-route** | 扫描各 `client/pages/<应用>/routes/`，生成懒加载的 `routes/_route.gen.ts`，并合并同路径下 `*.config.tsx` 的 `meta` / `loader` 等。 |
+| **vite-plugin-api-dev-snapshot** | **仅开发模式**（`apply: 'serve'`）。监听 `server/routes` 下路由或 `*.dev-snapshot.ts` 变更，按 `defineDevSnapshot`（`server/dev-snapshot/define.ts`）配置对本机 dev server 发起真实 HTTP 请求，将各方法的 **request / response** 写入与路由同名的 **`*.dev-snapshot.json`**（便于联调对照、文档与回归）。支持 `asUser` 按用户名签发开发用 Cookie。可通过环境变量 **`VITE_API_DEV_SNAPSHOT=0`**（或 `false`）关闭。`*.dev-snapshot.ts` 不参与 `_route.gen` 聚合。 |
+| **vite-plugin-skeleton** | 在 `transformIndexHtml` 阶段按页面名调用 `get-skeleton-code.mts`，把生成的 **骨架屏 HTML/CSS** 注入 `compileHtml`，与 `Suspense` 占位配合；`mode=client` 构建结束时还会把 `build/public/client/pages/<page>/index.html` 扁平化为 `build/public/<page>.html` 并清理中间目录。 |
 
 ---
 
@@ -97,6 +142,7 @@
 
 - `VITE_PORT`：开发服务器端口  
 - `VITE_THIRD_API`：`/api/*` 代理目标  
+- `VITE_API_DEV_SNAPSHOT`：设为 `0` 或 `false` 时关闭 **api-dev-snapshot** 插件（默认开启）  
 - `mode`：Node 生产启动时区分环境（见 `package.json` 的 `start:test` / `start:prod`）
 
 ---
