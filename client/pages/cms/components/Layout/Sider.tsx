@@ -1,6 +1,5 @@
-import { LogoutOutlined } from '@ant-design/icons'
-import { Button, ConfigProvider, Drawer, Flex, Layout, Menu, Space, theme } from 'antd'
-import Avatar from 'boring-avatars'
+import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
+import { Avatar, Button, ConfigProvider, Drawer, Flex, Layout, Menu, Space, theme } from 'antd'
 import { useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { useUser } from 'client/contexts/useUser'
@@ -10,15 +9,12 @@ import Logo from './Logo'
 import { useMenu } from './useMenu'
 
 export default function Sider() {
-  const [, { logout }] = useUser()
+  const [user, { logout }] = useUser()
   const { collapsed, isMobile, setCollapsed } = useLayoutState()
   const { styles } = useStyle()
   const location = useLocation()
   const navigate = useNavigate()
   const menu = useMenu()
-  const {
-    token: { colorPrimary, colorPrimaryBorder },
-  } = theme.useToken()
 
   const defaultOpenKeys = useMemo(() => {
     return location.pathname
@@ -87,8 +83,10 @@ export default function Sider() {
             gap={4}
           >
             <Flex align='center' className='user-info'>
-              <Avatar name='Admin' variant='beam' size={24} colors={[colorPrimaryBorder, colorPrimary]} />
-              {!collapsed && <span style={{ marginLeft: 8 }}>Admin</span>}
+              <Avatar size={24}>
+                <UserOutlined />
+              </Avatar>
+              {!collapsed && <span style={{ marginLeft: 8 }}>{ user.userName }</span>}
             </Flex>
             <Space orientation={collapsed ? 'vertical' : 'horizontal'}>
               <Button type='text' icon={<LogoutOutlined />} onClick={logout} />

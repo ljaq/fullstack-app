@@ -1,4 +1,4 @@
-import { App, Button, Form, Input, Space, theme } from 'antd'
+import { Button, Form, Input, Space, theme } from 'antd'
 import { request } from 'api'
 import { formatTime } from 'client/utils/time'
 import dayjs from 'dayjs'
@@ -10,7 +10,6 @@ export default function Login() {
   const [time, setTime] = useState(formatTime(dayjs(), 'YYYY/MM/DD HH:mm'))
   const [loading, setLoading] = useState(false)
   const [form] = Form.useForm()
-  const { message } = App.useApp()
   const {
     token: { colorPrimary, colorPrimaryBgHover, colorPrimaryActive, colorPrimaryHover },
   } = theme.useToken()
@@ -26,10 +25,6 @@ export default function Login() {
     } catch (err: any) {
       setLoading(false)
       const msg = err?.message || '登录失败'
-      message.error({
-        content: msg,
-        className: 'login-msg',
-      })
       if (msg === '用户名密码错误') {
         form.setFields([{ name: 'password', errors: [''] }])
       }
@@ -56,7 +51,7 @@ export default function Login() {
       loadThree()
         .then(() => import('vanta/dist/vanta.fog.min'))
         .then(({ default: FOG }) => {
-          vantaEffect = FOG({
+          vantaEffect = FOG.default({
             el: '.login',
             mouseControls: true,
             touchControls: true,
