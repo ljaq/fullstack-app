@@ -1,4 +1,4 @@
-import { Button, message, Space } from 'antd'
+import { Button, message, Space, Tag } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { useRef } from 'react'
 import { request } from 'api'
@@ -26,12 +26,18 @@ export default function UserPage() {
     { title: '用户名', dataIndex: 'username' },
     {
       title: '角色',
-      dataIndex: 'roles',
-      render: (roles: string[]) => roles?.join(', '),
+      dataIndex: 'roleNames',
+      render: (val: string[]) => (
+        <Space>
+          {val.map(name => (
+            <Tag key={name}>{name}</Tag>
+          ))}
+        </Space>
+      ),
     },
     {
       title: '操作',
-      width: 260,
+      width: 120,
       render: (_, record) => (
         <Space>
           <Button

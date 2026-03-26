@@ -4,8 +4,9 @@ import { createFactory } from 'hono/factory'
 import { getDataSource } from 'server/db'
 import { UserEntity } from 'server/entities/User'
 import { RoleEntity } from 'server/entities/Role'
-import { getCurrentUser, hashPassword, requireAuth } from 'server/utils/auth'
+import { getCurrentUser, hashPassword, requireAuth, requirePermission } from 'server/utils/auth'
 import { Role } from 'server/entities/Role'
+import { BTN } from 'types/permissions'
 
 const factory = createFactory()
 
@@ -52,6 +53,7 @@ export const GET = factory.createHandlers(requireAuth, zValidator('param', param
 /** 更新用户 */
 export const PUT = factory.createHandlers(
   requireAuth,
+  requirePermission(BTN.用户管理.编辑),
   zValidator('param', paramSchema),
   zValidator('json', updateBody),
   async c => {
@@ -87,18 +89,23 @@ export const PUT = factory.createHandlers(
   },
 )
 
-export const DELETE = factory.createHandlers(requireAuth, zValidator('param', paramSchema), async c => {
-  const { id } = c.req.valid('param')
-  const current = await getCurrentUser(c)
-  if (current?.id === id) {
-    return c.json({ message: '不能删除当前登录用户' }, 400)
-  }
+export const DELETE = factory.createHandlers(
+  requireAuth,
+  requirePermission(BTN.用户管理.删除),
+  zValidator('param', paramSchema),
+  async c => {
+    const { id } = c.req.valid('param')
+    const current = await getCurrentUser(c)
+    if (current?.id === id) {
+      return c.json({ message: '不能删除当前登录用户' }, 400)
+    }
 
-  const ds = await getDataSource()
-  const userRepo = ds.getRepository(UserEntity)
-  const res = await userRepo.delete({ id })
-  if (!res.affected) {
-    return c.json({ message: '用户不存在' }, 404)
-  }
-  return c.json({ message: '用户删除成功' }, 200)
-})
+    const ds = await getDataSource()
+    const userRepo = ds.getRepository(UserEntity)
+    const res = await userRepo.delete({ id })
+    if (!res.affected) {
+      return c.json({ message: '用户不存在' }, 404)
+    }
+    return c.json({ message: '用户删除成功' }, 200)
+  },
+)
