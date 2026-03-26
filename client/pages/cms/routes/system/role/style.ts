@@ -25,5 +25,30 @@ export const useStyle = createStyles(({ token, css }) => {
         margin-bottom: 4px;
       }
     `,
+    tree: css`
+      .ant-tree-checkbox {
+        align-self: flex-start;
+        margin-top: 4px !important;
+      }
+    `,
+    treeNodeBlock: css`
+      display: block;
+      width: 100%;
+    `,
+    treeNodeTitleText: css`
+      display: inline-block;
+      line-height: ${token.lineHeight};
+    `,
+    treeNodeButtons: css`
+      display: flex;
+      flex-wrap: wrap;
+      gap: ${token.marginXS}px ${token.marginSM}px;
+      align-items: center;
+      margin-top: ${token.marginXXS}px;
+      padding-left: 0;
+      padding: 4px 8px;
+      background-color: ${token.colorBgLayout};
+      border-radius: ${token.borderRadius}px;
+    `,
   }
 })

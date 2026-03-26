@@ -33,13 +33,6 @@ flowchart TB
     FE1 --> FE2
   end
 
-  subgraph GW["HTTP 入口 app.ts · Hono"]
-    direction TB
-    GW1["/jaq/* 业务 API"]
-    GW2["/api/* 转发至 VITE_THIRD_API"]
-    GW3["开发态多页 HTML · 生产态 build/public 静态"]
-  end
-
   subgraph BE["服务端 server/"]
     direction TB
     BE1["routes 目录即 URL · 动态段 [id]"]
@@ -59,6 +52,13 @@ flowchart TB
     P2 -.-> FE2
     P3 -.-> BE1
     P4 -.-> FE1
+  end
+
+  subgraph GW["HTTP 入口 app.ts · Hono"]
+    direction TB
+    GW1["/jaq/* 业务 API"]
+    GW2["/api/* 转发至 VITE_THIRD_API"]
+    GW3["开发态多页 HTML · 生产态 build/public 静态"]
   end
 
   subgraph TY["类型线索 · 编译期"]

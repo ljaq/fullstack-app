@@ -1,3 +1,5 @@
+export * from './permissions'
+
 export interface IRequest<T = any> {
   data: T
   success: boolean

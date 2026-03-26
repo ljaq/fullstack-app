@@ -5,10 +5,6 @@ export const meta = {
   name: '角色管理',
   order: 99,
   icon: <ContactsOutlined />,
-  actions: {
-    create: 'btn:role:create',
-    edit: 'btn:role:edit',
-  }
 }
 
 export const searchSchema: Schema = {

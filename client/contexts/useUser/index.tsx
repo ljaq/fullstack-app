@@ -18,6 +18,8 @@ export type UserState = {
   id?: number | string
   roles?: string[]
   paegs?: string[]
+  /** 合并后的按钮权限码（与 types/permissions Btn 一致） */
+  buttons?: string[]
   themeConfig: IThemeConfig
 }
 
@@ -44,6 +46,7 @@ export default function UserProvider({ children }: { children: React.ReactNode }
         roleName: primaryRole,
         roles: u.roles || [],
         paegs: u.paegs || [],
+        buttons: u.buttons || [],
       }
       setUser(user)
       return user

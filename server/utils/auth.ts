@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { In } from 'typeorm'
 import { getDataSource } from '../db'
+import type { BtnPermissionCode } from 'types/permissions'
 
 const AUTH_COOKIE_KEY = 'auth_token'
 
@@ -49,16 +50,12 @@ export async function getCurrentUser(c: Context) {
     const user = await userRepo.findOne({ where: { id: decoded.userId } })
     if (!user) return null
 
-    const roleCodes: string[] = (user.roles ?? []).filter(Boolean) as string[]
-    const roleEntities = roleCodes.length
-      ? await roleRepo.findBy({ role: In(roleCodes) })
-      : []
+    const roles: string[] = (user.roles ?? []).filter(Boolean)
+    const roleEntities = roles.length ? await roleRepo.findBy({ role: In(roles) }) : []
 
-    const roles = roleCodes
     const roleNames = roleEntities.map(r => r.roleName)
-    const paegs = Array.from(
-      new Set(roleEntities.flatMap(r => (r.pages ?? []))),
-    )
+    const paegs = Array.from(new Set(roleEntities.flatMap(r => r.pages ?? [])))
+    const buttons = Array.from(new Set(roleEntities.flatMap(r => r.buttons ?? [])))
 
     return {
       id: user.id,
@@ -66,6 +63,7 @@ export async function getCurrentUser(c: Context) {
       roles,
       roleNames,
       paegs,
+      buttons,
     }
   } catch (error) {
     console.log(error)
@@ -80,4 +78,25 @@ export async function requireAuth(c: Context, next: () => Promise<void>) {
   }
   c.set('user', currentUser)
   await next()
+}
+
+type CurrentUser = NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>
+
+/** 需在 requireAuth 之后使用：校验当前用户是否具备指定按钮权限（管理员角色放行） */
+export function requirePermission(code: BtnPermissionCode) {
+  return async (c: Context, next: () => Promise<void>) => {
+    const user = c.get('user') as CurrentUser | undefined
+    if (!user) {
+      return c.json({ message: 'Unauthorized' }, 401)
+    }
+    if (user.roles?.includes('admin')) {
+      await next()
+      return
+    }
+    const keys = user.buttons ?? []
+    if (!keys.includes(code)) {
+      return c.json({ message: 'Forbidden' }, 403)
+    }
+    await next()
+  }
 }

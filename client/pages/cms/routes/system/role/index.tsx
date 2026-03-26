@@ -1,4 +1,5 @@
-import { App, Button, Card, Col, Row, Space, Tree } from 'antd'
+import { App, Button, Card, Checkbox, Col, Row, Space, Tree } from 'antd'
+import type { DataNode } from 'antd/es/tree'
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { request } from 'api'
 import routes from 'client/pages/cms/routes/_route.gen'
@@ -7,23 +8,18 @@ import { useStyle } from './style'
 import { Role } from 'server/entities/Role'
 import { meta, createSchema } from './index.config'
 import { useAuthority } from 'client/hooks/useAuthority'
-import {
-  CheckOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  PlusOutlined,
-  SaveOutlined,
-  UndoOutlined,
-} from '@ant-design/icons'
+import { CheckOutlined, DeleteOutlined, EditOutlined, PlusOutlined, UndoOutlined } from '@ant-design/icons'
 import CommonEditModal, { CommonEditModalInstance } from 'client/components/CommonEditModal'
 import EasyModal from 'client/utils/easyModal'
 import CommonConfirmModal from 'client/modals/CommonConfirmModal'
-import Translate from 'client/components/Animation/Translate'
+import { BTN, BtnPermissionCode } from 'types'
 
 type PageNode = {
   key: string
   title: string
   order: number
+  /** 该页面下的按钮权限（横向展示在节点标题下方） */
+  buttons?: { key: string; label: string }[]
   children?: PageNode[]
 }
 
@@ -42,6 +38,19 @@ const parseRoutesToTree = (route, prefix = ''): PageNode | null => {
     key: `/${fullPath}`,
     order: meta?.order || 0,
     title: meta?.name || fullPath || '/',
+  }
+
+  const buttons = BTN[meta.name as keyof typeof BTN]
+  if (buttons) {
+    const opts: { key: string; label: string }[] = []
+    for (const [actionName, permKey] of Object.entries(buttons)) {
+      if (typeof permKey === 'string') {
+        opts.push({ key: permKey, label: actionName })
+      }
+    }
+    if (opts.length) {
+      node.buttons = opts
+    }
   }
 
   if (children?.length) {
@@ -66,6 +75,7 @@ export default function RolePage() {
   const { styles, cx } = useStyle()
   const [activeRole, setActiveRole] = useState<Role | null>(null)
   const [currentRoleKeys, setCurrentRoleKeys] = useState<string[]>([])
+  const [currentButtonKeys, setCurrentButtonKeys] = useState<string[]>([])
   const [isSaving, setIsSaving] = useState(false)
   const roleModalRef = useRef<CommonEditModalInstance>(null)
   const roleList = useQuery({
@@ -74,9 +84,45 @@ export default function RolePage() {
   })
   const pageTree = useMemo(() => buildPageTree(), [])
 
+  const treeData = useMemo(() => {
+    const mapNode = (n: PageNode): DataNode => ({
+      key: n.key,
+      title: (
+        <div className={styles.treeNodeBlock}>
+          <span className={styles.treeNodeTitleText}>{n.title}</span>
+          {n.buttons?.length ? (
+            <div
+              className={styles.treeNodeButtons}
+              role='presentation'
+              onClick={e => e.stopPropagation()}
+              onMouseDown={e => e.stopPropagation()}
+            >
+              {n.buttons.map(opt => (
+                <Checkbox
+                  key={opt.key}
+                  checked={currentButtonKeys.includes(opt.key)}
+                  onChange={e => {
+                    const on = e.target.checked
+                    setCurrentButtonKeys(prev => (on ? [...prev, opt.key] : prev.filter(k => k !== opt.key)))
+                  }}
+                >
+                  {opt.label}
+                </Checkbox>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ),
+      children: n.children?.map(mapNode),
+    })
+    return pageTree.map(mapNode)
+  }, [pageTree, currentButtonKeys, styles.treeNodeBlock, styles.treeNodeTitleText, styles.treeNodeButtons])
+
   const isChanged = useMemo(() => {
-    return JSON.stringify(currentRoleKeys) !== JSON.stringify(activeRole?.pages ?? [])
-  }, [currentRoleKeys, activeRole])
+    const pagesDiff = JSON.stringify(currentRoleKeys) !== JSON.stringify(activeRole?.pages ?? [])
+    const buttonsDiff = JSON.stringify(currentButtonKeys) !== JSON.stringify(activeRole?.buttons ?? [])
+    return pagesDiff || buttonsDiff
+  }, [currentRoleKeys, currentButtonKeys, activeRole])
 
   const handleRoleClick = item => {
     if (activeRole?.id === item.id) {
@@ -84,6 +130,7 @@ export default function RolePage() {
     }
     setActiveRole(item)
     setCurrentRoleKeys(item.pages ?? [])
+    setCurrentButtonKeys(item.buttons ?? [])
   }
 
   const handleCreateRole = async (values: any) => {
@@ -95,7 +142,7 @@ export default function RolePage() {
 
   const handleEditRole = async (id: string | number, values: any) => {
     await request.jaq.roles[':id'].put({
-      params: { id },
+      params: { id: String(id) },
       body: values,
     })
     roleList.refetch()
@@ -106,11 +153,16 @@ export default function RolePage() {
     request.jaq.roles[':id'].menus
       .put({
         params: { id: String(activeRole?.id) },
-        body: { pageKeys: currentRoleKeys },
+        body: { pageKeys: currentRoleKeys, buttons: currentButtonKeys as BtnPermissionCode[] },
       })
       .then(() => {
-        setActiveRole({ ...activeRole, pages: currentRoleKeys || [] } as Role)
+        setActiveRole({
+          ...activeRole,
+          pages: currentRoleKeys || [],
+          buttons: currentButtonKeys as BtnPermissionCode[],
+        } as Role)
         setCurrentRoleKeys(currentRoleKeys)
+        setCurrentButtonKeys(currentButtonKeys as BtnPermissionCode[])
       })
       .then(() => {
         message.success('设置成功')
@@ -126,19 +178,20 @@ export default function RolePage() {
     if (defaultRole && !activeRole) {
       setActiveRole(defaultRole)
       setCurrentRoleKeys(defaultRole.pages ?? [])
+      setCurrentButtonKeys(defaultRole.buttons ?? [])
     }
   }, [roleList.data?.data])
 
   return (
     <Fragment>
-      <Row gutter={16}>
+      <Row gutter={16} wrap={false}>
         <Col flex='256px'>
           <Card
             title='角色'
             size='small'
             styles={{ body: { height: 'calc(100vh - 130px)', overflowY: 'auto' } }}
             extra={
-              hasAuthority(meta.actions.create) || (
+              hasAuthority(BTN.角色管理.新建) || (
                 <Button
                   size='small'
                   variant='filled'
@@ -199,6 +252,7 @@ export default function RolePage() {
                     icon={<UndoOutlined />}
                     onClick={() => {
                       setCurrentRoleKeys(activeRole?.pages ?? [])
+                      setCurrentButtonKeys(activeRole?.buttons ?? [])
                     }}
                   />
                   <Button
@@ -214,18 +268,15 @@ export default function RolePage() {
             }
           >
             <Tree
+              className={styles.tree}
               showLine
               checkable
               blockNode
               checkStrictly
               defaultExpandAll
-              treeData={pageTree}
+              treeData={treeData}
               selectable={false}
               checkedKeys={currentRoleKeys}
-              // disabled={!hasAuthority(meta.actions.edit)}
-              onSelect={e => {
-                console.log(e)
-              }}
               onCheck={(e: any) => {
                 setCurrentRoleKeys(e.checked)
               }}
