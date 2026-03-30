@@ -1,4 +1,4 @@
-import { App, Button, Card, Checkbox, Col, Row, Space, Tree } from 'antd'
+import { Alert, App, Button, Card, Checkbox, Col, Row, Space, Tree } from 'antd'
 import type { DataNode } from 'antd/es/tree'
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { request } from 'api'
@@ -239,7 +239,7 @@ export default function RolePage() {
         </Col>
         <Col flex='auto'>
           <Card
-            title='权限'
+            title={activeRole?.roleName}
             size='small'
             styles={{ body: { height: 'calc(100vh - 130px)', overflowY: 'auto' } }}
             extra={
@@ -267,6 +267,7 @@ export default function RolePage() {
               )
             }
           >
+            <Alert banner title={activeRole?.description} style={{ margin: '-12px -12px 12px -12px' }} />
             <Tree
               className={styles.tree}
               showLine
