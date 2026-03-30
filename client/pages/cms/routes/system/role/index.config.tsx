@@ -1,10 +1,8 @@
-import { ContactsOutlined } from '@ant-design/icons'
 import { Schema } from 'form-render'
 
 export const meta = {
   name: '角色管理',
-  order: 99,
-  icon: <ContactsOutlined />,
+  order: 1,
 }
 
 export const searchSchema: Schema = {
@@ -47,4 +45,3 @@ export const createSchema: Schema = {
     },
   },
 }
-

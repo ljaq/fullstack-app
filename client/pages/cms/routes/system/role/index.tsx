@@ -13,6 +13,7 @@ import CommonEditModal, { CommonEditModalInstance } from 'client/components/Comm
 import EasyModal from 'client/utils/easyModal'
 import CommonConfirmModal from 'client/modals/CommonConfirmModal'
 import { BTN, BtnPermissionCode } from 'types'
+import { useSearchParams } from 'react-router'
 
 type PageNode = {
   key: string
@@ -71,6 +72,7 @@ const buildPageTree = (): PageNode[] => {
 
 export default function RolePage() {
   const { message } = App.useApp()
+  const [searchParmas] = useSearchParams()
   const { hasAuthority } = useAuthority()
   const { styles, cx } = useStyle()
   const [activeRole, setActiveRole] = useState<Role | null>(null)
@@ -78,6 +80,7 @@ export default function RolePage() {
   const [currentButtonKeys, setCurrentButtonKeys] = useState<string[]>([])
   const [isSaving, setIsSaving] = useState(false)
   const roleModalRef = useRef<CommonEditModalInstance>(null)
+  const defaultRoleName = searchParmas.get('name')
   const roleList = useQuery({
     queryKey: ['roleList'],
     queryFn: () => request.jaq.roles.get({}),
@@ -174,13 +177,16 @@ export default function RolePage() {
   }
 
   useEffect(() => {
-    const defaultRole = roleList.data?.data[0]
+    let defaultRole = defaultRoleName ? roleList.data?.data?.find(item => item.roleName === defaultRoleName) : null
+    if (!defaultRole) {
+      defaultRole = roleList.data?.data[0]
+    }
     if (defaultRole && !activeRole) {
       setActiveRole(defaultRole)
       setCurrentRoleKeys(defaultRole.pages ?? [])
       setCurrentButtonKeys(defaultRole.buttons ?? [])
     }
-  }, [roleList.data?.data])
+  }, [roleList.data?.data, defaultRoleName])
 
   return (
     <Fragment>

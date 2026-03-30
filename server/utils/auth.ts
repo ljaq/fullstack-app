@@ -54,7 +54,7 @@ export async function getCurrentUser(c: Context) {
     const roleEntities = roles.length ? await roleRepo.findBy({ role: In(roles) }) : []
 
     const roleNames = roleEntities.map(r => r.roleName)
-    const paegs = Array.from(new Set(roleEntities.flatMap(r => r.pages ?? [])))
+    const pages = Array.from(new Set(roleEntities.flatMap(r => r.pages ?? [])))
     const buttons = Array.from(new Set(roleEntities.flatMap(r => r.buttons ?? [])))
 
     return {
@@ -62,7 +62,7 @@ export async function getCurrentUser(c: Context) {
       username: user.username,
       roles,
       roleNames,
-      paegs,
+      pages,
       buttons,
     }
   } catch (error) {

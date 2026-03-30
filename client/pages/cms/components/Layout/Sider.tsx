@@ -86,7 +86,7 @@ export default function Sider() {
               <Avatar size={24}>
                 <UserOutlined />
               </Avatar>
-              {!collapsed && <span style={{ marginLeft: 8 }}>{ user.userName }</span>}
+              {!collapsed && <span style={{ marginLeft: 8 }}>{ user.username }</span>}
             </Flex>
             <Space orientation={collapsed ? 'vertical' : 'horizontal'}>
               <Button type='text' icon={<LogoutOutlined />} onClick={logout} />

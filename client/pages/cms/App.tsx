@@ -26,7 +26,7 @@ const routes = [
 ] as RouteObject[]
 
 function App() {
-  const [{ themeConfig }, { getUser }] = useUser()
+  const [_, { getUser }] = useUser()
   const authorityRoutes = useAuthorityRoutes(routes)
 
   const router = useMemo(() => createBrowserRouter(authorityRoutes), [authorityRoutes])

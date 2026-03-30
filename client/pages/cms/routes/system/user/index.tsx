@@ -7,6 +7,7 @@ import CommonEditModal, { CommonEditModalInstance } from 'client/components/Comm
 import { createSchema, searchSchema } from './index.config'
 import EasyModal from 'client/utils/easyModal'
 import CommonConfirmModal from 'client/modals/CommonConfirmModal'
+import { useNavigate } from 'react-router'
 
 type UserItem = {
   id: number
@@ -18,11 +19,11 @@ type UserItem = {
 const idPath = ':id' as const
 
 export default function UserPage() {
+  const navigate = useNavigate()
   const tableRef = useRef<CommonTableInstance>(null)
   const modelRef = useRef<CommonEditModalInstance>(null)
 
   const columns: ColumnsType<UserItem> = [
-    { title: 'ID', dataIndex: 'id', width: 80 },
     { title: '用户名', dataIndex: 'username' },
     {
       title: '角色',
@@ -30,7 +31,15 @@ export default function UserPage() {
       render: (val: string[]) => (
         <Space>
           {val.map(name => (
-            <Tag key={name}>{name}</Tag>
+            <Button
+              size='small'
+              variant='filled'
+              color='default'
+              key={name}
+              onClick={() => navigate(`/cms/system/role?name=${name}`)}
+            >
+              {name}
+            </Button>
           ))}
         </Space>
       ),

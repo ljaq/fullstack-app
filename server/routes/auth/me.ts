@@ -9,5 +9,5 @@ export const GET = factory.createHandlers(async c => {
   if (!user) {
     return c.json({ message: 'Unauthorized' }, 401)
   }
-  return c.json({ user })
+  return c.json(user)
 })
