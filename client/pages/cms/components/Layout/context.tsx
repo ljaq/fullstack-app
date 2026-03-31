@@ -14,9 +14,10 @@ interface LayoutState {
   syncTabForPath: (pathname: string, title: string) => void
   togglePin: (path: string) => void
   closeTab: (path: string, activePath: string, navigate: (to: string) => void) => void
-  closeLeft: (activePath: string) => void
-  closeRight: (activePath: string) => void
-  closeOthers: (activePath: string) => void
+  /** anchorPath：以哪个标签为参照；currentPath：当前路由，若被关掉则 navigate 到 anchor */
+  closeLeft: (anchorPath: string, navigate: (to: string) => void, currentPath: string) => void
+  closeRight: (anchorPath: string, navigate: (to: string) => void, currentPath: string) => void
+  closeOthers: (anchorPath: string, navigate: (to: string) => void, currentPath: string) => void
   closeAll: (activePath: string, navigate: (to: string) => void) => void
 }
 
@@ -145,24 +146,38 @@ export const LayoutProvider = (props: { children: React.ReactNode }) => {
     [],
   )
 
-  const closeLeft = useCallback((activePath: string) => {
+  const closeLeft = useCallback((anchorPath: string, navigate: (to: string) => void, currentPath: string) => {
     setTabs(prev => {
-      const idx = prev.findIndex(t => t.path === activePath)
+      const idx = prev.findIndex(t => t.path === anchorPath)
       if (idx <= 0) return prev
-      return prev.filter((t, i) => i >= idx || t.pinned)
+      const kept = prev.filter((t, i) => i >= idx || t.pinned)
+      if (!kept.some(t => t.path === currentPath)) {
+        queueMicrotask(() => navigate(anchorPath))
+      }
+      return kept
     })
   }, [])
 
-  const closeRight = useCallback((activePath: string) => {
+  const closeRight = useCallback((anchorPath: string, navigate: (to: string) => void, currentPath: string) => {
     setTabs(prev => {
-      const idx = prev.findIndex(t => t.path === activePath)
+      const idx = prev.findIndex(t => t.path === anchorPath)
       if (idx < 0 || idx >= prev.length - 1) return prev
-      return prev.filter((t, i) => i <= idx || t.pinned)
+      const kept = prev.filter((t, i) => i <= idx || t.pinned)
+      if (!kept.some(t => t.path === currentPath)) {
+        queueMicrotask(() => navigate(anchorPath))
+      }
+      return kept
     })
   }, [])
 
-  const closeOthers = useCallback((activePath: string) => {
-    setTabs(prev => prev.filter(t => t.path === activePath || t.pinned))
+  const closeOthers = useCallback((anchorPath: string, navigate: (to: string) => void, currentPath: string) => {
+    setTabs(prev => {
+      const kept = prev.filter(t => t.path === anchorPath || t.pinned)
+      if (!kept.some(t => t.path === currentPath)) {
+        queueMicrotask(() => navigate(anchorPath))
+      }
+      return kept
+    })
   }, [])
 
   const closeAll = useCallback((activePath: string, navigate: (to: string) => void) => {
