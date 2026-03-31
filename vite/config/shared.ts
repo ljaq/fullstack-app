@@ -1,16 +1,8 @@
-import path from 'path'
-import type { AliasOptions, ResolveOptions } from 'vite'
-import { rootDir } from './env'
+import type { ResolveOptions } from 'vite'
 
-export function getSharedResolve(): ResolveOptions & { alias: AliasOptions } {
+
+export function getSharedResolve(): ResolveOptions {
   return {
-    alias: {
-      api: path.resolve(rootDir, './api'),
-      client: path.resolve(rootDir, './client'),
-      server: path.resolve(rootDir, './server'),
-      utils: path.resolve(rootDir, './utils'),
-      types: path.resolve(rootDir, './types'),
-      core: path.resolve(rootDir, './core'),
-    },
+    tsconfigPaths: true
   }
 }

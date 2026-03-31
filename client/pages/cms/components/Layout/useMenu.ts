@@ -52,7 +52,5 @@ export function useMenu() {
 
   const menu = useMemo(() => sorter(authorityRoutes.map(item => parse(item, ''))[0]?.children || []), [authorityRoutes])
 
-  console.log('menu', menu)
-
   return menu
 }

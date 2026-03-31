@@ -28,14 +28,29 @@ export const useStyle = createStyles(({ token, css }) => {
         }
       }
     `,
+    /** 主区域：Header + PageTabs 固定高度，仅下方内容滚动 */
+    mainColumn: css`
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    `,
+    contentScroll: css`
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+    `,
     header: css`
-      position: sticky;
+      flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
       height: 56px;
       padding: 0 20px 0 40px;
-      /* margin-left: -8px; */
       &.mobile {
         margin-left: 0px;
       }

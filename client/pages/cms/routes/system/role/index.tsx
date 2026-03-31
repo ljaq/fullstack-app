@@ -195,7 +195,7 @@ export default function RolePage() {
           <Card
             title='角色'
             size='small'
-            styles={{ body: { height: 'calc(100vh - 130px)', overflowY: 'auto' } }}
+            styles={{ body: { height: 'calc(100vh - 180px)', overflowY: 'auto' } }}
             extra={
               hasAuthority(BTN.角色管理.新建) || (
                 <Button
@@ -247,7 +247,7 @@ export default function RolePage() {
           <Card
             title={activeRole?.roleName}
             size='small'
-            styles={{ body: { height: 'calc(100vh - 130px)', overflowY: 'auto' } }}
+            styles={{ body: { height: 'calc(100vh - 180px)', overflowY: 'auto' } }}
             extra={
               isChanged && (
                 <Space>
