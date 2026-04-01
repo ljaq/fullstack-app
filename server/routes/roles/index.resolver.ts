@@ -1,4 +1,4 @@
-import { defineDevSnapshot } from "server/dev-snapshot";
+import { defineDevSnapshot } from 'server/dev-snapshot'
 
 export default defineDevSnapshot({
   enabled: true,

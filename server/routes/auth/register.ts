@@ -1,16 +1,11 @@
-import * as z from 'zod'
 import { zValidator } from 'server/utils/zod-validator'
 import { createFactory } from 'hono/factory'
 import { getDataSource } from 'server/db'
 import { UserEntity } from 'server/entities/User'
 import { hashPassword, setAuthCookie } from 'server/utils/auth'
+import { registerBody } from './register.dto'
 
 const factory = createFactory()
-
-const registerBody = z.object({
-  username: z.string().min(3).max(32),
-  password: z.string().min(6).max(128),
-})
 
 /** 注册 */
 export const POST = factory.createHandlers(zValidator('json', registerBody), async c => {

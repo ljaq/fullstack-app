@@ -18,7 +18,7 @@ export interface DevSnapshotAsUser {
 
 export type DevSnapshotConfig = SnapshotMethods & {
   /**
-   * 为 true 时，开发模式下对应路由文件或本配置文件变更后才会生成与路由同名的 `*.dev-snapshot.json`。
+   * 为 true 时，开发模式下对应路由文件或同名的 `*.resolver.ts` 快照配置变更后才会生成与路由同名的 `*.resolver.json`。
    */
   enabled: boolean
   /**

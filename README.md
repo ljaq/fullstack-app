@@ -106,7 +106,7 @@ flowchart TB
 |------|------|
 | **vite-plugin-server-route** | 扫描 `server/routes`，按文件路径与导出的 `GET`/`POST`/… 生成 `server/routes/_route.gen.ts`，并挂到 `basePath`（如 `/jaq`）。监听文件变更并热更新。 |
 | **vite-plugin-client-route** | 扫描各 `client/pages/<应用>/routes/`，生成懒加载的 `routes/_route.gen.ts`，并合并同路径下 `*.config.tsx` 的 `meta` / `loader` 等。 |
-| **vite-plugin-api-dev-snapshot** | **仅开发模式**（`apply: 'serve'`）。监听 `server/routes` 下路由或 `*.dev-snapshot.ts` 变更，按 `defineDevSnapshot`（`server/dev-snapshot/define.ts`）配置对本机 dev server 发起真实 HTTP 请求，将各方法的 **request / response** 写入与路由同名的 **`*.dev-snapshot.json`**（便于联调对照、文档与回归）。支持 `asUser` 按用户名签发开发用 Cookie。可通过环境变量 **`VITE_API_DEV_SNAPSHOT=0`**（或 `false`）关闭。`*.dev-snapshot.ts` 不参与 `_route.gen` 聚合。 |
+| **vite-plugin-api-dev-snapshot** | **仅开发模式**（`apply: 'serve'`）。监听 `server/routes` 下路由或 `*.resolver.ts`（快照配置）变更，按 `defineDevSnapshot`（`server/dev-snapshot/define.ts`）配置对本机 dev server 发起真实 HTTP 请求，将各方法的 **request / response** 写入与路由同名的 **`*.resolver.json`**（便于联调对照、文档与回归）。支持 `asUser` 按用户名签发开发用 Cookie。可通过环境变量 **`VITE_API_DEV_SNAPSHOT=0`**（或 `false`）关闭。`*.resolver.ts`（快照配置）不参与 `_route.gen` 聚合。 |
 | **vite-plugin-skeleton** | 在 `transformIndexHtml` 阶段按页面名调用 `get-skeleton-code.mts`，把生成的 **骨架屏 HTML/CSS** 注入 `compileHtml`，与 `Suspense` 占位配合；`mode=client` 构建结束时还会把 `build/public/client/pages/<page>/index.html` 扁平化为 `build/public/<page>.html` 并清理中间目录。 |
 
 ---
