@@ -38,15 +38,15 @@ export const POST = factory.createHandlers(
 
 ## 开发快照（可选）
 
-- `*.resolver.ts`（与路由同名的快照配置，见 `vite-plugin-api-dev-snapshot`）被插件排除，不进入 `_route.gen.ts`；用于开发态请求快照。
+- `*.snapshot.ts`（与路由同名的快照配置，见 `vite-plugin-api-dev-snapshot`）被插件排除，不进入 `_route.gen.ts`；用于开发态请求快照。
 
 ## 同目录 Service
 
 - 与路由 **同一路径**、**文件名** 为路由 stem + `.service.ts`（如 `index.ts` 与 `index.service.ts`、`[id].ts` 与 `[id].service.ts`）。
 - **领域逻辑**（查询、事务、业务规则、DTO 映射）放在 `*.service.ts`；路由文件只做鉴权、`zValidator`、调用 service、`c.json` 与 HTTP 状态码。
-- `*.service.ts` 在 [`vite/config/plugins.ts`](vite/config/plugins.ts) 中与 `*.resolver.ts`（快照配置）、`*.dto.ts`（校验 / DTO）一并 **exclude**，避免被扫成路由。
+- `*.service.ts` 在 [`vite/config/plugins.ts`](vite/config/plugins.ts) 中与 `*.snapshot.ts`（快照配置）、`*.schema.ts`（Zod 校验）一并 **exclude**，避免被扫成路由。
 
-## 同目录 DTO（Zod）
+## 同目录 Schema（Zod）
 
-- 与路由 **同一路径**、**文件名** 为路由 stem + `.dto.ts`，导出供 `zValidator` 使用的 Zod 对象（如 `paramSchema`、`createBody`）。
-- `*.dto.ts` 与 `*.service.ts` 一样 **exclude**，不参与 URL 扫描。
+- 与路由 **同一路径**、**文件名** 为路由 stem + `.schema.ts`，导出供 `zValidator` 使用的 Zod 对象（如 `paramSchema`、`createBody`）。
+- `*.schema.ts` 与 `*.service.ts` 一样 **exclude**，不参与 URL 扫描。

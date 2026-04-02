@@ -3,7 +3,7 @@ import { createFactory } from 'hono/factory'
 import { requireAuth, requirePermission } from 'server/utils/auth'
 import { BTN } from 'types/permissions'
 import * as roleMenusService from './menus.service'
-import { menusBody, paramSchema } from './menus.dto'
+import { menusBody, paramSchema } from './menus.schema'
 
 const factory = createFactory()
 

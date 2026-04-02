@@ -16,13 +16,13 @@ export function getPlugins(mode: string, env: Record<string, string>, pages: str
     serverRoute({
       dir: 'server/routes',
       baseRoute: '/jaq',
-      exclude: ['**/*.resolver.ts', '**/*.service.ts', '**/*.dto.ts'],
+      exclude: ['**/*.snapshot.ts', '**/*.service.ts', '**/*.schema.ts'],
     }),
     apiDevSnapshot({
       dir: 'server/routes',
       baseRoute: '/jaq',
       port,
-      exclude: ['**/*.resolver.ts', '**/*.service.ts', '**/*.dto.ts'],
+      exclude: ['**/*.snapshot.ts', '**/*.service.ts', '**/*.schema.ts'],
       enabled: apiSnapshotPluginEnabled,
       https: isHttps(env),
     }),

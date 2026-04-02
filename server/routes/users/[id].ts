@@ -3,7 +3,7 @@ import { createFactory } from 'hono/factory'
 import { getCurrentUser, requireAuth, requirePermission } from 'server/utils/auth'
 import { BTN } from 'types/permissions'
 import * as userIdService from './[id].service'
-import { paramSchema, updateBody } from './[id].dto'
+import { paramSchema, updateBody } from './[id].schema'
 
 const factory = createFactory()
 

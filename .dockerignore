@@ -80,6 +80,6 @@ tests
 __tests__
 *.test.js
 *.test.ts
-*.resolver.ts
+*.snapshot.ts
 *.spec.js
 *.spec.ts 

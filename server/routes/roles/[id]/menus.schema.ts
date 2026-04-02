@@ -1,6 +1,6 @@
 import * as z from 'zod'
 import { BTN } from 'types/permissions'
-import { paramSchema } from './index.dto'
+import { paramSchema } from './index.schema'
 
 export { paramSchema }
 

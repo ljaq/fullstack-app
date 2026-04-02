@@ -18,8 +18,8 @@ alwaysApply: true
 | HTTP 入口 | `app.ts` | 挂载生成路由、多页 HTML、静态资源、`/api/*` 第三方代理 |
 | 后端路由 | `server/routes/` | 文件即路由，见 `server-hono-routes` 规则 |
 | 后端业务 | `server/routes/**/xxx.service.ts` | 与路由同目录、同名 stem；领域逻辑与 DB 访问，由路由 handler 调用；`**/*.service.ts` 由 `vite-plugin-server-route` 排除，不参与 URL 扫描 |
-| 请求校验 / DTO | `server/routes/**/xxx.dto.ts` | 与路由同目录、同名 stem；Zod 对象（`zValidator` 入参）；`**/*.dto.ts` 同样被排除 |
-| 开发快照 | `server/routes/**/xxx.resolver.ts` | 与路由同目录、同名 stem；`defineDevSnapshot`（`server/dev-snapshot/define.ts`），产出 `*.resolver.json`；`**/*.resolver.ts` 排除于路由 |
+| 请求校验 | `server/routes/**/xxx.schema.ts` | 与路由同目录、同名 stem；Zod 对象（`zValidator` 入参）；`**/*.schema.ts` 同样被排除 |
+| 开发快照 | `server/routes/**/xxx.snapshot.ts` | 与路由同目录、同名 stem；`defineDevSnapshot`（`server/dev-snapshot/define.ts`），产出 `*.snapshot.json`；`**/*.snapshot.ts` 排除于路由 |
 | 前端多页 | `client/pages/<page>/` | 每页独立 `index.html` + `routes/`，懒加载路由表由插件生成 |
 | 共享 API 层 | `api/` | `request` 代理 + `Fetch`，类型与 `app.ts` 导出类型对齐 |
 | 类型 / 工具 | `types/`、`utils/` | 枚举与通用工具 |

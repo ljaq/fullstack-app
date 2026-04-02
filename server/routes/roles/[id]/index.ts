@@ -2,7 +2,7 @@ import { zValidator } from 'server/utils/zod-validator'
 import { createFactory } from 'hono/factory'
 import { requireAuth } from 'server/utils/auth'
 import * as roleIdService from './index.service'
-import { paramSchema, roleBody } from './index.dto'
+import { paramSchema, roleBody } from './index.schema'
 
 const factory = createFactory()
 

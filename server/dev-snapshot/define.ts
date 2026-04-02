@@ -18,7 +18,7 @@ export interface DevSnapshotAsUser {
 
 export type DevSnapshotConfig = SnapshotMethods & {
   /**
-   * 为 true 时，开发模式下对应路由文件或同名的 `*.resolver.ts` 快照配置变更后才会生成与路由同名的 `*.resolver.json`。
+   * 为 true 时，开发模式下对应路由文件或同名的 `*.snapshot.ts` 快照配置变更后才会生成与路由同名的 `*.snapshot.json`。
    */
   enabled: boolean
   /**
@@ -29,7 +29,8 @@ export type DevSnapshotConfig = SnapshotMethods & {
 }
 
 /**
- * 为各方法的 `query` / `body` 提供类型推断；`enabled` 控制是否生成快照文件。
+ * 为各方法的 `query` / `body` / `params` 提供类型推断；`enabled` 控制是否生成快照文件。
+ * 与同目录 `*.schema.ts` 对齐时，可用 `z.infer` + `satisfies`（见各路由 `*.snapshot.ts`）。
  */
 export function defineDevSnapshot<const T extends DevSnapshotConfig>(config: T): T {
   return config

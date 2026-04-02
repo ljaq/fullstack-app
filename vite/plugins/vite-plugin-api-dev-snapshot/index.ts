@@ -29,19 +29,19 @@ interface ApiDevSnapshotOptions {
 function snapshotConfigPath(routeFile: string) {
   const dir = path.dirname(routeFile)
   const base = path.basename(routeFile, path.extname(routeFile))
-  return path.join(dir, `${base}.resolver.ts`)
+  return path.join(dir, `${base}.snapshot.ts`)
 }
 
-function routeFileFromResolverConfig(configPath: string): string | null {
-  if (!configPath.endsWith('.resolver.ts')) return null
+function routeFileFromSnapshotConfig(configPath: string): string | null {
+  if (!configPath.endsWith('.snapshot.ts')) return null
   const dir = path.dirname(configPath)
-  const base = path.basename(configPath, '.resolver.ts')
+  const base = path.basename(configPath, '.snapshot.ts')
   return path.join(dir, `${base}.ts`)
 }
 
 function resolveRouteFile(changedPath: string): string | null {
-  if (changedPath.endsWith('.resolver.ts')) {
-    return routeFileFromResolverConfig(changedPath)
+  if (changedPath.endsWith('.snapshot.ts')) {
+    return routeFileFromSnapshotConfig(changedPath)
   }
   if (changedPath.endsWith('.ts') && !changedPath.endsWith('_route.gen.ts')) {
     return changedPath
@@ -96,7 +96,7 @@ async function writeDevSnapshotJson(
 ) {
   const dir = path.dirname(routeFile)
   const base = path.basename(routeFile, path.extname(routeFile))
-  const out = path.join(dir, `${base}.resolver.json`)
+  const out = path.join(dir, `${base}.snapshot.json`)
   const raw = JSON.stringify(payload, null, 2)
   const formatted = await prettier.format(raw, { parser: 'json' })
   fs.writeFileSync(out, formatted, 'utf-8')

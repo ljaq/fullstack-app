@@ -3,7 +3,7 @@ import { createFactory } from 'hono/factory'
 import { getDataSource } from 'server/db'
 import { UserEntity } from 'server/entities/User'
 import { verifyPassword, setAuthCookie } from 'server/utils/auth'
-import { loginBody } from './login.dto'
+import { loginBody } from './login.schema'
 
 const factory = createFactory()
 
