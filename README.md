@@ -1,149 +1,107 @@
 # Fullstack App
 
-基于 **Vite + Hono + React** 的一体化全栈应用：单仓库内完成多页面前端、类型友好的 HTTP 客户端与文件式后端路由，开发时由 Vite 统一启动，生产构建为单一 Node 进程 + 静态资源。
+单仓库、**Vite 一体化**的全栈应用：开发时用同一套工具链启动 Hono 后端与多页 React 前端；构建时分别产出静态资源与 Node 可执行入口。前后端共享 TypeScript 类型，降低接口契约漂移成本。
 
 ---
 
 ## 技术栈
 
-| 层级 | 选型 |
-|------|------|
-| 构建与开发服务器 | Vite 7、`@hono/vite-dev-server`、`@hono/vite-build` |
-| 后端框架 | Hono 4、Node（`@hono/node-server`） |
-| 校验 | Zod、`@hono/zod-validator`（项目内封装统一错误体） |
-| 数据访问 | TypeORM、SQLite（`dev.db` / `prod.db`） |
-| 前端 UI | React 18、Ant Design 6、antd-style |
-| 路由 | React Router 7（多页各自独立路由表） |
-| 数据请求 | 原生 `fetch` + 链式 `request` 代理（类型与 Hono 路由对齐） |
-| 异步状态 | TanStack Query 5 |
+| 层级 | 选型 | 说明 |
+|------|------|------|
+| 构建与开发服务器 | **Vite 8**、`@hono/vite-dev-server`、`@hono/vite-build` | 开发入口为根目录 `app.ts`；HMR 与 Node 侧构建由 Hono 官方插件承接 |
+| 后端框架 | **Hono 4**、`@hono/node-server`、`@hono/zod-validator` | 轻量、边缘友好；与 Vite 插件链集成顺畅 |
+| 数据访问 | **TypeORM**、**SQLite**（`dev.db` / `prod.db`） | 实体在 `server/entities/`；开发期可 `synchronize`（以项目配置为准） |
+| 校验 | **Zod** | 路由入参校验；配合项目封装的 `zValidator` |
+| 前端框架 | **React 18**、**React Router 7** | 多页应用，每页独立 SPA |
+| UI 与数据 | **Ant Design 6**、**@tanstack/react-query** | 列表/表单与服务端状态管理 |
+| 认证 | **JWT**（`jsonwebtoken`）、**bcryptjs**、Cookie | 详见 `server/utils/auth.ts` |
 
 ---
 
-## 项目架构
+## 架构特点
 
-### 总体结构
+### 1. 单进程开发体验
 
-```mermaid
-flowchart TB
-  subgraph FE["前端 · 多页 SPA"]
-    direction TB
-    FE1["client/pages 下每目录一套入口"]
-    FE2["React Router · routes/_route.gen.ts"]
-    FE3["api/request · api/api.ts 路径树"]
-    FE1 --> FE2
-  end
+- 根 **`app.ts`** 挂载：生成的 Hono 路由、多页 HTML（开发态模板编译）、静态资源，以及 **`/api/*` 第三方代理**。
+- 无需单独起两个终端跑「前端 dev server + 后端进程」：由 Vite + Hono dev server 统一拉起（具体行为见 `vite/config/plugins.ts`）。
 
-  subgraph BE["服务端 server/"]
-    direction TB
-    BE1["routes 目录即 URL · 动态段 [id]"]
-    BE2["Handlers · zValidator · requireAuth"]
-    BE3["entities · TypeORM"]
-    BE4[(SQLite dev.db prod.db)]
-    BE1 --> BE2 --> BE3 --> BE4
-  end
+### 2. 双命名空间 HTTP
 
-  subgraph PL["Vite 插件"]
-    direction TB
-    P1["server-route · 聚合后端路由"]
-    P2["client-route · 聚合前端路由"]
-    P3["api-dev-snapshot · 开发态请求快照"]
-    P4["skeleton · 注入首屏骨架"]
-    P1 -.-> BE1
-    P2 -.-> FE2
-    P3 -.-> BE1
-    P4 -.-> FE1
-  end
-
-  subgraph GW["HTTP 入口 app.ts · Hono"]
-    direction TB
-    GW1["/jaq/* 业务 API"]
-    GW2["/api/* 转发至 VITE_THIRD_API"]
-    GW3["开发态多页 HTML · 生产态 build/public 静态"]
-  end
-
-  subgraph TY["类型线索 · 编译期"]
-    APP["app.ts 导出 AppType"]
-    APIIDX["api/index.ts createApiProxy"]
-    APP -.-> APIIDX
-    APIIDX -.-> FE3
-  end
-
-  FE3 -->|"fetch · credentials/include"| GW1
-  FE3 -->|"部分路径走 /api"| GW2
-  GW2 --> EXT["第三方服务"]
-  GW1 --> BE1
-  GW1 -.->|同源 · HTML 与 API| GW3
-```
-
-**读图说明**
-
-- **纵向**：浏览器中的页面通过 `request` / `Fetch` 访问同源 `app.ts`；`/jaq` 进入文件路由与数据库，`/api` 穿出到配置的外部地址。
-- **GW1 ↔ GW3**：同一 `app.ts` 进程内，多页 HTML（开发）与 `build/public` 静态（生产）与业务 API 同源。
-- **虚线**：`server-route` / `client-route` 根据目录生成 `_route.gen.ts`（勿手改）；`api-dev-snapshot` 在开发时监听 `server/routes` 并落盘快照；`skeleton` 在构建 HTML 时注入骨架；`AppType` 将 Hono 应用类型接到 `request`。
-- **开发**：`@hono/vite-dev-server` 以 `app.ts` 为入口；**构建**：`mode=client` 产出静态资源，`mode=server` 产出 `build/app.js`。
-
-### 目录说明
-
-| 路径 | 作用 |
+| 前缀 | 用途 |
 |------|------|
-| `app.ts` | HTTP 入口：路由、静态页、代理、重定向 |
-| `server/routes/` | 文件即路由；`[id].ts` 动态段；**勿编辑** `_route.gen.ts` |
-| `server/entities/` | TypeORM 实体 |
-| `server/utils/` | 鉴权、Zod 封装等 |
-| `api/` | `request` 代理、`api.ts` 路径树、`Fetch` 底层请求 |
-| `client/pages/<page>/` | 每页独立 `index.html`、`main.tsx`、懒加载路由 |
-| `types/`、`utils/` | 共享类型与工具 |
+| **`/jaq/*`** | 自建业务 API，由 `server/routes` 文件路由生成，与前端 `api/api.ts` 中的路径树一致 |
+| **`/api/*`** | 代理到环境变量 **`VITE_THIRD_API`** 指向的第三方网关，与本地业务接口隔离 |
 
-### 接口约定
+这样可以在同一域名下混用「自有后端」与「外部系统」，前端用 `request` 树形 API 时也能区分两类路径。
 
-- **自建后端**：统一前缀 **`/jaq`**（与 `vite-plugin-server-route` 的 `baseRoute` 一致）。
-- **第三方 / 网关**：路径 **`/api/*`**，由 `app.ts` 转发到环境变量 `VITE_THIRD_API`。
-- 前端通过 **`import { request } from 'api'`** 链式调用，例如 `request.jaq.auth.me.get()`；路径与 `api/api.ts` 中声明的字符串保持一致。
+### 3. 类型贯穿前后端
 
-### Vite 插件
+- `app.ts` 导出 **`export type AppType = typeof routes`**。
+- `api/index.ts` 用 **`createApiProxy<AppType, typeof api>(api)`** 将 Hono 路由类型与 `api/api.ts` 中的 URL 树关联，链式调用 **`request.jaq.*`** 时方法名、路径与后端对齐，减少手写 URL 与拼写错误。
 
-| 插件 | 作用 |
-|------|------|
-| **vite-plugin-server-route** | 扫描 `server/routes`，按文件路径与导出的 `GET`/`POST`/… 生成 `server/routes/_route.gen.ts`，并挂到 `basePath`（如 `/jaq`）。监听文件变更并热更新。 |
-| **vite-plugin-client-route** | 扫描各 `client/pages/<应用>/routes/`，生成懒加载的 `routes/_route.gen.ts`，并合并同路径下 `*.config.tsx` 的 `meta` / `loader` 等。 |
-| **vite-plugin-api-dev-snapshot** | **仅开发模式**（`apply: 'serve'`）。监听 `server/routes` 下路由或 `*.snapshot.ts`（快照配置）变更，按 `defineDevSnapshot`（`server/dev-snapshot/define.ts`）配置对本机 dev server 发起真实 HTTP 请求，将各方法的 **request / response** 写入与路由同名的 **`*.snapshot.json`**（便于联调对照、文档与回归）。支持 `asUser` 按用户名签发开发用 Cookie。可通过环境变量 **`VITE_API_DEV_SNAPSHOT=0`**（或 `false`）关闭。`*.snapshot.ts`（快照配置）不参与 `_route.gen` 聚合。 |
-| **vite-plugin-skeleton** | 在 `transformIndexHtml` 阶段按页面名调用 `get-skeleton-code.mts`，把生成的 **骨架屏 HTML/CSS** 注入 `compileHtml`，与 `Suspense` 占位配合；`mode=client` 构建结束时还会把 `build/public/client/pages/<page>/index.html` 扁平化为 `build/public/<page>.html` 并清理中间目录。 |
+### 4. 构建拆分：`client` / `server` 两种 mode
+
+- **`pnpm build:client`**（`mode=client`）：多页入口来自 `client/pages/<页名>/index.html`，产物在 **`build/public/`**。
+- **`pnpm build:server`**（`mode=server`）：打包 **`app.ts`** 为 Node 入口（如 **`build/app.js`**），配合 `pnpm start:prod` 等脚本运行。
+
+生产环境下，根路径由服务端静态服务 **`build/public`**，与开发时的多页路由约定一致。
 
 ---
 
-## 框架与设计优势
+## 目录约定
 
-1. **单仓库、单开发命令**  
-   前端静态资源与 Hono 应用在同一 Vite 工程内，无需单独起两个仓库或手动对齐端口。
+| 路径 | 职责 |
+|------|------|
+| **`app.ts`** | HTTP 总入口：路由挂载、HTML、静态、`/api` 代理 |
+| **`server/routes/`** | **文件即路由**；动态段用 `[id].ts` 等；生成 **`_route.gen.ts`（勿手改）** |
+| **`server/routes/**/xxx.service.ts`** | 与路由同目录同名 stem：领域逻辑、数据库访问；**不参与** URL 扫描 |
+| **`server/routes/**/xxx.schema.ts`** | Zod  schema，供 `zValidator`；**不参与** URL 扫描 |
+| **`server/routes/**/xxx.snapshot.ts`** | 开发态 API 快照配置；**不参与** URL 扫描 |
+| **`server/entities/`** | TypeORM 实体 |
+| **`client/pages/<应用名>/`** | 多页之一：`index.html`、`main.tsx`、`App.tsx` |
+| **`client/pages/<应用名>/routes/`** | 前端文件路由；生成 **`_route.gen.ts`**；可配 **`*.config.tsx`**（`meta`、`loader` 等） |
+| **`api/`** | `request` / `Fetch`、与后端对齐的 URL 描述 |
+| **`types/`**、**`utils/`** | 共享类型与工具 |
 
-2. **文件即路由，前后端路径可对照**  
-   `server/routes` 下的目录结构即 URL 结构；配合 `api/api.ts` 的嵌套路径，新增接口时心智负担小。
-
-3. **端到端类型线索**  
-   `api/index.ts` 使用 `app.ts` 导出的 `AppType`，让 `request` 的链式调用与 Hono 路由在类型层面关联（在完善 Schema 的前提下可进一步收紧类型）。
-
-4. **多页面前端**  
-   `client/pages` 下每个子目录是一套独立 SPA，适合后台（cms）、登录页、404 等场景隔离打包与路由。
-
-5. **轻量后端与本地数据**  
-   Hono 体积小、中间件模型清晰；SQLite + TypeORM 便于本地与小型部署，无需单独起数据库服务。
-
-6. **校验与错误格式统一**  
-   `server/utils/zod-validator` 将 Zod 失败转为 `{ message, issues }`，便于前端直接展示。
+TypeScript **`baseUrl` 为项目根目录**，常用别名与 `tsconfig`/`vite` 一致（如 `api`、`client`、`server`、`types`、`utils` 等），便于跨层引用。
 
 ---
 
-## 环境要求
+## 开发范式
 
-- Node.js（建议 LTS）
-- 包管理：**pnpm**
+### 后端：文件路由 + 薄 Handler
 
-项目通过 Vite 加载环境变量，根目录按需配置 **`.env.development`**、**`.env.production`** 等（与 `app.ts` 中 `dotenv` 的加载逻辑一致）。常见变量包括：
+1. **扫描规则**：`vite-plugin-server-route` 扫描 `server/routes`，**`baseRoute` 为 `/jaq`**；排除 `*.service.ts`、`*.schema.ts`、`*.snapshot.ts`。
+2. **导出约定**：每个路由文件导出大写 HTTP 方法名 **`GET` / `POST` / `PUT` / `DELETE`**，与 Hono 习惯一致。
+3. **典型流水线**：`createFactory()` → **`requireAuth`**（若需）→ **`zValidator('json' | 'param', schema)`** → 异步 handler → **`c.json`**。
+4. **职责拆分**：路由文件只做鉴权、校验、调用 **`*.service.ts`**、返回 HTTP 状态与 JSON；复杂查询与事务放在 service。
+5. **错误与校验**：校验失败使用项目统一的 `zValidator` 响应结构（如 `message` + `issues`），便于表单展示；业务错误用 `return c.json({ message: '...' }, 4xx)`。
 
-- `VITE_PORT`：开发服务器端口  
-- `VITE_THIRD_API`：`/api/*` 代理目标  
-- `VITE_API_DEV_SNAPSHOT`：设为 `0` 或 `false` 时关闭 **api-dev-snapshot** 插件（默认开启）  
-- `mode`：Node 生产启动时区分环境（见 `package.json` 的 `start:test` / `start:prod`）
+### 前端：多页 SPA + 文件路由
+
+1. **`client/pages` 下每个子目录** 是一套独立 SPA；开发时访问 **`/<页名>/*`** 由 `app.ts` 返回对应 `index.html`（经 `compileHtml` 注入环境变量）。
+2. **`vite-plugin-client-route`** 扫描各页的 `routes/`，生成懒加载路由表；同路径可有 **`*.config.tsx`** 导出 `meta`、`loader`、`searchSchema` 等，与 React Router 的 `RouteObject` 融合。
+3. **数据请求**：页面统一 **`import { request } from 'api'`**；分页等 query 字段与后端 `c.req.query()` 约定一致（如 `page`、`pageSize`）。
+
+### API 客户端
+
+- **链式调用**：路径与 `api/api.ts` 的嵌套对象一致，HTTP 方法为小写 **`.get` / `.post` / `.put` / `.delete`**。
+- **传参**：`.post({ body })`、`.get({ query })`、动态段 **`.params({ id })`**。
+- **与 `Fetch` 区分**：`request` 走类型安全的树；`Fetch` 用于非树形或一次性完整 `RequestConfig`。
+- **运行时**：默认 `credentials: 'include'`、JSON、`Authorization`（如 localStorage token）；**401** 可触发跳转登录（可按需配置）。
+
+### 开发快照（可选）
+
+- 启用 **`vite-plugin-api-dev-snapshot`**（可通过环境变量如 **`VITE_API_DEV_SNAPSHOT`** 关闭）时，可为接口录制/回放快照，便于无后端或稳定联调（详见插件与 `*.snapshot.ts`）。
+
+---
+
+## 环境变量
+
+- 使用 **`.env.${mode}`** 形式；`app.ts` 中根据是否服务端构建加载 **`process.env.mode`** 或 **`import.meta.env.MODE`** 对应文件。
+- 常见项：**`VITE_PORT`**、**`VITE_THIRD_API`**、**`AUTH_SECRET`**、HTTPS 相关 **`VITE_SSL_*`**（若启用）等；远程库脚本可能使用 **`TURSO_*`**。
+
+请以仓库内示例或部署文档为准补全具体键名。
 
 ---
 
@@ -151,60 +109,19 @@ flowchart TB
 
 | 命令 | 说明 |
 |------|------|
-| `pnpm install` | 安装依赖 |
-| `pnpm dev` | 本地开发（Vite + Hono dev server） |
-| `pnpm build` | 构建客户端静态资源 + 服务端 `build/app.js` |
-| `pnpm start:test` | 使用构建产物启动（测试模式） |
-| `pnpm start:prod` | 使用构建产物启动（生产模式） |
+| **`pnpm dev`** | 开发：Vite + Hono dev server（`--host` 可按需访问局域网） |
+| **`pnpm build`** | 先 `build:client` 再 `build:server`，清空 `build/` 后全量构建 |
+| **`pnpm start:test` / `pnpm start:prod`** | 使用 **`build/app.js`** 启动（配合 **`mode`** 环境变量） |
+| **`pnpm seed`** | 种子数据（`tsx scripts/seed.ts`） |
+| **`pnpm db:init`** | 与 Turso / libsql 相关的初始化脚本（需配置对应环境变量） |
+| **`pnpm generate`** | 项目内代码生成（见 `scripts/generate.mjs`） |
 
 ---
 
-## 快速开始
+## 架构优势小结
 
-### 本地开发
-
-```bash
-pnpm install
-pnpm dev
-```
-
-按需复制并填写环境变量文件后启动；浏览器访问对应页面（如 `/cms` 等，以 `app.ts` 中路由为准）。
-
-### Node 部署
-
-```bash
-pnpm install
-pnpm build
-
-# 测试环境
-pnpm start:test
-
-# 生产环境
-pnpm start:prod
-```
-
-### Docker 部署
-
-```bash
-# 测试环境
-./deploy.sh test
-
-# 生产环境
-./deploy.sh prod
-
-# 停止所有容器
-./deploy.sh stop
-
-# 重启所有容器
-./deploy.sh restart
-
-# 查看帮助
-./deploy.sh help
-```
-
----
-
-## 更多说明
-
-- 服务端路由与客户端路由表中的 **`_route.gen.ts` 均为插件生成，请勿手动修改**；改文件后保存会触发重新生成。
-- Cursor 规则与约定说明见项目内 **`.cursor/rules/`**（若已启用）。
+1. **一套工具链**：开发、类型检查、构建路径统一，降低心智负担。  
+2. **约定优于配置**：前后端均为「文件系统路由 + 生成器」，新增接口或页面多半是加文件而非中央注册表。  
+3. **端到端类型**：`AppType` + `api` 树减少前后端契约错误。  
+4. **清晰分层**：`schema` / `service` / 路由职责分明，便于测试与复用。  
+5. **多页隔离**：不同子应用（如 `cms` 与其他页）可独立演进、独立构建入口，适合中大型后台或多场景前台。
