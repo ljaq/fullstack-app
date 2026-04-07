@@ -7,6 +7,7 @@ import { createBrowserRouter, RouteObject, RouterProvider } from 'react-router'
 import cmsRoutes from 'client/pages/cms/routes/_route.gen'
 import { useAuthorityRoutes } from 'client/hooks/useAuthorityRoutes'
 import Layout from './components/Layout/index'
+import RoseCurveLoading from 'client/components/RoseCurveLoading'
 import { themeToken } from 'client/utils/theme'
 
 const NotFound = lazy(() => import('client/pages/404/routes/index'))
@@ -35,7 +36,7 @@ function App() {
     getUser()
   }, [])
   return (
-    <ConfigProvider locale={zh_CN} theme={themeToken}>
+    <ConfigProvider locale={zh_CN} theme={themeToken} spin={{ indicator: <RoseCurveLoading /> }}>
       <AntdApp>
         <EasyModal.Provider>
           <RouterProvider router={router} />
