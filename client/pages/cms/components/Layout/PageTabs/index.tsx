@@ -42,6 +42,7 @@ export default function PageTabs() {
 
   useEffect(() => {
     if (!pathname.startsWith('/cms')) return
+    if (pathname === '/cms' || pathname === '/cms/') return
     syncTabForPath(pathname, titleForPath)
   }, [pathname, titleForPath, syncTabForPath])
 
@@ -152,7 +153,7 @@ export default function PageTabs() {
       </div>
       <div className={styles.actions}>
         <Dropdown menu={{ items: buildTabMenuItems(pathname) }} trigger={['click']} placement='bottomRight'>
-          <Button icon={<DownOutlined />} />
+          <Button icon={<DownOutlined />} variant='filled' color='default' />
         </Dropdown>
       </div>
     </div>

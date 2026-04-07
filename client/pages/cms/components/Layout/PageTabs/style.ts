@@ -32,8 +32,8 @@ export const usePageTabsStyle = createStyles(({ token, css }) => ({
     max-width: 200px;
     padding: 4px 10px;
     border-radius: ${token.borderRadius}px;
-    border: 1px solid ${token.colorBorderSecondary};
-    background: ${token.colorBgContainer};
+    border: 1px solid transparent;
+    background: ${token.colorBgLayout};
     cursor: pointer;
     font-size: 13px;
     color: ${token.colorTextSecondary};
@@ -41,12 +41,10 @@ export const usePageTabsStyle = createStyles(({ token, css }) => ({
     user-select: none;
     &:hover {
       color: ${token.colorPrimary};
-      border-color: ${token.colorPrimaryBorder};
+      background: ${token.colorPrimaryHover};
     }
   `,
   tabActive: css`
-    color: ${token.colorPrimary};
-    border-color: ${token.colorPrimaryBorder};
     background: ${token.colorPrimaryBg} !important;
   `,
   tabLabel: css`

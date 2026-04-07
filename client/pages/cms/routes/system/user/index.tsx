@@ -117,7 +117,7 @@ export default function UserPage() {
         request={request.jaq.users}
         columns={columns}
         extra={
-          <Button loading type='primary' onClick={() => modelRef.current?.show(true)}>
+          <Button type='primary' onClick={() => modelRef.current?.show(true)}>
             新建
           </Button>
         }
