@@ -2,8 +2,8 @@ import { Client, MergeClientWithApi, Methods, RequestConfig, THIRD_API, UnionToI
 import { RequestBuilder, ResponseHandler, UrlProcessor } from './utils'
 
 export const Fetch = async <F = any, T = any>(config: RequestConfig<F>): Promise<T> => {
-  // 构建请求并发送
-  const response = await fetch(UrlProcessor.build(config), RequestBuilder.config(config))
+  const url = UrlProcessor.build(config)
+  const response = await fetch(url, await RequestBuilder.buildRequestInit(config, url))
 
   // 响应处理管道
   return response.ok

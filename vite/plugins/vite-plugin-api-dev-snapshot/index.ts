@@ -1,4 +1,5 @@
 import type { PluginOption, ViteDevServer } from 'vite'
+import { createHash, createHmac } from 'node:crypto'
 import path from 'path'
 import fs from 'fs'
 import colors from 'picocolors'
@@ -8,6 +9,30 @@ import fileBaseRoutes, { type IRouteItem } from '../file-base-routes'
 import type { DevSnapshotConfig, SnapshotHttpMethod } from '../../../server/dev-snapshot/define'
 import { getAuthCookieHeaderForUsername } from '../../../server/dev-snapshot/mint-auth-cookie'
 import { pathToFileURL } from 'node:url'
+import {
+  buildCanonicalRequest,
+  EMPTY_BODY_SHA256,
+  SIGNATURE_HEADER,
+  TIMESTAMP_HEADER,
+} from '../../../utils/request-signature'
+
+/** 与浏览器 `api/sign-request` 一致，供 dev snapshot 在启用 `VITE_REQUEST_SIGN_SECRET` 时调用 */
+function jaqRequestSignHeaders(url: string, method: string, bodyStr: string | undefined): Record<string, string> {
+  const secret = process.env.VITE_REQUEST_SIGN_SECRET
+  if (!secret) {
+    return {}
+  }
+  const u = new URL(url)
+  const pathWithQuery = u.pathname + u.search
+  const ts = Date.now().toString()
+  const bodySha =
+    bodyStr === undefined || bodyStr === ''
+      ? EMPTY_BODY_SHA256
+      : createHash('sha256').update(bodyStr, 'utf8').digest('hex')
+  const canonical = buildCanonicalRequest(method, pathWithQuery, ts, bodySha)
+  const sig = createHmac('sha256', secret).update(canonical, 'utf8').digest('hex')
+  return { [TIMESTAMP_HEADER]: ts, [SIGNATURE_HEADER]: sig }
+}
 
 const LOG = '[api-dev-snapshot]'
 const METHODS = new Set<SnapshotHttpMethod>(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'])
@@ -85,6 +110,8 @@ function redactCookieHeader(headers: Record<string, string>): Record<string, str
   const h = { ...headers }
   if (h.Cookie) h.Cookie = '[redacted]'
   if (h.cookie) h.cookie = '[redacted]'
+  if (h[TIMESTAMP_HEADER]) h[TIMESTAMP_HEADER] = '[redacted]'
+  if (h[SIGNATURE_HEADER]) h[SIGNATURE_HEADER] = '[redacted]'
   return h
 }
 
@@ -191,6 +218,8 @@ async function runSnapshot(
     if (hasBody) {
       bodyStr = typeof snapshotCase.body === 'string' ? snapshotCase.body : JSON.stringify(snapshotCase.body)
     }
+
+    Object.assign(headers, jaqRequestSignHeaders(url, method, bodyStr))
 
     let res: Response
     try {

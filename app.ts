@@ -7,6 +7,7 @@ import { prettyJSON } from 'hono/pretty-json'
 import path from 'path'
 import qs from 'querystring'
 import { compileHtml } from './scripts/compileHtml.js'
+import { verifyRequestSignature } from 'server/middleware/verify-request-signature'
 import route from 'server/routes/_route.gen'
 
 const isDev = import.meta.env.DEV
@@ -18,6 +19,7 @@ let pages: string[] = []
 const app = new Hono()
 
 app.use(prettyJSON())
+app.use(verifyRequestSignature)
 
 const routes = app.route('/', route)
 

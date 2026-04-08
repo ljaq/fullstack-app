@@ -1,6 +1,7 @@
 import { message } from 'antd'
 import storages from 'client/storages'
 import { downloadFile, querystring } from '../client/utils/common'
+import { signJaqRequestHeaders } from './sign-request'
 import { RequestConfig } from './types'
 
 /**
@@ -72,6 +73,32 @@ export const RequestBuilder = {
       ...options.headers,
     },
   }),
+
+  /** 含 `/jaq` 请求签名（`VITE_REQUEST_SIGN_SECRET`） */
+  async buildRequestInit(options: RequestConfig, fullUrl: string): Promise<RequestInit> {
+    const method = (options.method || (options.body ? 'POST' : 'GET')) as string
+    const isMultipart = RequestBuilder.isFormData(options.body)
+    let bodySerialized: string | undefined
+    if (options.body !== undefined && !isMultipart) {
+      bodySerialized = JSON.stringify(options.body)
+    }
+
+    const signHeaders =
+      fullUrl.startsWith('/jaq') && !isMultipart
+        ? await signJaqRequestHeaders(method.toUpperCase(), fullUrl, bodySerialized)
+        : {}
+
+    return {
+      method,
+      body: RequestBuilder.processBody(options.body),
+      credentials: 'include',
+      headers: {
+        ...RequestBuilder.headers(options.body),
+        ...signHeaders,
+        ...options.headers,
+      },
+    }
+  },
 }
 
 /**

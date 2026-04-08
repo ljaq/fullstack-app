@@ -18,9 +18,7 @@ pnpm build:server           # 构建服务端入口（输出到 build/app.js）
 pnpm start:test             # 在开发环境下运行生产构建
 pnpm start:prod             # 在生产环境下运行生产构建
 
-# 数据库与工具
-pnpm seed                   # 使用测试数据初始化数据库（tsx scripts/seed.ts）
-pnpm db:init                # 初始化 Turso/libsql 数据库
+# 工具
 pnpm generate               # 运行代码生成脚本
 ```
 
@@ -51,6 +49,7 @@ pnpm generate               # 运行代码生成脚本
 │   │   ├── **/xxx.service.ts       # 领域逻辑（排除在路由扫描之外）
 │   │   ├── **/xxx.schema.ts        # Zod 校验模式（排除在路由扫描之外）
 │   │   └── **/xxx.snapshot.ts      # 开发 API 快照（排除在路由扫描之外）
+│   │   └── **/xxx.ts               # 接口路由
 │   ├── entities/                   # TypeORM 实体
 │   ├── db.ts                       # 数据库连接
 │   └── utils/                      # 共享工具（auth、zod-validator 等）
