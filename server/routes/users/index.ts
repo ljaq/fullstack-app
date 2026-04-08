@@ -1,7 +1,7 @@
 import { zValidator } from 'server/utils/zod-validator'
 import { createFactory } from 'hono/factory'
 import { requireAuth } from 'server/utils/auth'
-import * as userIndexService from './index.service'
+import { UsersIndexService } from './index.service'
 import { createBody } from './index.schema'
 
 const factory = createFactory()
@@ -12,7 +12,7 @@ export const GET = factory.createHandlers(requireAuth, async c => {
   const pageSize = Number(c.req.query('pageSize')) || Number(c.req.query('page_size')) || 10
   const name = c.req.query('name')?.trim()
 
-  const result = await userIndexService.listUsers({ page, pageSize, name })
+  const result = await UsersIndexService.listUsers({ page, pageSize, name })
   return c.json(result)
 })
 
@@ -20,7 +20,7 @@ export const GET = factory.createHandlers(requireAuth, async c => {
 export const POST = factory.createHandlers(requireAuth, zValidator('json', createBody), async c => {
   const { username, password, roles: roleCodes = [] } = c.req.valid('json')
 
-  const result = await userIndexService.createUser({
+  const result = await UsersIndexService.createUser({
     username,
     password,
     roleCodes,
