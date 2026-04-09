@@ -1,3 +1,12 @@
+# Fullstack App
+
+基于 Vite 8 + Hono + React 的全栈一体化 monorepo 项目，采用三层架构模式和依赖注入设计。
+
+## 📚 文档
+
+- [CLAUDE.md](CLAUDE.md) - Claude Code 工作指导
+- [server/ARCHITECTURE.md](server/ARCHITECTURE.md) - 服务端架构详细说明
+
 ## 常用命令
 
 ```bash
@@ -17,6 +26,11 @@ pnpm start:prod             # 在生产环境下运行生产构建
 # 工具
 pnpm generate               # 运行代码生成脚本
 ```
+
+## 📚 文档
+
+- [CLAUDE.md](CLAUDE.md) - Claude Code 工作指导
+- [server/ARCHITECTURE.md](server/ARCHITECTURE.md) - 服务端架构详细说明
 
 ## 架构概览
 
@@ -42,11 +56,25 @@ pnpm generate               # 运行代码生成脚本
 ├── app.ts                          # HTTP 入口：路由、HTML、静态资源、代理
 ├── server/
 │   ├── routes/                     # 基于文件的后端路由（基础路径：/jaq）
-│   │   ├── **/xxx.service.ts       # 领域逻辑（排除在路由扫描之外）
 │   │   ├── **/xxx.schema.ts        # Zod 校验模式（排除在路由扫描之外）
 │   │   └── **/xxx.snapshot.ts      # 开发 API 快照（排除在路由扫描之外）
-│   │   └── **/xxx.ts               # 接口路由
+│   │   └── **/xxx.ts               # 接口路由（控制器层）
+│   ├── services/                   # 业务逻辑层（Service）
+│   │   ├── auth.service.ts         # 认证服务
+│   │   ├── user.service.ts         # 用户服务
+│   │   └── role.service.ts         # 角色服务
+│   ├── repositories/               # 数据访问层（Repository）
+│   │   ├── user.repository.ts      # 用户数据访问
+│   │   └── role.repository.ts      # 角色数据访问
+│   ├── container/                  # 依赖注入容器
+│   │   ├── container.ts            # DI 容器实现
+│   │   ├── register-services.ts    # 服务注册
+│   │   └── service-helpers.ts      # 服务访问辅助函数
+│   ├── errors/                     # 错误处理
+│   │   ├── app-error.ts            # 自定义错误类
+│   │   └── error-handler.ts        # 全局错误处理中间件
 │   ├── entities/                   # TypeORM 实体
+│   ├── middleware/                 # 中间件
 │   ├── db.ts                       # 数据库连接
 │   └── utils/                      # 共享工具（auth、zod-validator 等）
 ├── client/
@@ -63,45 +91,131 @@ pnpm generate               # 运行代码生成脚本
 └── utils/                          # 共享工具
 ```
 
+### 服务端架构特点
+
+**三层架构模式：**
+- **Controller（路由层）**：处理 HTTP 请求/响应，参数校验，调用 Service
+- **Service（服务层）**：处理业务逻辑，事务管理，调用 Repository
+- **Repository（数据层）**：封装数据访问，与数据库交互
+
+**依赖注入容器：**
+- 轻量级 DI 容器管理服务生命周期
+- 降低耦合，提升可测试性
+- 统一的服务注册和解析机制
+
+**统一错误处理：**
+- 自定义错误类型（NotFoundError、BusinessError 等）
+- 全局错误处理中间件自动捕获并转换为 HTTP 响应
+- 开发/生产环境不同的错误信息展示策略
+
+### 架构优势
+
+1. **清晰的分层架构** - 每层职责明确，易于理解和维护
+2. **依赖注入** - 降低耦合，提升可测试性
+3. **统一错误处理** - 错误处理一致且优雅
+4. **类型安全** - 完整的 TypeScript 支持
+5. **易于扩展** - 新增功能遵循相同模式即可
+6. **测试友好** - 通过依赖注入，易于 mock 和测试
+
 ## 后端开发
+
+### 三层架构开发指南
+
+**创建新功能的步骤：**
+
+1. **定义 Repository**（数据访问层）
+```ts
+// server/repositories/product.repository.ts
+export class ProductRepository {
+  async findById(id: number) {
+    const repo = await this.getRepo()
+    return repo.findOne({ where: { id } })
+  }
+}
+```
+
+2. **定义 Service**（业务逻辑层）
+```ts
+// server/services/product.service.ts
+export class ProductService {
+  constructor(private productRepo: ProductRepository) {}
+
+  async getProduct(id: number) {
+    const product = await this.productRepo.findById(id)
+    if (!product) {
+      throw new NotFoundError('产品')
+    }
+    return product
+  }
+}
+```
+
+3. **注册服务**（依赖注入）
+```ts
+// server/container/register-services.ts
+container.registerSingleton(ServiceTokens.ProductRepository, () =>
+  new ProductRepository()
+)
+container.registerSingleton(ServiceTokens.ProductService, () => {
+  const productRepo = container.resolve<ProductRepository>(
+    ServiceTokens.ProductRepository
+  )
+  return new ProductService(productRepo)
+})
+```
+
+4. **创建路由**（控制器层）
+```ts
+// server/routes/products/[id].ts
+import { getService } from 'server/container/service-helpers'
+
+export const GET = factory.createHandlers(async c => {
+  const { id } = c.req.param()
+  const service = getService()
+
+  const product = await service.product.getProduct(Number(id))
+  return c.json(product)
+})
+```
+
+### 错误处理
+
+```ts
+import { NotFoundError, BusinessError, UnauthorizedError } from 'server/errors/app-error'
+
+// 在 Service 中抛出错误
+throw new NotFoundError('用户')
+throw new BusinessError('用户名已存在', 'USERNAME_EXISTS')
+throw new UnauthorizedError('登录已过期')
+
+// 错误会自动被全局错误处理中间件捕获并转换为适当的 HTTP 响应
+```
 
 ### 文件路由约定
 
-路由通过 `vite-plugin-server-route` 从 `server/routes/**/*.ts` **自动生成**。请**不要**手动编辑 `_route.gen.ts`。
+路由通过 `vite-plugin-server-route` 从 `server/routes/**/*.ts` **自动生成**。
 
 **路由处理器模式：**
 ```ts
-// server/routes/feature/action.ts
-import { zValidator } from 'server/utils/zod-validator'
-import { createFactory } from 'hono/factory'
-import { actionBody } from './action.schema'
-
-const factory = createFactory()
+import { getService } from 'server/container/service-helpers'
 
 export const POST = factory.createHandlers(
-  requireAuth,              // 可选：认证中间件
-  zValidator('json', actionBody),  // 请求校验
+  requireAuth,
+  zValidator('json', createBody),
   async c => {
     const data = c.req.valid('json')
-    // 调用服务层处理业务逻辑
+    const service = getService()
+    const result = await service.feature.action(data)
     return c.json(result)
   }
 )
 ```
 
-**动态片段**：使用 `[id].ts` 表示 `/jaq/feature/:id`
-
-**服务层**：将业务逻辑放在 `*.service.ts` 中（同目录、同前缀）。路由处理器应保持精简：认证、校验、调用服务、HTTP 响应。
-
 **中间件与认证：**
-- `requireAuth` — 受保护路由中间件（来自 `server/utils/auth.ts`）
+- `requireAuth` — 受保护路由中间件
+- `requirePermission(code)` — 权限校验中间件
 - `getCurrentUser(c)` — 获取已认证用户
 - `setAuthCookie(c, { userId })` — 设置认证 Cookie
-- `verifyPassword`、`hashPassword` — 密码工具
-
-### 校验
-
-在 `*.schema.ts` 文件中使用 Zod 校验模式配合 `server/utils/zod-validator`。校验失败返回 `{ message, issues }` 结构供前端表单显示。
 
 ## 前端开发
 

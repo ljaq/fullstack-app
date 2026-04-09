@@ -8,6 +8,8 @@ import path from 'path'
 import qs from 'querystring'
 import { compileHtml } from './scripts/compileHtml.js'
 import { verifyRequestSignature } from 'server/middleware/verify-request-signature'
+import { errorHandler } from 'server/errors/error-handler'
+import { registerServices } from 'server/container/register-services'
 import route from 'server/routes/_route.gen'
 
 const isDev = import.meta.env.DEV
@@ -17,6 +19,12 @@ dotenv.config({ path: `.env.${isServer ? process.env.mode : import.meta.env.MODE
 const isHttps = process.env.VITE_SSL_KEY_FILE && process.env.VITE_SSL_CRT_FILE
 let pages: string[] = []
 const app = new Hono()
+
+// 注册服务容器
+registerServices()
+
+// 全局错误处理
+app.use('*', errorHandler)
 
 app.use(prettyJSON())
 app.use(verifyRequestSignature)

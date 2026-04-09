@@ -40,17 +40,31 @@ pnpm generate               # 运行代码生成脚本
    - 后端：`server/routes/**/*.ts` → 通过 `vite-plugin-server-route` 生成 HTTP 路由
    - 前端：`client/pages/<page>/routes/**/*.tsx` → 通过 `vite-plugin-client-route` 生成 React Router 路由
 
-### 目录结构
+### 服务端架构：三层模式 + 依赖注入
 
 ```
 ├── app.ts                          # HTTP 入口：路由、HTML、静态资源、代理
 ├── server/
 │   ├── routes/                     # 基于文件的后端路由（基础路径：/jaq）
-│   │   ├── **/xxx.service.ts       # 领域逻辑（排除在路由扫描之外）
 │   │   ├── **/xxx.schema.ts        # Zod 校验模式（排除在路由扫描之外）
 │   │   └── **/xxx.snapshot.ts      # 开发 API 快照（排除在路由扫描之外）
-│   │   └── **/xxx.ts               # 接口路由
+│   │   └── **/xxx.ts               # 接口路由（控制器层）
+│   ├── services/                   # 业务逻辑层（Service）
+│   │   ├── auth.service.ts         # 认证服务
+│   │   ├── user.service.ts         # 用户服务
+│   │   └── role.service.ts         # 角色服务
+│   ├── repositories/               # 数据访问层（Repository）
+│   │   ├── user.repository.ts      # 用户数据访问
+│   │   └── role.repository.ts      # 角色数据访问
+│   ├── container/                  # 依赖注入容器
+│   │   ├── container.ts            # DI 容器实现
+│   │   ├── register-services.ts    # 服务注册
+│   │   └── service-helpers.ts      # 服务访问辅助函数
+│   ├── errors/                     # 错误处理
+│   │   ├── app-error.ts            # 自定义错误类
+│   │   └── error-handler.ts        # 全局错误处理中间件
 │   ├── entities/                   # TypeORM 实体
+│   ├── middleware/                 # 中间件
 │   ├── db.ts                       # 数据库连接
 │   └── utils/                      # 共享工具（auth、zod-validator 等）
 ├── client/
@@ -67,7 +81,94 @@ pnpm generate               # 运行代码生成脚本
 └── utils/                          # 共享工具
 ```
 
+### 架构设计原则
+
+**三层架构：**
+- **Controller（路由层）**：处理 HTTP 请求/响应，参数校验，调用 Service
+- **Service（服务层）**：处理业务逻辑，事务管理，调用 Repository
+- **Repository（数据层）**：封装数据访问，与数据库交互
+
+**依赖注入：**
+- 使用轻量级 DI 容器管理服务生命周期
+- 所有服务通过容器注册和解析
+- 降低耦合，提升可测试性
+
+**统一错误处理：**
+- 自定义错误类型（NotFoundError、BusinessError 等）
+- 全局错误处理中间件自动捕获并转换为 HTTP 响应
+- 开发环境返回详细错误信息，生产环境隐藏敏感信息
+
 ## 后端开发
+
+### 三层架构开发模式
+
+**1. Repository 层（数据访问）**
+
+```ts
+// server/repositories/user.repository.ts
+export class UserRepository {
+  async findById(id: number): Promise<User | null> {
+    const repo = await this.getRepo()
+    return repo.findOne({ where: { id } })
+  }
+
+  async findByUsername(username: string): Promise<User | null> {
+    const repo = await this.getRepo()
+    return repo.findOne({ where: { username } })
+  }
+
+  // 更多数据访问方法...
+}
+```
+
+**2. Service 层（业务逻辑）**
+
+```ts
+// server/services/user.service.ts
+export class UserService {
+  constructor(
+    private userRepo: UserRepository,
+    private roleRepo: RoleRepository
+  ) {}
+
+  async createUser(input: CreateUserInput): Promise<UserView> {
+    // 业务验证
+    const exists = await this.userRepo.existsByUsername(input.username)
+    if (exists) {
+      throw new BusinessError('用户名已存在', 'USERNAME_EXISTS')
+    }
+
+    // 创建用户
+    const passwordHash = await hashPassword(input.password)
+    const user = await this.userRepo.create({
+      username: input.username,
+      passwordHash,
+      roles: input.roles || [],
+    })
+
+    return this.mapToView(user)
+  }
+}
+```
+
+**3. Controller 层（路由处理）**
+
+```ts
+// server/routes/users/index.ts
+import { getService } from 'server/container/service-helpers'
+
+export const POST = factory.createHandlers(
+  requireAuth,
+  zValidator('json', createBody),
+  async c => {
+    const { username, password, roles = [] } = c.req.valid('json')
+    const service = getService()
+
+    const user = await service.user.createUser({ username, password, roles })
+    return c.json(user, 201)
+  }
+)
+```
 
 ### 文件路由约定
 
@@ -78,6 +179,7 @@ pnpm generate               # 运行代码生成脚本
 // server/routes/feature/action.ts
 import { zValidator } from 'server/utils/zod-validator'
 import { createFactory } from 'hono/factory'
+import { getService } from 'server/container/service-helpers'
 import { actionBody } from './action.schema'
 
 const factory = createFactory()
@@ -87,7 +189,9 @@ export const POST = factory.createHandlers(
   zValidator('json', actionBody),  // 请求校验
   async c => {
     const data = c.req.valid('json')
+    const service = getService()
     // 调用服务层处理业务逻辑
+    const result = await service.feature.action(data)
     return c.json(result)
   }
 )
@@ -95,17 +199,27 @@ export const POST = factory.createHandlers(
 
 **动态片段**：使用 `[id].ts` 表示 `/jaq/feature/:id`
 
-**服务层**：将业务逻辑放在 `*.service.ts` 中（同目录、同前缀）。路由处理器应保持精简：认证、校验、调用服务、HTTP 响应。
+**错误处理：**
+```ts
+import { NotFoundError, BusinessError } from 'server/errors/app-error'
+
+// 在 Service 中抛出错误
+throw new NotFoundError('用户')
+throw new BusinessError('用户名已存在', 'USERNAME_EXISTS')
+
+// 错误会自动被全局错误处理中间件捕获并转换为适当的 HTTP 响应
+```
 
 **中间件与认证：**
 - `requireAuth` — 受保护路由中间件（来自 `server/utils/auth.ts`）
+- `requirePermission(code)` — 权限校验中间件
 - `getCurrentUser(c)` — 获取已认证用户
 - `setAuthCookie(c, { userId })` — 设置认证 Cookie
 - `verifyPassword`、`hashPassword` — 密码工具
 
 ### 校验
 
-在 `*.schema.ts` 文件中使用 Zod 校验模式配合 `server/utils/zod-validator`。校验失败返回 `{ message, issues }` 结构供前端表单显示。
+在 `*.schema.ts` 文件中使用 Zod 校验模式配合 `server/utils/zod-validator`。校验失败会自动被错误处理中间件捕获。
 
 ## 前端开发
 

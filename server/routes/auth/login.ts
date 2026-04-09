@@ -1,30 +1,28 @@
 import { zValidator } from 'server/utils/zod-validator'
 import { createFactory } from 'hono/factory'
-import { getDataSource } from 'server/db'
-import { UserEntity } from 'server/entities/User'
-import { verifyPassword, setAuthCookie } from 'server/utils/auth'
+import { setAuthCookie } from 'server/utils/auth'
+import { getService } from 'server/container/service-helpers'
 import { loginBody } from './login.schema'
 
 const factory = createFactory()
 
 /** 登录 */
-export const POST = factory.createHandlers(zValidator('json', loginBody), async c => {
-  const { username, password } = c.req.valid('json')
+export const POST = factory.createHandlers(
+  zValidator('json', loginBody),
+  async c => {
+    const { username, password } = c.req.valid('json')
+    const service = getService()
 
-  const ds = await getDataSource()
-  const userRepo = ds.getRepository(UserEntity)
+    const userView = await service.auth.login(username, password)
+    setAuthCookie(c, { userId: userView.id })
 
-  const user = await userRepo.findOne({ where: { username } })
-  if (!user) {
-    return c.json({ message: '用户名或密码错误' }, 400)
+    return c.json({
+      id: userView.id,
+      username: userView.username,
+      roles: userView.roles,
+      roleNames: userView.roleNames,
+      pages: userView.pages,
+      buttons: userView.buttons,
+    })
   }
-
-  const ok = await verifyPassword(password, user.passwordHash)
-  if (!ok) {
-    return c.json({ message: '用户名或密码错误' }, 400)
-  }
-
-  setAuthCookie(c, { userId: user.id })
-
-  return c.json({ id: user.id, username: user.username })
-})
+)

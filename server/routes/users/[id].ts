@@ -2,20 +2,23 @@ import { zValidator } from 'server/utils/zod-validator'
 import { createFactory } from 'hono/factory'
 import { getCurrentUser, requireAuth, requirePermission } from 'server/utils/auth'
 import { BTN } from 'types/permissions'
-import { UserIdService } from './[id].service'
+import { getService } from 'server/container/service-helpers'
 import { paramSchema, updateBody } from './[id].schema'
 
 const factory = createFactory()
 
 /** 获取用户 */
-export const GET = factory.createHandlers(requireAuth, zValidator('param', paramSchema), async c => {
-  const { id } = c.req.valid('param')
-  const result = await UserIdService.getUserById(id)
-  if (!result.success) {
-    return c.json({ message: result.message }, 404)
+export const GET = factory.createHandlers(
+  requireAuth,
+  zValidator('param', paramSchema),
+  async c => {
+    const { id } = c.req.valid('param')
+    const service = getService()
+
+    const user = await service.user.getUserById(id)
+    return c.json(user)
   }
-  return c.json(result.user)
-})
+)
 
 /** 更新用户 */
 export const PUT = factory.createHandlers(
@@ -26,14 +29,11 @@ export const PUT = factory.createHandlers(
   async c => {
     const { id } = c.req.valid('param')
     const body = c.req.valid('json')
+    const service = getService()
 
-    const result = await UserIdService.updateUserById(id, body)
-    if (!result.success) {
-      const status = result.message === '用户不存在' ? 404 : 400
-      return c.json({ message: result.message }, status)
-    }
-    return c.json(result.user)
-  },
+    const user = await service.user.updateUser(id, body)
+    return c.json(user)
+  }
 )
 
 export const DELETE = factory.createHandlers(
@@ -43,11 +43,9 @@ export const DELETE = factory.createHandlers(
   async c => {
     const { id } = c.req.valid('param')
     const current = await getCurrentUser(c)
-    const result = await UserIdService.deleteUserById(id, current?.id)
-    if (!result.success) {
-      const status = result.message === '用户不存在' ? 404 : 400
-      return c.json({ message: result.message }, status)
-    }
+    const service = getService()
+
+    await service.user.deleteUser(id, current?.id)
     return c.json({ message: '用户删除成功' }, 200)
-  },
+  }
 )
