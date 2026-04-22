@@ -7,6 +7,14 @@
     ],
     "module": "ESNext",
     "skipLibCheck": true,
+    /* Align with tsconfig.app: bare imports like `server/...` resolve from repo root (Vite config bundle pulls server code via plugins). */
+    "baseUrl": ".",
+    "paths": {
+      "server/*": ["server/*"],
+      "client/*": ["client/*"],
+      "utils/*": ["utils/*"],
+      "types/*": ["types/*"]
+    },
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,

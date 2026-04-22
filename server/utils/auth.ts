@@ -2,8 +2,8 @@ import type { Context } from 'hono'
 import { getCookie, setCookie, deleteCookie } from 'hono/cookie'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import type { BtnPermissionCode } from 'types/permissions'
-import { UnauthorizedError, ForbiddenError } from 'server/errors/app-error'
+import type { BtnPermissionCode } from '../../types/permissions'
+import { UnauthorizedError, ForbiddenError } from '../errors/app-error'
 
 const AUTH_COOKIE_KEY = 'auth_token'
 
@@ -57,7 +57,7 @@ export async function getCurrentUser(c: Context) {
 
   try {
     // 动态导入以避免循环依赖
-    const { getService } = await import('server/container/service-helpers')
+    const { getService } = await import('../container/service-helpers')
     const service = getService()
 
     const user = await service.userRepo.findById(userId)
