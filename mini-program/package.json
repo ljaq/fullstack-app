@@ -24,6 +24,9 @@
     "@dcloudio/uni-mp-toutiao": "3.0.0-alpha-5000820260420001",
     "@dcloudio/uni-mp-weixin": "3.0.0-alpha-5000820260420001",
     "@dcloudio/uni-quickapp-webview": "3.0.0-alpha-5000820260420001",
+    "@uni-helper/vite-plugin-uni-layouts": "^0.1.11",
+    "@uni-helper/vite-plugin-uni-pages": "^0.3.24",
+    "pinia": "^3.0.4",
     "vue": "^3.4.21"
   },
   "devDependencies": {

@@ -7,7 +7,7 @@ import prettier from 'prettier'
 import { logTimeStamp } from '../utils'
 import fileBaseRoutes, { type IRouteItem } from '../file-base-routes'
 import type { DevSnapshotConfig, SnapshotHttpMethod } from '../../../server/dev-snapshot/define'
-import { getAuthCookieHeaderForUsername } from '../../../server/dev-snapshot/mint-auth-cookie'
+import { getAuthAuthorizationHeaderForUsername } from '../../../server/dev-snapshot/mint-auth-cookie'
 import { pathToFileURL } from 'node:url'
 import {
   buildCanonicalRequest,
@@ -106,10 +106,12 @@ function buildUrl(opts: {
   return u.toString()
 }
 
-function redactCookieHeader(headers: Record<string, string>): Record<string, string> {
+function redactSensitiveHeaders(headers: Record<string, string>): Record<string, string> {
   const h = { ...headers }
   if (h.Cookie) h.Cookie = '[redacted]'
   if (h.cookie) h.cookie = '[redacted]'
+  if (h.Authorization) h.Authorization = '[redacted]'
+  if (h.authorization) h.authorization = '[redacted]'
   if (h[TIMESTAMP_HEADER]) h[TIMESTAMP_HEADER] = '[redacted]'
   if (h[SIGNATURE_HEADER]) h[SIGNATURE_HEADER] = '[redacted]'
   return h
@@ -160,18 +162,18 @@ async function runSnapshot(
   const defaultPath = routeItem.route ?? '/'
   const https = opts.https ?? false
 
-  let authCookieHeader: string | undefined
+  let authBearerHeader: string | undefined
   if (config.asUser?.username) {
-    const mint = await getAuthCookieHeaderForUsername(config.asUser.username)
+    const mint = await getAuthAuthorizationHeaderForUsername(config.asUser.username)
     if (mint.ok === false) {
       console.error(
-        `${logTimeStamp()} ${colors.bold(colors.red(LOG))} ${colors.dim('auth cookie failed:')} ${colors.red(mint.message)}`,
+        `${logTimeStamp()} ${colors.bold(colors.red(LOG))} ${colors.dim('auth bearer failed:')} ${colors.red(mint.message)}`,
       )
       return
     }
-    authCookieHeader = mint.cookieHeader
+    authBearerHeader = mint.authorizationHeader
     console.log(
-      `${logTimeStamp()} ${colors.bold(colors.magenta(LOG))} ${colors.dim('auth cookie for')} ${colors.cyan(config.asUser.username)} ${colors.dim('(dev snapshot)')}`,
+      `${logTimeStamp()} ${colors.bold(colors.magenta(LOG))} ${colors.dim('auth Bearer for')} ${colors.cyan(config.asUser.username)} ${colors.dim('(dev snapshot)')}`,
     )
   }
 
@@ -206,7 +208,7 @@ async function runSnapshot(
     })
 
     const headers: Record<string, string> = {
-      ...(authCookieHeader ? { Cookie: authCookieHeader } : {}),
+      ...(authBearerHeader ? { Authorization: authBearerHeader } : {}),
       ...(snapshotCase.headers ?? {}),
     }
     const hasBody = method !== 'GET' && method !== 'HEAD' && snapshotCase.body !== undefined
@@ -255,7 +257,7 @@ async function runSnapshot(
       request: {
         method,
         url,
-        headers: redactCookieHeader(headers),
+        headers: redactSensitiveHeaders(headers),
         body: hasBody ? snapshotCase.body : undefined,
       },
       response: { status: res.status, headers: resHeaders, body },

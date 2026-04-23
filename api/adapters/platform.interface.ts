@@ -62,6 +62,8 @@ export interface IRouter {
   replace(url: string): void
   /** 返回上一页 */
   back(): void
+  /** 重定向到登陆 */
+  redirectToLogin(): void
 }
 
 /** 平台适配器集合 */

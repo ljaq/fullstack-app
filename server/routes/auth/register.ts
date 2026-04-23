@@ -1,6 +1,6 @@
 import { zValidator } from 'server/utils/zod-validator'
 import { createFactory } from 'hono/factory'
-import { setAuthCookie } from 'server/utils/auth'
+import { signAuthToken } from 'server/utils/auth'
 import { getService } from 'server/container/service-helpers'
 import { registerBody } from './register.schema'
 
@@ -14,7 +14,6 @@ export const POST = factory.createHandlers(
     const service = getService()
 
     const userView = await service.auth.register(username, password)
-    setAuthCookie(c, { userId: userView.id })
 
     return c.json({
       id: userView.id,
@@ -23,6 +22,7 @@ export const POST = factory.createHandlers(
       roleNames: userView.roleNames,
       pages: userView.pages,
       buttons: userView.buttons,
+      token: signAuthToken({ userId: userView.id }),
     })
   }
 )

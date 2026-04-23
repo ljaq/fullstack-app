@@ -2,7 +2,7 @@ import { request } from 'api'
 import React, { createContext, useCallback, useContext, useMemo } from 'react'
 import { useLogout } from './hooks'
 import { useLocalStorage } from 'react-use'
-import storages from 'client/storages'
+import { STORAGES } from 'utils/constant'
 
 const INITIAL_STATE: UserState | null = null
 const UserContext = createContext<any>(INITIAL_STATE)
@@ -29,19 +29,19 @@ export function useUser(): [
 }
 
 export default function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useLocalStorage<Omit<UserState, 'themeConfig'>>(storages.USER, {})
-  const [themeConfig, setThemeConfig] = useLocalStorage<IThemeConfig>(storages.THEME, { color: '#9254de' })
+  const [user, setUser] = useLocalStorage<Omit<UserState, 'themeConfig'>>(STORAGES.USER, {})
+  const [themeConfig, setThemeConfig] = useLocalStorage<IThemeConfig>(STORAGES.THEME, { color: '#9254de' })
   const logout = useLogout()
 
   const getUser = useCallback(async () => {
     try {
       const res = await request.app.auth.me.get()
-      setUser(res)
+      setUser(res as Omit<UserState, 'themeConfig'>)
       return res
     } catch (err) {
       const emptyUser: Omit<UserState, 'themeConfig'> = {
         id: '',
-        userName: '',
+        username: '',
       }
       setUser(emptyUser)
       return emptyUser

@@ -91,6 +91,10 @@ class WebRouter implements IRouter {
   back(): void {
     history.back()
   }
+
+  redirectToLogin(): void {
+    location.href = '/login'
+  }
 }
 
 /**

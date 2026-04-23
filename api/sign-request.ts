@@ -51,7 +51,6 @@ export async function signAppRequestHeaders(
   bodySerialized: string | undefined,
   crypto: ICrypto,
 ): Promise<Record<string, string>> {
-  console.log('import.meta.env', import.meta.env)
   const secret = import.meta.env.VITE_REQUEST_SIGN_SECRET as string | undefined
   if (!secret) {
     return {}

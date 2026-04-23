@@ -1,10 +1,6 @@
 import { createFactory } from 'hono/factory'
-import { clearAuthCookie } from 'server/utils/auth'
 
 const factory = createFactory()
 
-/** 登出 */
-export const POST = factory.createHandlers(c => {
-  clearAuthCookie(c)
-  return c.json({ success: true })
-})
+/** 登出（客户端清除本地 token；无状态 JWT 无需服务端使会话失效） */
+export const POST = factory.createHandlers(c => c.json({ success: true }))

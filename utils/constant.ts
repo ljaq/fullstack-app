@@ -1,6 +1,6 @@
 const PREFIX = 'APP_'
 
-export default {
+export const STORAGES = {
   USER: `${PREFIX}_USER`,
   TOKEN: `${PREFIX}_TOKEN`,
   XSRF: `${PREFIX}_XSRF`,

@@ -7,6 +7,7 @@ import {
   SIGNATURE_MAX_SKEW_MS,
   TIMESTAMP_HEADER,
 } from 'utils/request-signature'
+import { ForbiddenError } from 'server/errors/app-error'
 
 function sha256Hex(data: string): string {
   return createHash('sha256').update(data, 'utf8').digest('hex')
@@ -48,12 +49,12 @@ export const verifyRequestSignature = createMiddleware(async (c, next) => {
   const timestamp = c.req.header(TIMESTAMP_HEADER)
   const signature = c.req.header(SIGNATURE_HEADER)
   if (!timestamp || !signature) {
-    return c.json({ message: '缺少请求签名' }, 401)
+    throw new ForbiddenError('缺少请求签名')
   }
 
   const ts = Number(timestamp)
   if (!Number.isFinite(ts) || Math.abs(Date.now() - ts) > SIGNATURE_MAX_SKEW_MS) {
-    return c.json({ message: '请求签名已过期' }, 401)
+    throw new ForbiddenError('请求签名已过期')
   }
 
   const pathWithQuery = url.pathname + url.search
@@ -83,7 +84,7 @@ export const verifyRequestSignature = createMiddleware(async (c, next) => {
   }
 
   if (!ok) {
-    return c.json({ message: '无效请求签名' }, 401)
+    throw new ForbiddenError('无效请求签名')
   }
 
   await next()

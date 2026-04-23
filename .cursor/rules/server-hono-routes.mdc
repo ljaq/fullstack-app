@@ -34,7 +34,7 @@ export const POST = factory.createHandlers(
 ## 数据与鉴权
 
 - 数据库：`await getDataSource()`（`server/db.ts`），实体在 `server/entities/`。
-- 鉴权：`requireAuth`、`getCurrentUser`、`setAuthCookie` 等来自 `server/utils/auth.ts`。
+- 鉴权：`requireAuth`、`getCurrentUser`、`signAuthToken` 等来自 `server/utils/auth.ts`；客户端用 `Authorization: Bearer <JWT>`，不设 Cookie。
 
 ## 开发快照（可选）
 

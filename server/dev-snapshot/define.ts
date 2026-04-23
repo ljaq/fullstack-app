@@ -22,8 +22,8 @@ export type DevSnapshotConfig = SnapshotMethods & {
    */
   enabled: boolean
   /**
-   * 按用户名查库并签发 JWT Cookie（仅开发快照逻辑），再执行各方法快照。
-   * 若与某方法的 `headers.Cookie` 同时存在，后者优先。
+   * 按用户名查库并签发 JWT（仅开发快照逻辑），在请求中附加 `Authorization: Bearer …`。
+   * 若与某方法的 `headers.Authorization` 同时存在，后者优先（合并后后者覆盖）。
    */
   asUser?: DevSnapshotAsUser
 }

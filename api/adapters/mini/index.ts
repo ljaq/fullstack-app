@@ -258,6 +258,10 @@ class MiniRouter implements IRouter {
   back(): void {
     uni.navigateBack()
   }
+
+  redirectToLogin(): void {
+    uni.navigateTo({ url: '/pages/login/index' })
+  }
 }
 
 /**

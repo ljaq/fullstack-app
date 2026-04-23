@@ -12,6 +12,8 @@ export default defineConfig(({ mode }) => {
         types: resolve(__dirname, '../types'),
         utils: resolve(__dirname, '../utils'),
         server: resolve(__dirname, '../server'),
+        storages: resolve(__dirname, '../client/storages'),
+        hooks: resolve(__dirname, 'hooks'),
       },
     },
     define: {

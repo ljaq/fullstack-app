@@ -1,6 +1,8 @@
 import { Button, Form, Input, Space, theme } from 'antd'
+import { platformAdapter } from 'api/adapters'
 import { request } from 'api'
 import { formatTime } from 'client/utils/time'
+import { STORAGES } from 'utils/constant'
 import dayjs from 'dayjs'
 import { useEffect, useRef, useState } from 'react'
 import './style.less'
@@ -17,9 +19,10 @@ export default function Login() {
   const handleFinish = async (fields: any) => {
     setLoading(true)
     try {
-      await request.app.auth.login.post({
+      const res = (await request.app.auth.login.post({
         body: fields,
-      })
+      })) as { token: string }
+      platformAdapter.storage.setItem(STORAGES.TOKEN, res.token)
       location.href = '/cms'
       setLoading(false)
     } catch (err: any) {

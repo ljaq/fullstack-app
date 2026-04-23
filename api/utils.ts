@@ -2,14 +2,7 @@ import { platformAdapter } from 'api/adapters'
 import { downloadFile, querystring } from '../client/utils/common'
 import { signAppRequestHeaders } from './sign-request'
 import { RequestConfig } from './types'
-
-// 存储键常量（从 client/storages 复制，避免跨平台依赖）
-const STORAGES = {
-  USER: 'APP_USER',
-  TOKEN: 'APP_TOKEN',
-  XSRF: 'APP_XSRF',
-  THEME: 'APP_THEME',
-} as const
+import { STORAGES } from 'utils/constant'
 
 /**
  * URL处理工具类
@@ -70,7 +63,7 @@ export const RequestBuilder = {
     return RequestBuilder.isFormData(body) ? body : JSON.stringify(body)
   },
 
-  // 构建完整请求配置
+  // 鉴权用 `Authorization: Bearer` + 本地 storage；`include` 仅便于与 `/api` 等可能仍使用 Cookie 的路径并存
   config: (options: RequestConfig): RequestInit => ({
     method: options.method || (options.body ? 'POST' : 'GET'),
     body: RequestBuilder.processBody(options.body),
@@ -190,7 +183,7 @@ export const ResponseHandler = {
     401: (_errorMessage: string, options: RequestConfig['options']) => {
       const autoRedirect = options?.autoRedirect ?? true
       if (autoRedirect) {
-        platformAdapter.router.push('/login')
+        platformAdapter.router.redirectToLogin()
       }
     },
     404: (errorMessage: string) => platformAdapter.message.error(errorMessage || '404'),

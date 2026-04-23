@@ -1,11 +1,8 @@
 import type { Context } from 'hono'
-import { getCookie, setCookie, deleteCookie } from 'hono/cookie'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import type { BtnPermissionCode } from '../../types/permissions'
 import { UnauthorizedError, ForbiddenError } from '../errors/app-error'
-
-const AUTH_COOKIE_KEY = 'auth_token'
 
 const AUTH_SECRET = process.env.AUTH_SECRET || 'dev-secret'
 
@@ -18,28 +15,24 @@ export async function verifyPassword(password: string, hash: string) {
   return bcrypt.compare(password, hash)
 }
 
-/** 与 setAuthCookie 使用同一密钥与 payload，仅供开发态快照等场景，不校验密码 */
-export function signAuthTokenForDevSnapshot(userId: number) {
-  return jwt.sign({ userId }, AUTH_SECRET, { expiresIn: '7d' })
+/** 登录/注册/开发态快照等：签发 Access Token（不校验密码场景请用此函数） */
+export function signAuthToken(payload: { userId: number }) {
+  return jwt.sign(payload, AUTH_SECRET, { expiresIn: '7d' })
 }
 
-export function setAuthCookie(c: Context, payload: { userId: number }) {
-  const token = jwt.sign(payload, AUTH_SECRET, { expiresIn: '7d' })
-  setCookie(c, AUTH_COOKIE_KEY, token, {
-    httpOnly: true,
-    secure: process.env.VITE_ENVIRONMENT === 'production',
-    sameSite: 'Lax',
-    path: '/',
-  })
+/** 与 `signAuthToken` 同义，供开发态快照等引用 */
+export const signAuthTokenForDevSnapshot = (userId: number) => signAuthToken({ userId })
+
+function getBearerToken(c: Context): string | null {
+  const auth = c.req.header('Authorization') ?? c.req.header('authorization')
+  if (!auth?.startsWith('Bearer ')) return null
+  const token = auth.slice(7).trim()
+  return token || null
 }
 
-export function clearAuthCookie(c: Context) {
-  deleteCookie(c, AUTH_COOKIE_KEY, { path: '/' })
-}
-
-/** 从 token 中获取用户 ID（不含完整用户信息） */
+/** 从 Authorization: Bearer 中获取用户 ID（不含完整用户信息） */
 export async function getUserIdFromToken(c: Context): Promise<number | null> {
-  const token = getCookie(c, AUTH_COOKIE_KEY)
+  const token = getBearerToken(c)
   if (!token) return null
 
   try {
