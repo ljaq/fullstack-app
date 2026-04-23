@@ -22,8 +22,9 @@ export default defineConfig(({ mode }) => {
     // Web 适配器已通过 import 'api/adapters' + 别名与小程序隔离，不应再引入 antd。
   },
   define: {
-    /** 与仓库根目录 `.env.*` 对齐（主包逻辑）；预打包的 mini-adapter 在同名变量上由 esbuild 内联 */
+    /** 与仓库根目录 `.env.*` 对齐；子包 Vite 默认不读上级目录，须显式内联否则 `import.meta.env` 为空 */
     'import.meta.env.VITE_MINI_API_ORIGIN': JSON.stringify(rootEnv.VITE_MINI_API_ORIGIN ?? ''),
+    'import.meta.env.VITE_REQUEST_SIGN_SECRET': JSON.stringify(rootEnv.VITE_REQUEST_SIGN_SECRET ?? ''),
   },
   server: {
     port: 3607,

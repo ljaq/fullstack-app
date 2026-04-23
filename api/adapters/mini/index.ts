@@ -3,7 +3,7 @@
  *
  * 封装 uni-app 小程序的 API，实现平台适配器接口
  */
-
+import CryptoJS from 'crypto-js'
 import type {
   IStorage,
   IFetch,
@@ -12,6 +12,53 @@ import type {
   IRouter,
   IPlatformAdapter,
 } from '../platform.interface'
+
+function wordArrayToArrayBuffer(wa: CryptoJS.lib.WordArray): ArrayBuffer {
+  const { words, sigBytes } = wa
+  const u8 = new Uint8Array(sigBytes)
+  for (let i = 0; i < sigBytes; i++) {
+    u8[i] = (words[i >>> 2]! >>> (24 - (i % 4) * 8)) & 0xff
+  }
+  return u8.buffer
+}
+
+function toWordArray(data: Uint8Array | ArrayBuffer): CryptoJS.lib.WordArray {
+  const u8 = data instanceof ArrayBuffer ? new Uint8Array(data) : data
+  return CryptoJS.lib.WordArray.create(u8)
+}
+
+function normalizeHashName(hash: AlgorithmIdentifier | undefined): string {
+  if (hash === undefined) return ''
+  if (typeof hash === 'string') return hash
+  if (typeof hash === 'object' && hash !== null && 'name' in hash) {
+    return String((hash as { name: string }).name)
+  }
+  return ''
+}
+
+const HMAC_SECRET = Symbol('cryptoJsHmacSecret')
+
+/** 微信 `wx.request` 在 Content-Type 为 application/json 时期望 `data` 为对象；传 JSON 字符串会导致二次序列化，与服务端验签 body 不一致。 */
+function uniRequestData(body: BodyInit | null | undefined, headers: HeadersInit | undefined): unknown {
+  if (body === undefined || body === null || body === '') {
+    return undefined
+  }
+  let contentType = ''
+  if (headers && typeof headers === 'object' && !(headers instanceof Headers)) {
+    const h = headers as Record<string, string>
+    contentType = (h['Content-Type'] ?? h['content-type'] ?? '').toLowerCase()
+  } else if (headers instanceof Headers) {
+    contentType = (headers.get('Content-Type') ?? '').toLowerCase()
+  }
+  if (typeof body === 'string' && contentType.includes('application/json')) {
+    try {
+      return JSON.parse(body) as unknown
+    } catch {
+      return body
+    }
+  }
+  return body
+}
 
 function miniRequestUrl(path: string): string {
   if (/^https?:\/\//i.test(path)) return path
@@ -49,6 +96,52 @@ class MiniStorage implements IStorage {
 }
 
 /**
+ * 小程序加密适配器
+ * 使用 crypto-js
+ */
+export class MiniCrypto implements ICrypto {
+  subtle = {
+    async digest(algorithm: string, data: Uint8Array | ArrayBuffer): Promise<ArrayBuffer> {
+      if (algorithm !== 'SHA-256') {
+        throw new Error(`MiniCrypto: unsupported digest ${algorithm}`)
+      }
+      return wordArrayToArrayBuffer(CryptoJS.SHA256(toWordArray(data)))
+    },
+
+    async importKey(
+      _format: string,
+      keyData: Uint8Array | ArrayBuffer,
+      algorithm: { name: string; hash?: string },
+      extractable: boolean,
+      keyUsages: string[],
+    ): Promise<CryptoKey> {
+      if (algorithm.name !== 'HMAC' || normalizeHashName(algorithm.hash as AlgorithmIdentifier) !== 'SHA-256') {
+        throw new Error(`MiniCrypto: unsupported importKey ${algorithm.name}/${String(algorithm.hash)}`)
+      }
+      const raw = keyData instanceof ArrayBuffer ? new Uint8Array(keyData) : new Uint8Array(keyData)
+      return {
+        algorithm,
+        extractable,
+        type: 'secret',
+        usages: keyUsages,
+        [HMAC_SECRET]: raw,
+      } as CryptoKey & { [HMAC_SECRET]: Uint8Array }
+    },
+
+    async sign(_algorithm: { name: string }, key: CryptoKey, data: Uint8Array | ArrayBuffer): Promise<ArrayBuffer> {
+      if (_algorithm.name !== 'HMAC') {
+        throw new Error(`MiniCrypto: unsupported sign ${_algorithm.name}`)
+      }
+      const secret = (key as CryptoKey & { [HMAC_SECRET]?: Uint8Array })[HMAC_SECRET]
+      if (!secret) {
+        throw new Error('MiniCrypto: missing HMAC secret on key')
+      }
+      return wordArrayToArrayBuffer(CryptoJS.HmacSHA256(toWordArray(data), toWordArray(secret)))
+    },
+  }
+}
+
+/**
  * 小程序 HTTP 请求适配器
  * 使用 uni.request
  */
@@ -62,7 +155,7 @@ class MiniFetch implements IFetch {
       uni.request({
         url: miniRequestUrl(url),
         method: (init.method?.toUpperCase() as any) || 'GET',
-        data: init.body,
+        data: uniRequestData(init.body, init.headers),
         header: init.headers as Record<string, string>,
         success: (res: any) => {
           // 构造兼容 Web Response 接口的对象
@@ -142,82 +235,6 @@ class MiniMessage implements IMessage {
       icon: 'none',
       duration: 2000,
     })
-  }
-}
-
-/**
- * 小程序加密适配器
- *
- * 注意：小程序环境对加密 API 有所限制
- * 生产环境建议使用专门的加密插件，如 crypto-js 或 uni-app 加密模块
- */
-class MiniCrypto implements ICrypto {
-  subtle = {
-    /**
-     * 计算消息摘要
-     * 小程序环境使用简化实现（生产环境需使用加密库）
-     */
-    async digest(_algorithm: string, data: Uint8Array | ArrayBuffer): Promise<ArrayBuffer> {
-      // 将 ArrayBuffer/Uint8Array 转换为字符串
-      const decoder = new TextDecoder()
-      const dataStr = decoder.decode(data)
-
-      // 简化版本：使用字符串哈希模拟
-      // 生产环境应该使用 crypto-js 或其他加密库
-      const hash = await this.simpleHash(dataStr)
-      const encoder = new TextEncoder()
-      return encoder.encode(hash).buffer
-    },
-
-    /**
-     * 导入密钥（简化实现）
-     */
-    async importKey(
-      _format: string,
-      _keyData: Uint8Array | ArrayBuffer,
-      algorithm: { name: string; hash?: string },
-      extractable: boolean,
-      keyUsages: string[],
-    ): Promise<CryptoKey> {
-      // 简化实现，返回模拟的 CryptoKey 对象
-      // 生产环境应该使用真实的加密库
-      return {
-        algorithm,
-        extractable,
-        type: 'secret',
-        usages: keyUsages,
-      } as CryptoKey
-    },
-
-    /**
-     * 签名（简化实现）
-     */
-    async sign(_algorithm: { name: string }, key: CryptoKey, data: Uint8Array | ArrayBuffer): Promise<ArrayBuffer> {
-      // 简化实现，使用简单的哈希
-      const decoder = new TextDecoder()
-      const dataStr = decoder.decode(data)
-      const hash = await this.simpleHash(dataStr + JSON.stringify(key.algorithm))
-      const encoder = new TextEncoder()
-      return encoder.encode(hash).buffer
-    },
-
-    /**
-     * 简单的哈希函数（仅用于示例，生产环境请使用真实加密库）
-     */
-    async simpleHash(str: string): Promise<string> {
-      // 使用 crypto-js 的 SHA256 实现（生产环境）
-      // import SHA256 from 'crypto-js/sha256'
-      // return SHA256(str).toString()
-
-      // 临时简化实现（不安全，仅用于开发测试）
-      let hash = 0
-      for (let i = 0; i < str.length; i++) {
-        const char = str.charCodeAt(i)
-        hash = (hash << 5) - hash + char
-        hash = hash & hash // Convert to 32bit integer
-      }
-      return Math.abs(hash).toString(16).padStart(64, '0')
-    },
   }
 }
 
