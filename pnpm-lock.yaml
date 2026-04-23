@@ -279,6 +279,9 @@ importers:
       '@uni-helper/vite-plugin-uni-pages':
         specifier: ^0.3.24
         version: 0.3.24(vite@5.1.4(@types/node@22.10.10)(less@4.2.2)(lightningcss@1.32.0)(sass@1.77.0)(terser@5.46.1))
+      '@wot-ui/ui':
+        specifier: ^2.0.3
+        version: 2.0.3(vue@3.5.31(typescript@5.9.2))
       pinia:
         specifier: ^3.0.4
         version: 3.0.4(typescript@5.9.2)(vue@3.5.31(typescript@5.9.2))
@@ -3734,6 +3737,12 @@ packages:
 
   '@webgpu/types@0.1.61':
     resolution: {integrity: sha512-w2HbBvH+qO19SB5pJOJFKs533CdZqxl3fcGonqL321VHkW7W/iBo6H8bjDy6pr/+pbMwIu5dnuaAxH7NxBqUrQ==}
+
+  '@wot-ui/ui@2.0.3':
+    resolution: {integrity: sha512-2EJW3YR2KlS3ZXZmxeb9qXM5iCKimhmbRn8Bk1PM9TMGM29hfTdJv56+CNMjnWlz1IX+/A3KgR6rJdjR9ASG1w==}
+    engines: {HBuilderX: ^3.8.7}
+    peerDependencies:
+      vue: '>=3.2.47'
 
   '@xobotyi/scrollbar-width@1.9.5':
     resolution: {integrity: sha512-N8tkAACJx2ww8vFMneJmaAgmjAG1tnVBZJRLRcx061tmsLRZHSEZSLuGWnwPtunsSLvSqXQ2wfp7Mgqg1I+2dQ==}
@@ -13365,6 +13374,10 @@ snapshots:
   '@vue/shared@3.5.31': {}
 
   '@webgpu/types@0.1.61': {}
+
+  '@wot-ui/ui@2.0.3(vue@3.5.31(typescript@5.9.2))':
+    dependencies:
+      vue: 3.5.31(typescript@5.9.2)
 
   '@xobotyi/scrollbar-width@1.9.5': {}
 

@@ -3,7 +3,11 @@
     "target": "ES2020",
     "useDefineForClassFields": true,
     "module": "ESNext",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "skipLibCheck": true,
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -17,21 +21,66 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "api": ["../api"],
-      "api/*": ["../api/*"],
-      "api/app-type": ["../api/app-type.ts"],
-      "api/adapters": ["./src/adapters.ts"],
-      "types": ["../types"],
-      "types/*": ["../types/*"],
-      "utils": ["../utils"],
-      "utils/*": ["../utils/*"],
-      "server": ["../server"],
-      "server/*": ["../server/*"],
-      "client/*": ["../client/*"],
-      "app": ["../app.ts"],
-      "@/*": ["src/*"]
+      "api": [
+        "../api"
+      ],
+      "api/*": [
+        "../api/*"
+      ],
+      "api/app-type": [
+        "../api/app-type.ts"
+      ],
+      "api/adapters": [
+        "./src/adapters.ts"
+      ],
+      "types": [
+        "../types"
+      ],
+      "types/*": [
+        "../types/*"
+      ],
+      "utils": [
+        "../utils"
+      ],
+      "utils/*": [
+        "../utils/*"
+      ],
+      "server": [
+        "../server"
+      ],
+      "server/*": [
+        "../server/*"
+      ],
+      "client/*": [
+        "../client/*"
+      ],
+      "app": [
+        "../app.ts"
+      ],
+      "stores/*": [
+        "src/stores/*"
+      ],
+      "components/*": [
+        "src/components/*"
+      ],
+      "hooks/*": [
+        "src/hooks/*"
+      ],
+      "pages/*": [
+        "src/pages/*"
+      ],
+      "layouts/*": [
+        "src/layouts/*"
+      ]
     },
-    "types": ["@dcloudio/types", "vite/client"]
+    "types": [
+      "@dcloudio/types",
+      "vite/client",
+      "@uni-helper/vite-plugin-uni-pages"
+    ],
   },
-  "include": ["src/**/*", "vite.config.ts"]
+  "include": [
+    "src/**/*",
+    "vite.config.ts"
+  ]
 }

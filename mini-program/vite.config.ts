@@ -1,11 +1,14 @@
 import { defineConfig, loadEnv } from 'vite'
+import type { UserConfig } from 'vite'
 import uni from '@dcloudio/vite-plugin-uni'
+import uniLayouts from '@uni-helper/vite-plugin-uni-layouts'
+import uniPages from '@uni-helper/vite-plugin-uni-pages'
 import { resolve } from 'path'
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode }): UserConfig => {
   const rootEnv = loadEnv(mode, resolve(__dirname, '..'), 'VITE_')
   return {
-    plugins: [uni()],
+    plugins: [uniLayouts(), uniPages(), uni()] as UserConfig['plugins'],
     resolve: {
       alias: {
         api: resolve(__dirname, '../api'),
@@ -13,7 +16,9 @@ export default defineConfig(({ mode }) => {
         utils: resolve(__dirname, '../utils'),
         server: resolve(__dirname, '../server'),
         storages: resolve(__dirname, '../client/storages'),
-        hooks: resolve(__dirname, 'hooks'),
+        hooks: resolve(__dirname, 'src/hooks'),
+        stores: resolve(__dirname, 'src/stores'),
+        components: resolve(__dirname, 'src/components'),
       },
     },
     define: {
