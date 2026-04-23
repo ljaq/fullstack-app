@@ -15,9 +15,7 @@
     "start:prod": "cross-env mode=production node ./build/app.js",
     "commit": "git add . && git-cz",
     "generate": "node ./scripts/generate.mjs",
-    "dev:mini": "cd mini-program && pnpm dev:h5",
     "dev:mp-weixin": "cd mini-program && pnpm dev:mp-weixin",
-    "build:mini": "cd mini-program && pnpm build:h5",
     "build:mp-weixin": "cd mini-program && pnpm build:mp-weixin"
   },
   "prisma": {
