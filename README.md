@@ -41,10 +41,10 @@ pnpm generate               # 运行代码生成脚本
 1. **单一入口点**：根目录的 `app.ts` 作为 HTTP 入口，在开发过程中的单个进程内挂载 Hono 路由、多页 HTML 模板、静态资源和 `/api/*` 代理。
 
 2. **双 HTTP 命名空间**：
-   - `/jaq/*` — 来自 `server/routes/` 的自定义业务 API（自动扫描的文件路由）
+   - `/app/*` — 来自 `server/routes/` 的自定义业务 API（自动扫描的文件路由）
    - `/api/*` — 代理到 `VITE_THIRD_API` 用于第三方服务
 
-3. **端到端类型安全**：`app.ts` 导出 `AppType`，由 `api/index.ts` 使用以创建类型对齐的请求客户端。这意味着 `request.jaq.auth.login.post()` 精确对应后端路由 `/jaq/auth/login`。
+3. **端到端类型安全**：`app.ts` 导出 `AppType`，由 `api/index.ts` 使用以创建类型对齐的请求客户端。这意味着 `request.app.auth.login.post()` 精确对应后端路由 `/app/auth/login`。
 
 4. **基于文件的路由**：
    - 后端：`server/routes/**/*.ts` → 通过 `vite-plugin-server-route` 生成 HTTP 路由
@@ -55,7 +55,7 @@ pnpm generate               # 运行代码生成脚本
 ```
 ├── app.ts                          # HTTP 入口：路由、HTML、静态资源、代理
 ├── server/
-│   ├── routes/                     # 基于文件的后端路由（基础路径：/jaq）
+│   ├── routes/                     # 基于文件的后端路由（基础路径：/app）
 │   │   ├── **/xxx.schema.ts        # Zod 校验模式（排除在路由扫描之外）
 │   │   └── **/xxx.snapshot.ts      # 开发 API 快照（排除在路由扫描之外）
 │   │   └── **/xxx.ts               # 接口路由（控制器层）
@@ -244,13 +244,13 @@ export const searchSchema = { /* form-render 模式 */ }
 import { request } from 'api'
 
 // 带 body 的 POST 请求
-await request.jaq.auth.login.post({ body: { username, password } })
+await request.app.auth.login.post({ body: { username, password } })
 
 // 带 query 的 GET 请求
-await request.jaq.roles.index.get({ query: { page: 1, pageSize: 10 } })
+await request.app.roles.index.get({ query: { page: 1, pageSize: 10 } })
 
 // 动态参数
-await request.jaq.users.id({ id: '123' }).get()
+await request.app.users.id({ id: '123' }).get()
 ```
 
 **第三方 API**：使用 `authority` 命名空间（代理到 `/api/*`）：

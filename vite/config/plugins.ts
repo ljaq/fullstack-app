@@ -15,12 +15,12 @@ export function getPlugins(mode: string, env: Record<string, string>, pages: str
   const base: PluginOption[] = [
     serverRoute({
       dir: 'server/routes',
-      baseRoute: '/jaq',
+      baseRoute: '/app',
       exclude: ['**/*.snapshot.ts', '**/*.service.ts', '**/*.schema.ts'],
     }),
     apiDevSnapshot({
       dir: 'server/routes',
-      baseRoute: '/jaq',
+      baseRoute: '/app',
       port,
       exclude: ['**/*.snapshot.ts', '**/*.service.ts', '**/*.schema.ts'],
       enabled: apiSnapshotPluginEnabled,

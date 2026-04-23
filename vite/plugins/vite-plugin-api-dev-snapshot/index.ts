@@ -17,7 +17,7 @@ import {
 } from '../../../utils/request-signature'
 
 /** 与浏览器 `api/sign-request` 一致，供 dev snapshot 在启用 `VITE_REQUEST_SIGN_SECRET` 时调用 */
-function jaqRequestSignHeaders(url: string, method: string, bodyStr: string | undefined): Record<string, string> {
+function appRequestSignHeaders(url: string, method: string, bodyStr: string | undefined): Record<string, string> {
   const secret = process.env.VITE_REQUEST_SIGN_SECRET
   if (!secret) {
     return {}
@@ -40,7 +40,7 @@ const METHODS = new Set<SnapshotHttpMethod>(['GET', 'POST', 'PUT', 'PATCH', 'DEL
 interface ApiDevSnapshotOptions {
   /** 路由根目录，如 server/routes */
   dir: string
-  /** 与 vite-plugin-server-route 的 baseRoute 一致，如 /jaq */
+  /** 与 vite-plugin-server-route 的 baseRoute 一致，如 /app */
   baseRoute: string
   port: number
   /** 与 server-route 相同的 exclude */
@@ -219,7 +219,7 @@ async function runSnapshot(
       bodyStr = typeof snapshotCase.body === 'string' ? snapshotCase.body : JSON.stringify(snapshotCase.body)
     }
 
-    Object.assign(headers, jaqRequestSignHeaders(url, method, bodyStr))
+    Object.assign(headers, appRequestSignHeaders(url, method, bodyStr))
 
     let res: Response
     try {

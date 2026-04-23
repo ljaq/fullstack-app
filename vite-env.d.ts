@@ -7,7 +7,7 @@ interface ViteTypeOptions {}
 interface ImportMetaEnv {
   readonly VITE_PORT: string
   readonly VITE_SERVER_BASE_PATH: string
-  /** 前后端共用：为 `/jaq` 请求签名/验签；未设置则关闭验签 */
+  /** 前后端共用：为 `/app` 请求签名/验签；未设置则关闭验签 */
   readonly VITE_REQUEST_SIGN_SECRET?: string
 }
 

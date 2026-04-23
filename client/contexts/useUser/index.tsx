@@ -35,7 +35,7 @@ export default function UserProvider({ children }: { children: React.ReactNode }
 
   const getUser = useCallback(async () => {
     try {
-      const res = await request.jaq.auth.me.get()
+      const res = await request.app.auth.me.get()
       setUser(res)
       return res
     } catch (err) {

@@ -48,7 +48,7 @@ export default function Home() {
     },
   ]
 
-  request.jaq.auth.me.get()
+  request.app.auth.me.get()
 
   return (
     <CommonTable

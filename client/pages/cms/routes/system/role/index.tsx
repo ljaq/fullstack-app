@@ -83,7 +83,7 @@ export default function RolePage() {
   const defaultRoleName = searchParmas.get('name')
   const roleList = useQuery({
     queryKey: ['roleList'],
-    queryFn: () => request.jaq.roles.get({}),
+    queryFn: () => request.app.roles.get({}),
   })
   const pageTree = useMemo(() => buildPageTree(), [])
 
@@ -137,14 +137,14 @@ export default function RolePage() {
   }
 
   const handleCreateRole = async (values: any) => {
-    await request.jaq.roles.post({
+    await request.app.roles.post({
       body: values,
     })
     roleList.refetch()
   }
 
   const handleEditRole = async (id: string | number, values: any) => {
-    await request.jaq.roles[':id'].put({
+    await request.app.roles[':id'].put({
       params: { id: String(id) },
       body: values,
     })
@@ -153,7 +153,7 @@ export default function RolePage() {
 
   const handleSave = () => {
     setIsSaving(true)
-    request.jaq.roles[':id'].menus
+    request.app.roles[':id'].menus
       .put({
         params: { id: String(activeRole?.id) },
         body: { pageKeys: currentRoleKeys, buttons: currentButtonKeys as BtnPermissionCode[] },
@@ -230,7 +230,7 @@ export default function RolePage() {
                       EasyModal.show(CommonConfirmModal, {
                         tip: '确定$删除$该角色吗？',
                         onOk: async () => {
-                          await request.jaq.roles[':id'].delete({
+                          await request.app.roles[':id'].delete({
                             params: { id: String(item.id) },
                           })
                         },

@@ -45,7 +45,7 @@ async function hmacSha256Hex(secret: string, message: string, crypto: ICrypto): 
  *
  * **服务端**：会校验时间戳与服务器时间差不超过 `utils/request-signature` 中的 `SIGNATURE_MAX_SKEW_MS`（默认 30 分钟），防止重放。
  */
-export async function signJaqRequestHeaders(
+export async function signAppRequestHeaders(
   method: string,
   fullUrl: string,
   bodySerialized: string | undefined,

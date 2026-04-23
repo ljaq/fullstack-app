@@ -64,7 +64,7 @@ const handleLogin = async () => {
     loading.value = true
 
     // 调用登录 API（示例）
-    // const result = await request.jaq.auth.login.post({
+    // const result = await request.app.auth.login.post({
     //   body: {
     //     username: formData.username,
     //     password: formData.password,

@@ -50,7 +50,7 @@
     "devServer": {
       "port": 3607,
       "proxy": {
-        "/jaq": {
+        "/app": {
           "target": "http://localhost:3606",
           "changeOrigin": true
         },

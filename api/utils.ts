@@ -1,6 +1,6 @@
 import { platformAdapter } from 'api/adapters'
 import { downloadFile, querystring } from '../client/utils/common'
-import { signJaqRequestHeaders } from './sign-request'
+import { signAppRequestHeaders } from './sign-request'
 import { RequestConfig } from './types'
 
 // 存储键常量（从 client/storages 复制，避免跨平台依赖）
@@ -81,7 +81,7 @@ export const RequestBuilder = {
     },
   }),
 
-  /** 含 `/jaq` 请求签名（`VITE_REQUEST_SIGN_SECRET`） */
+  /** 含 `/app` 请求签名（`VITE_REQUEST_SIGN_SECRET`） */
   async buildRequestInit(options: RequestConfig, fullUrl: string): Promise<RequestInit> {
     const method = (options.method || (options.body ? 'POST' : 'GET')) as string
     const isMultipart = RequestBuilder.isFormData(options.body)
@@ -91,8 +91,8 @@ export const RequestBuilder = {
     }
 
     const signHeaders =
-      fullUrl.startsWith('/jaq') && !isMultipart
-        ? await signJaqRequestHeaders(method.toUpperCase(), fullUrl, bodySerialized, platformAdapter.crypto)
+      fullUrl.startsWith('/app') && !isMultipart
+        ? await signAppRequestHeaders(method.toUpperCase(), fullUrl, bodySerialized, platformAdapter.crypto)
         : {}
 
     return {

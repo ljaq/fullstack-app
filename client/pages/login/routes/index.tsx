@@ -17,7 +17,7 @@ export default function Login() {
   const handleFinish = async (fields: any) => {
     setLoading(true)
     try {
-      await request.jaq.auth.login.post({
+      await request.app.auth.login.post({
         body: fields,
       })
       location.href = '/cms'

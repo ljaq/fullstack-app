@@ -17,7 +17,7 @@ function hmacSha256Hex(secret: string, message: string): string {
 }
 
 /**
- * 当环境变量 `VITE_REQUEST_SIGN_SECRET` 存在时，校验 `/jaq` 请求的 HMAC 签名（与客户端共用同一变量）。
+ * 当环境变量 `VITE_REQUEST_SIGN_SECRET` 存在时，校验 `/app` 请求的 HMAC 签名（与客户端共用同一变量）。
  * 未设置密钥时不校验（便于本地或渐进启用）。
  * multipart 等流式 body 跳过验签（当前业务 API 均为 JSON）。
  */
@@ -34,7 +34,7 @@ export const verifyRequestSignature = createMiddleware(async (c, next) => {
   }
 
   const url = new URL(c.req.url)
-  if (!url.pathname.startsWith('/jaq')) {
+  if (!url.pathname.startsWith('/app')) {
     await next()
     return
   }

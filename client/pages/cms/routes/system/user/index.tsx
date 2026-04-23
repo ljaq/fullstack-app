@@ -67,7 +67,7 @@ export default function UserPage() {
               EasyModal.show(CommonConfirmModal, {
                 tip: '确定$删除$该用户吗？',
                 onOk: async () => {
-                  await request.jaq.users[idPath].delete({
+                  await request.app.users[idPath].delete({
                     params: { id: String(record.id) },
                   })
                 },
@@ -87,7 +87,7 @@ export default function UserPage() {
       message.warning('请填写密码')
       throw new Error('请填写密码')
     }
-    await request.jaq.users.post({
+    await request.app.users.post({
       body: { username, password, roles: roleCodes ?? [] },
     })
     tableRef.current?.fetchData()
@@ -101,7 +101,7 @@ export default function UserPage() {
     if (values.password) {
       body.password = values.password
     }
-    await request.jaq.users[idPath].put({
+    await request.app.users[idPath].put({
       params: { id: String(_id) },
       body,
     })
@@ -114,7 +114,7 @@ export default function UserPage() {
         tableTitle='用户管理'
         ref={tableRef}
         search={{ schema: searchSchema }}
-        request={request.jaq.users}
+        request={request.app.users}
         columns={columns}
         extra={
           <Button type='primary' onClick={() => modelRef.current?.show(true)}>

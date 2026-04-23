@@ -9,7 +9,7 @@ alwaysApply: false
 ## 生成文件
 
 - `server/routes/_route.gen.ts` **由 `vite-plugin-server-route` 自动生成，禁止手改**。
-- 开发/构建时会扫描 `server/routes`，按文件路径映射为 URL（`basePath` 为 `/jaq`）。
+- 开发/构建时会扫描 `server/routes`，按文件路径映射为 URL（`basePath` 为 `/app`）。
 - 动态段使用文件名如 `[id].ts`、目录 `[id]/index.ts`。
 
 ## 处理器导出

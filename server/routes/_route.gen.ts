@@ -14,7 +14,7 @@ import * as users_id from 'server/routes/users/[id].ts'
 import * as users from 'server/routes/users/index.ts'
 
 const route = new Hono()
-  .basePath('/jaq')
+  .basePath('/app')
   .post('/auth/login', ...auth_login.POST)
   .post('/auth/logout', ...auth_logout.POST)
   .get('/auth/me', ...auth_me.GET)

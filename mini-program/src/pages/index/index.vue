@@ -32,7 +32,7 @@ const apiResult = ref('')
 // 测试平台适配器
 const testAdapter = () => {
   try {
-    void request.jaq.auth.me.get()
+    void request.app.auth.me.get()
   } catch (error: any) {
     apiResult.value = `适配器错误: ${error.message || error}\n\n${error.stack || ''}`
   }

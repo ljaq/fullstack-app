@@ -262,7 +262,7 @@ docker system prune -f
 ### 健康检查
 
 应用包含健康检查端点：
-- 健康检查: http://localhost:3606/jaq/hello
+- 健康检查: http://localhost:3606/app/hello
 
 ### 调试模式
 

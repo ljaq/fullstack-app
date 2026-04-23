@@ -9,19 +9,19 @@ alwaysApply: false
 ## 核心机制
 
 - `api/index.ts`：`createApiProxy<AppType, typeof api>(api)`，`AppType` 来自 `app.ts` 导出，使 **`request` 的路径与方法与 Hono 路由类型对齐**。
-- `api/api.ts`：用嵌套对象描述 **URL 字符串**（与后端 `/jaq` 树一致），例如 `auth: { login: '/jaq/auth/login', ... }`。
+- `api/api.ts`：用嵌套对象描述 **URL 字符串**（与后端 `/app` 树一致），例如 `auth: { login: '/app/auth/login', ... }`。
 
 ## 调用方式
 
 - 链式：**路径片段对应 `api/api.ts` 的键**，最后是 **HTTP 小写方法**（`.get` / `.post` / `.put` / `.delete`）。
 - 传参：`.post({ body: ... })`、`.get({ query: ... })`、动态段用 `.params({ id: '...' })`。
-- 可作为 Promise：`await request.jaq.auth.me.get()`；也可 `.get().then(...)`。
+- 可作为 Promise：`await request.app.auth.me.get()`；也可 `.get().then(...)`。
 
 ```ts
 import { request } from 'api'
 
-await request.jaq.auth.login.post({ body: { username, password } })
-await request.jaq.auth.me.get()
+await request.app.auth.login.post({ body: { username, password } })
+await request.app.auth.me.get()
 ```
 
 ## 与 `Fetch` 的区别
@@ -37,4 +37,4 @@ await request.jaq.auth.me.get()
 
 ## 第三方 API
 
-- `api/api.ts` 中 `authority` 等 **以 `/api/` 开头** 的路径走网关代理，与自建 `/jaq` 区分。
+- `api/api.ts` 中 `authority` 等 **以 `/api/` 开头** 的路径走网关代理，与自建 `/app` 区分。

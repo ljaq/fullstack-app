@@ -30,8 +30,8 @@ alwaysApply: true
 
 ## 第三方接口
 
-- `app.ts` 将 **`/api/*`** 代理到 `VITE_THIRD_API`（与本地 `/jaq` 业务接口分离）。
-- `api/api.ts` 中 `authority` 等路径走 `/api/...`；自建后端走 `/jaq/...`（与 `vite-plugin-server-route` 的 `baseRoute` 一致）。
+- `app.ts` 将 **`/api/*`** 代理到 `VITE_THIRD_API`（与本地 `/app` 业务接口分离）。
+- `api/api.ts` 中 `authority` 等路径走 `/api/...`；自建后端走 `/app/...`（与 `vite-plugin-server-route` 的 `baseRoute` 一致）。
 
 ## 构建脚本
 

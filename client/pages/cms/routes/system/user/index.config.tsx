@@ -40,7 +40,7 @@ export const createSchema: Schema = {
       widget: 'pageSelector',
       required: true,
       props: {
-        url: request.jaq.roles.url,
+        url: request.app.roles.url,
         placeholder: '请选择角色',
         labelKey: 'roleName',
         valueKey: 'role',
