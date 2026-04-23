@@ -13,6 +13,7 @@
     "build:server": "vite build --mode server",
     "start:test": "cross-env mode=development node ./build/app.js",
     "start:prod": "cross-env mode=production node ./build/app.js",
+    "start": "pnpm build && pnpm start:test",
     "commit": "git add . && git-cz",
     "generate": "node ./scripts/generate.mjs",
     "dev:mp-weixin": "cd mini-program && pnpm dev:mp-weixin",
