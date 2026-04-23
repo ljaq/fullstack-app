@@ -1,6 +1,7 @@
 import { buildCanonicalRequest, EMPTY_BODY_SHA256, SIGNATURE_HEADER, TIMESTAMP_HEADER } from 'utils/request-signature'
+import type { ICrypto } from './adapters/platform.interface'
 
-async function sha256HexUtf8(text: string): Promise<string> {
+async function sha256HexUtf8(text: string, crypto: ICrypto): Promise<string> {
   const enc = new TextEncoder()
   const buf = await crypto.subtle.digest('SHA-256', enc.encode(text))
   return Array.from(new Uint8Array(buf))
@@ -8,7 +9,7 @@ async function sha256HexUtf8(text: string): Promise<string> {
     .join('')
 }
 
-async function hmacSha256Hex(secret: string, message: string): Promise<string> {
+async function hmacSha256Hex(secret: string, message: string, crypto: ICrypto): Promise<string> {
   const enc = new TextEncoder()
   const key = await crypto.subtle.importKey(
     'raw',
@@ -17,7 +18,7 @@ async function hmacSha256Hex(secret: string, message: string): Promise<string> {
     false,
     ['sign'],
   )
-  const sig = await crypto.subtle.sign('HMAC', key, enc.encode(message))
+  const sig = await crypto.subtle.sign({ name: 'HMAC' }, key, enc.encode(message))
   return Array.from(new Uint8Array(sig))
     .map(b => b.toString(16).padStart(2, '0'))
     .join('')
@@ -48,6 +49,7 @@ export async function signJaqRequestHeaders(
   method: string,
   fullUrl: string,
   bodySerialized: string | undefined,
+  crypto: ICrypto,
 ): Promise<Record<string, string>> {
   const secret = import.meta.env.VITE_REQUEST_SIGN_SECRET as string | undefined
   if (!secret) {
@@ -65,8 +67,10 @@ export async function signJaqRequestHeaders(
 
   const ts = Date.now().toString()
   const bodySha =
-    bodySerialized === undefined || bodySerialized === '' ? EMPTY_BODY_SHA256 : await sha256HexUtf8(bodySerialized)
+    bodySerialized === undefined || bodySerialized === ''
+      ? EMPTY_BODY_SHA256
+      : await sha256HexUtf8(bodySerialized, crypto)
   const canonical = buildCanonicalRequest(method, pathWithQuery, ts, bodySha)
-  const sig = await hmacSha256Hex(secret, canonical)
+  const sig = await hmacSha256Hex(secret, canonical, crypto)
   return { [TIMESTAMP_HEADER]: ts, [SIGNATURE_HEADER]: sig }
 }

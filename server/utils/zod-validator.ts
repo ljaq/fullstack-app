@@ -1,6 +1,6 @@
 import { zValidator as zValidatorBase } from '@hono/zod-validator'
 import type { ValidationTargets } from 'hono/types'
-import type { ZodSchema } from 'zod'
+import type { ZodError, ZodSchema } from 'zod'
 import { ValidationError } from 'server/errors/app-error'
 
 /**
@@ -31,11 +31,13 @@ export function zValidator<T extends ZodSchema, Target extends keyof ValidationT
   target: Target,
   schema: T
 ) {
-  return zValidatorBase(target, schema, (result, c) => {
-    if (result.success) return
-
-    // 抛出 ValidationError，由全局错误处理中间件捕获
-    throwValidationError(result.error)
+  return zValidatorBase(target, schema, (result, _c) => {
+    if (result.success) {
+      return
+    }
+    // 与 `{ target }` 相交后 TS 无法收窄 success，经 unknown 断言失败分支
+    const { error } = result as unknown as { success: false; error: ZodError<T> }
+    throwValidationError(error)
   })
 }
 

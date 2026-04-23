@@ -1,8 +1,15 @@
-import { message } from 'antd'
-import storages from 'client/storages'
+import { platformAdapter } from 'api/adapters'
 import { downloadFile, querystring } from '../client/utils/common'
 import { signJaqRequestHeaders } from './sign-request'
 import { RequestConfig } from './types'
+
+// 存储键常量（从 client/storages 复制，避免跨平台依赖）
+const STORAGES = {
+  USER: 'APP_USER',
+  TOKEN: 'APP_TOKEN',
+  XSRF: 'APP_XSRF',
+  THEME: 'APP_THEME',
+} as const
 
 /**
  * URL处理工具类
@@ -36,12 +43,12 @@ export const UrlProcessor = {
 export const RequestBuilder = {
   // 获取认证头
   getAuthHeader: () => {
-    const token = localStorage.getItem(storages.TOKEN)
+    const token = platformAdapter.storage.getItem(STORAGES.TOKEN)
     return token ? `Bearer ${token.replace(/"/g, '')}` : ''
   },
 
   // 判断是否为FormData
-  isFormData: (body: any): body is FormData => body instanceof FormData,
+  isFormData: (body: any): body is FormData => body instanceof platformAdapter.fetch.FormData,
 
   // 构建请求头
   headers: (body?: any): HeadersInit => {
@@ -85,7 +92,7 @@ export const RequestBuilder = {
 
     const signHeaders =
       fullUrl.startsWith('/jaq') && !isMultipart
-        ? await signJaqRequestHeaders(method.toUpperCase(), fullUrl, bodySerialized)
+        ? await signJaqRequestHeaders(method.toUpperCase(), fullUrl, bodySerialized, platformAdapter.crypto)
         : {}
 
     return {
@@ -114,7 +121,7 @@ export const ResponseHandler = {
         .map(([key, value]) => [key.trim(), decodeURIComponent(value?.replace(/"/g, ''))]),
     ),
 
-  handleSuccess: async (response: Response, options: RequestConfig['options']): Promise<any> => {
+  handleSuccess: async (response: Response, _options: RequestConfig['options']): Promise<any> => {
     // 根据响应头自动判断是否为文件下载
     const contentDisposition = response.headers.get('Content-Disposition')
     const contentType = response.headers.get('Content-Type') || ''
@@ -183,11 +190,11 @@ export const ResponseHandler = {
     401: (_errorMessage: string, options: RequestConfig['options']) => {
       const autoRedirect = options?.autoRedirect ?? true
       if (autoRedirect) {
-        location.href = '/login'
+        platformAdapter.router.push('/login')
       }
     },
-    404: (errorMessage: string) => message.error(errorMessage || '404'),
-    default: (errorMessage: string) => message.error(errorMessage || '未知错误'),
+    404: (errorMessage: string) => platformAdapter.message.error(errorMessage || '404'),
+    default: (errorMessage: string) => platformAdapter.message.error(errorMessage || '未知错误'),
   },
 
   // 处理错误响应

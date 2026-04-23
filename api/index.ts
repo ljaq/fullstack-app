@@ -1,6 +1,6 @@
 import { createApiProxy, Fetch } from './fetch'
 import * as api from './api'
-import { AppType } from 'app'
+import type { AppType } from 'api/app-type'
 
 const request = createApiProxy<AppType, typeof api>(api)
 

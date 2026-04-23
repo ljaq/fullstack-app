@@ -82,10 +82,18 @@ if (isDev) {
   pages = readdirSync(path.join(import.meta.dirname, 'public'))
     .filter(item => item.endsWith('.html'))
     .map(item => item.replace(/\.html$/, ''))
+  pages.reduce(
+    (app, page) =>
+      app.get(`/${page}/*`, async c => {
+        const htmlPath = path.join(projectRoot, 'build/public', `${page}.html`)
+        return c.html(readFileSync(htmlPath, 'utf-8'))
+      }),
+    app,
+  )
 }
 
 app.get('/', c => c.redirect('/cms')).get('/*', c => c.redirect('/404'))
 
 export default app
 
-export type AppType = typeof routes
+export type { AppType } from './api/app-type'

@@ -18,6 +18,11 @@ pnpm build:server           # 构建服务端入口（输出到 build/app.js）
 pnpm start:test             # 在开发环境下运行生产构建
 pnpm start:prod             # 在生产环境下运行生产构建
 
+# 小程序（需要单独安装依赖）
+cd mini-program && pnpm install
+pnpm dev:mini               # 启动小程序 H5 开发
+pnpm dev:mp-weixin          # 启动微信小程序开发
+
 # 工具
 pnpm generate               # 运行代码生成脚本
 ```
@@ -278,3 +283,123 @@ await Fetch({ url: '/custom', method: 'POST', body: {...} })
 ## 路径别名
 
 TypeScript 配置 `baseUrl: "."`，包含别名：`api`、`client`、`server`、`utils`、`types`、`core`。
+
+## 小程序开发
+
+### 架构设计
+
+项目集成了基于 uni-app 的多端小程序支持，采用**平台适配器模式**实现代码复用：
+
+```
+mini-program/
+├── src/
+│   ├── pages/              # 页面
+│   ├── components/         # 公共组件
+│   ├── App.vue             # 根组件
+│   └── main.ts             # 入口文件
+├── manifest.json           # uni-app 应用配置
+├── pages.json              # 页面路由配置
+├── vite.config.ts          # Vite 配置
+└── package.json            # 依赖配置
+```
+
+### 平台适配器
+
+**API 层平台适配**（`/api/adapters/`）：
+- **Web 适配器**：使用浏览器 API（localStorage、fetch、antd message）
+- **小程序适配器**：使用 uni-app API（uni.getStorageSync、uni.request、uni.showToast）
+- **条件编译**：通过 `#ifdef H5` / `#ifdef MP-WEIXIN` 自动选择适配器
+
+**适配器接口**：
+```ts
+import { platformAdapter } from 'api/adapters'
+
+// 存储操作（自动适配平台）
+platformAdapter.storage.getItem('token')
+platformAdapter.storage.setItem('user', JSON.stringify(data))
+
+// 消息提示（自动适配平台）
+platformAdapter.message.error('操作失败')
+platformAdapter.message.success('操作成功')
+
+// 路由跳转（自动适配平台）
+platformAdapter.router.push('/pages/detail/index')
+```
+
+### API 调用
+
+小程序中使用与 Web 端相同的 API 客户端，保持类型安全：
+
+```vue
+<script setup lang="ts">
+import { request } from 'api'
+
+// 完整类型提示
+const login = async () => {
+  const result = await request.jaq.auth.login.post({
+    body: { username, password }
+  })
+  // 处理结果...
+}
+</script>
+```
+
+### 条件编译
+
+使用 uni-app 的条件编译处理平台差异：
+
+```vue
+<template>
+  <!-- #ifdef H5 -->
+  <web-component />
+  <!-- #endif -->
+
+  <!-- #ifdef MP-WEIXIN -->
+  <mp-component />
+  <!-- #endif -->
+</template>
+
+<script>
+// #ifdef H5
+import WebComponent from './web-component.vue'
+// #endif
+
+// #ifdef MP-WEIXIN
+import MpComponent from './mp-component.vue'
+// #endif
+</script>
+```
+
+### 开发流程
+
+1. **安装依赖**（首次运行）：
+```bash
+cd mini-program
+pnpm install
+```
+
+2. **启动开发服务器**：
+```bash
+# H5 端开发
+pnpm dev:mini
+
+# 微信小程序开发
+pnpm dev:mp-weixin
+```
+
+3. **构建生产版本**：
+```bash
+# H5 端构建
+pnpm build:mini
+
+# 微信小程序构建
+pnpm build:mp-weixin
+```
+
+### 注意事项
+
+1. **依赖管理**：mini-program 有独立的 `package.json`，需要单独安装依赖
+2. **类型共享**：通过路径别名引用根目录的 `api`、`types`、`utils`
+3. **代理配置**：开发环境自动代理 `/jaq` 和 `/api` 请求到后端服务（端口 3606）
+4. **加密限制**：小程序环境的加密 API 有所限制，生产环境建议使用专门的加密库
+

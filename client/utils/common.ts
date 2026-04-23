@@ -1,4 +1,8 @@
-import { RcFile } from 'antd/lib/upload'
+// import { RcFile } from 'antd/lib/upload'
+// 小程序环境不支持 antd，使用简单的类型定义
+export interface RcFile extends File {
+  uid?: string
+}
 import dayjs from 'dayjs'
 
 export const sleep = (time: number) => {

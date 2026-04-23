@@ -1,9 +1,10 @@
 import { Client, MergeClientWithApi, Methods, RequestConfig, THIRD_API, UnionToIntersection } from './types'
 import { RequestBuilder, ResponseHandler, UrlProcessor } from './utils'
+import { platformAdapter } from 'api/adapters'
 
 export const Fetch = async <F = any, T = any>(config: RequestConfig<F>): Promise<T> => {
   const url = UrlProcessor.build(config)
-  const response = await fetch(url, await RequestBuilder.buildRequestInit(config, url))
+  const response = await platformAdapter.fetch.fetch(url, await RequestBuilder.buildRequestInit(config, url))
 
   // 响应处理管道
   return response.ok

@@ -66,7 +66,7 @@ export function getPlugins(mode: string, env: Record<string, string>, pages: str
       entry: './app.ts',
       output: 'app.js',
       outputDir: './build',
-      minify: true,
+      minify: false,
       port,
       external: ['art-template'],
     })
