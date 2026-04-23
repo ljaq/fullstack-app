@@ -81,7 +81,7 @@ class WebCrypto implements ICrypto {
  */
 class WebRouter implements IRouter {
   push(url: string): void {
-    location.href = url
+    // location.href = url
   }
 
   replace(url: string): void {

@@ -27,7 +27,7 @@ async function hmacSha256Hex(secret: string, message: string, crypto: ICrypto): 
 /**
  * ## 签名规则
  *
- * **密钥**：环境变量 `VITE_REQUEST_SIGN_SECRET`（与 Node 侧 `process.env.VITE_REQUEST_SIGN_SECRET` 相同）；未配置时不加签名。
+ * **密钥**：`VITE_REQUEST_SIGN_SECRET`，在 `vite build` 时经 `import.meta.env` 注入到前端包（`.env.production` 或构建环境的 `VITE_*`）；与 Node 验签时 `process.env.VITE_REQUEST_SIGN_SECRET` 保持一致即可。未配置时不加签名。
  *
  * **新增请求头**
  * - `X-Request-Timestamp`：毫秒时间戳字符串（`Date.now().toString()`）
@@ -51,6 +51,7 @@ export async function signAppRequestHeaders(
   bodySerialized: string | undefined,
   crypto: ICrypto,
 ): Promise<Record<string, string>> {
+  console.log('import.meta.env', import.meta.env)
   const secret = import.meta.env.VITE_REQUEST_SIGN_SECRET as string | undefined
   if (!secret) {
     return {}

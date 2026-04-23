@@ -39,6 +39,12 @@ export default defineConfig(({ command, mode }) => {
         keepProcessEnv: true,
       },
     },
+    define: {
+      ...Object.keys(env).reduce((acc, key) => {
+        acc[`import.meta.env.${key}`] = JSON.stringify(env[key])
+        return acc
+      }, {}),
+    },
     plugins: [...getPlugins(mode, env, pages), ssrTargetNodePlugin()],
   }
 })

@@ -4,7 +4,6 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "db:init": "tsx scripts/init-turso-db.ts",
     "seed": "tsx scripts/seed.ts",
     "dev": "vite --mode development --host",
     "dev:production": "vite --mode production --host",
