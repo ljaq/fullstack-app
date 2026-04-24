@@ -241,11 +241,3 @@ export const GET = factory.createHandlers(async c => {
 3. **数据验证** - 使用 Zod schema 在路由层验证输入
 4. **事务处理** - 如需事务，在 Service 层处理
 
-## 🔄 迁移指南
-
-现有的 `*.service.ts` 文件仍然可以使用，但建议逐步迁移到新的架构：
-
-1. 将静态方法转换为类方法
-2. 将 `return { success: boolean, ... }` 改为抛出错误
-3. 移除文件到 `server/services/` 目录
-4. 更新路由以使用新的服务层

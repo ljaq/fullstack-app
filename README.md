@@ -23,14 +23,13 @@ pnpm build:server           # 构建服务端入口（输出到 build/app.js）
 pnpm start:test             # 在开发环境下运行生产构建
 pnpm start:prod             # 在生产环境下运行生产构建
 
+# 小程序
+pnpm dev:mp-weixin              # 微信：在仓库根目录执行
+pnpm build:mp-weixin            # 微信构建
+
 # 工具
 pnpm generate               # 运行代码生成脚本
 ```
-
-## 📚 文档
-
-- [CLAUDE.md](CLAUDE.md) - Claude Code 工作指导
-- [server/ARCHITECTURE.md](server/ARCHITECTURE.md) - 服务端架构详细说明
 
 ## 架构概览
 
@@ -44,7 +43,7 @@ pnpm generate               # 运行代码生成脚本
    - `/app/*` — 来自 `server/routes/` 的自定义业务 API（自动扫描的文件路由）
    - `/api/*` — 代理到 `VITE_THIRD_API` 用于第三方服务
 
-3. **端到端类型安全**：`app.ts` 导出 `AppType`，由 `api/index.ts` 使用以创建类型对齐的请求客户端。这意味着 `request.app.auth.login.post()` 精确对应后端路由 `/app/auth/login`。
+3. **端到端类型安全**：`api/app-type.ts` 从 `server/routes/_route.gen` 导出 `AppType`（避免 `import type` 时拉入整份 `app.ts`），`api/index.ts` 用其创建与 Hono 路由一致的请求客户端。例如 `request.app.auth.login.post()` 对应 `/app/auth/login`。
 
 4. **基于文件的路由**：
    - 后端：`server/routes/**/*.ts` → 通过 `vite-plugin-server-route` 生成 HTTP 路由
@@ -52,13 +51,15 @@ pnpm generate               # 运行代码生成脚本
 
 ### 目录结构
 
+约定以 [**server/ARCHITECTURE.md**](server/ARCHITECTURE.md) 为准：业务在 `server/services/`、`server/repositories/`，`server/routes/**` 只做 HTTP、Zod 与 `getService()` 调用，**不在路由目录下新增业务 `*.service.ts`**。
+
 ```
 ├── app.ts                          # HTTP 入口：路由、HTML、静态资源、代理
 ├── server/
 │   ├── routes/                     # 基于文件的后端路由（基础路径：/app）
-│   │   ├── **/xxx.schema.ts        # Zod 校验模式（排除在路由扫描之外）
-│   │   └── **/xxx.snapshot.ts      # 开发 API 快照（排除在路由扫描之外）
-│   │   └── **/xxx.ts               # 接口路由（控制器层）
+│   │   **/xxx.schema.ts            # Zod（排除路由扫描）
+│   │   **/xxx.snapshot.ts         # 开发 API 快照（排除）
+│   │   **/xxx.ts                  # 控制器：鉴权、校验、getService、响应
 │   ├── services/                   # 业务逻辑层（Service）
 │   │   ├── auth.service.ts         # 认证服务
 │   │   ├── user.service.ts         # 用户服务
@@ -93,10 +94,10 @@ pnpm generate               # 运行代码生成脚本
 
 ### 服务端架构特点
 
-**三层架构模式：**
-- **Controller（路由层）**：处理 HTTP 请求/响应，参数校验，调用 Service
-- **Service（服务层）**：处理业务逻辑，事务管理，调用 Repository
-- **Repository（数据层）**：封装数据访问，与数据库交互
+**三层架构模式（细则见 [server/ARCHITECTURE.md](server/ARCHITECTURE.md)）：**
+- **Controller（路由层）**：`server/routes/**` 处理 HTTP、Zod、调用 `getService()`，**不**在路由目录中实现业务 Service
+- **Service（服务层）**：`server/services/` 业务逻辑、事务、调用 Repository
+- **Repository（数据层）**：`server/repositories/` 与数据库交互
 
 **依赖注入容器：**
 - 轻量级 DI 容器管理服务生命周期
@@ -193,7 +194,7 @@ throw new UnauthorizedError('登录已过期')
 
 ### 文件路由约定
 
-路由通过 `vite-plugin-server-route` 从 `server/routes/**/*.ts` **自动生成**。
+路由通过 `vite-plugin-server-route` 从 `server/routes/**/*.ts` **自动生成**；`**/*.schema.ts`、`**/*.snapshot.ts` 等被排除。请**不要**手动编辑 `server/routes/_route.gen.ts`。
 
 **路由处理器模式：**
 ```ts
@@ -215,7 +216,7 @@ export const POST = factory.createHandlers(
 - `requireAuth` — 受保护路由中间件
 - `requirePermission(code)` — 权限校验中间件
 - `getCurrentUser(c)` — 获取已认证用户
-- `setAuthCookie(c, { userId })` — 设置认证 Cookie
+- `signAuthToken` — 签发 JWT；客户端以 `Authorization: Bearer <token>` 传递
 
 ## 前端开发
 
@@ -273,4 +274,12 @@ await Fetch({ url: '/custom', method: 'POST', body: {...} })
 
 ## 路径别名
 
-TypeScript 配置 `baseUrl: "."`，包含别名：`api`、`client`、`server`、`utils`、`types`、`core`。
+主工程 Vite 使用 `tsconfigPaths`（见 `vite/config/shared.ts`），与 `tsconfig.app.json` / `tsconfig.node.json` 的 `baseUrl`、`paths` 一致；`mini-program` 子包在自有 `tsconfig` 与 `mini-program/vite.config.ts` 的 `alias` 中映射根目录的 `api`、`server`、`types` 等。
+
+## 小程序（mini-program）
+
+基于 uni-app 的独立子包（Vite 5，与根目录 Vite 8 分离）：
+
+- 根目录 `pages.config.ts`（`defineUniPages`）+ `src/pages.json`、 `src/manifest.json`
+- 开发 / 构建：子包内 `pnpm dev:h5` / `pnpm build:h5`，微信可用根目录 `pnpm dev:mp-weixin` / `pnpm build:mp-weixin`
+- 与 Web 共用的类型安全请求、适配器与条件编译等详见 [CLAUDE.md](CLAUDE.md) 中的「小程序开发」
