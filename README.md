@@ -31,6 +31,21 @@ pnpm build:mp-weixin            # 微信构建
 pnpm generate               # 运行代码生成脚本
 ```
 
+## 服务器部署
+
+构建产物后可直接用 Node 运行，或通过 PM2 管理进程：
+
+```bash
+# 构建并启动
+pnpm build
+pnpm start:prod             # 生产环境（.env.production）
+pnpm start:test             # 测试环境（.env.development）
+
+# PM2 一键部署（需已安装 pnpm 与 pm2）
+bash scripts/server-deploy.sh fullstack-app-prod start:prod
+bash scripts/server-deploy.sh fullstack-app-dev start:test
+```
+
 ## 架构概览
 
 这是一个使用 Vite 8 作为前后端统一工具链的**全栈一体化 monorepo**。
