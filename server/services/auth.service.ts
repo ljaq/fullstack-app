@@ -1,6 +1,8 @@
 import { hashPassword, verifyPassword } from 'server/utils/auth'
 import { UserRepository } from 'server/repositories/user.repository'
+import { RoleRepository } from 'server/repositories/role.repository'
 import { UnauthorizedError, BusinessError } from 'server/errors/app-error'
+import type { User } from 'server/entities/User'
 
 /**
  * 用户信息视图（不含敏感信息）
@@ -19,7 +21,26 @@ export interface UserView {
  * 处理用户登录、注册、认证相关逻辑
  */
 export class AuthService {
-  constructor(private userRepo: UserRepository) {}
+  constructor(
+    private userRepo: UserRepository,
+    private roleRepo: RoleRepository,
+  ) {}
+
+  private async getUserView(user: User): Promise<UserView> {
+    const roles: string[] = (user.roles ?? []).filter(Boolean)
+    const roleEntities = roles.length ? await this.roleRepo.findByRoles(roles) : []
+    const roleNames = roleEntities.map(r => r.roleName)
+    const pages = Array.from(new Set(roleEntities.flatMap(r => r.pages ?? [])))
+    const buttons = Array.from(new Set(roleEntities.flatMap(r => r.buttons ?? [])))
+    return {
+      id: user.id,
+      username: user.username,
+      roles,
+      roleNames,
+      pages,
+      buttons,
+    }
+  }
 
   /**
    * 用户登录
@@ -35,7 +56,6 @@ export class AuthService {
       throw new UnauthorizedError('用户名或密码错误')
     }
 
-    // 获取用户完整信息（包含角色权限）
     return this.getUserView(user)
   }
 
@@ -43,13 +63,11 @@ export class AuthService {
    * 用户注册
    */
   async register(username: string, password: string): Promise<UserView> {
-    // 检查用户名是否已存在
     const exists = await this.userRepo.existsByUsername(username)
     if (exists) {
       throw new BusinessError('用户名已存在', 'USERNAME_EXISTS')
     }
 
-    // 创建新用户
     const passwordHash = await hashPassword(password)
     const user = await this.userRepo.create({
       username,
@@ -69,23 +87,6 @@ export class AuthService {
       throw new UnauthorizedError('用户不存在')
     }
     return this.getUserView(user)
-  }
-
-  /**
-   * 构建用户视图（包含角色权限信息）
-   * 注意：这个方法需要访问 RoleRepository，暂时简化处理
-   * TODO: 通过依赖注入传入 RoleRepository
-   */
-  private async getUserView(user: any): Promise<UserView> {
-    // 暂时返回基础信息，后续注入 RoleRepository 后完善
-    return {
-      id: user.id,
-      username: user.username,
-      roles: user.roles || [],
-      roleNames: [],
-      pages: [],
-      buttons: [],
-    }
   }
 
   /**

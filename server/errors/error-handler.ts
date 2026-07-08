@@ -1,6 +1,22 @@
-import type { Context, Next } from 'hono'
+import type { Context } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
-import { AppError, ValidationError, InternalServerError } from './app-error'
+import { AppError, ValidationError } from './app-error'
+
+/**
+ * Rolldown 打 server bundle 时可能出现多份 `app-error` 模块，`ForbiddenError` 与入口里的 `AppError` 非同一引用，
+ * `instanceof AppError` 会失败并误走 500。用结构判断兜底。
+ */
+function isAppErrorShape(error: unknown): error is AppError {
+  if (error instanceof AppError) return true
+  if (error === null || typeof error !== 'object') return false
+  const e = error as { statusCode?: unknown; message?: unknown }
+  return (
+    typeof e.statusCode === 'number' &&
+    typeof e.message === 'string' &&
+    e.statusCode >= 400 &&
+    e.statusCode < 600
+  )
+}
 
 /**
  * 错误响应格式
@@ -9,91 +25,98 @@ interface ErrorResponse {
   message: string
   code?: string
   issues?: Array<{ path: string; message: string }>
+  details?: Record<string, unknown>
   stack?: string
 }
 
 /**
- * 全局错误处理中间件
+ * Hono `compose` 会在路由/中间件抛错时调用实例上的 `errorHandler`，错误不会继续抛给外层 `app.use` 的 try/catch，
+ * 因此必须在 `app.onError(...)` 里统一映射业务异常；否则一律走框架默认的纯文本 500。
+ *
+ * @see https://hono.dev/docs/api/hono#error-handling
  */
-export const errorHandler = async (c: Context, next: Next) => {
-  try {
-    await next()
-  } catch (error) {
-    console.error('Error caught by error handler:', error)
+export function appOnError(error: Error, c: Context): Response {
+  console.error('Error caught by error handler:', error)
 
-    // AppError 及其子类
-    if (error instanceof AppError) {
-      const response: ErrorResponse = {
-        message: error.message,
-        code: error.code,
-      }
+  if ('getResponse' in error && typeof (error as { getResponse?: () => Response }).getResponse === 'function') {
+    const res = (error as { getResponse: () => Response }).getResponse()
+    return c.newResponse(res.body, res)
+  }
 
-      // ValidationError 包含详细的字段错误信息
-      if (error instanceof ValidationError && error.issues) {
-        response.issues = error.issues
-      }
-
-      // 开发环境返回堆栈信息
-      if (process.env.NODE_ENV !== 'production' && error.stack) {
-        response.stack = error.stack
-      }
-
-      return c.json(response, error.statusCode as ContentfulStatusCode)
+  if (isAppErrorShape(error)) {
+    const response: ErrorResponse = {
+      message: error.message,
+      code: error.code,
     }
 
-    // Zod 验证错误
-    if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
-      const zodError = error as any
-      const issues = zodError.issues?.map((issue: any) => ({
-        path: issue.path.join('.'),
-        message: issue.message,
-      }))
-
-      return c.json(
-        {
-          message: 'Validation failed',
-          code: 'VALIDATION_ERROR',
-          issues,
-        } as ErrorResponse,
-        400,
-      )
+    const issues = (error as ValidationError).issues
+    if (Array.isArray(issues) && issues.length) {
+      response.issues = issues
     }
 
-    // JWT 错误
-    if (error && typeof error === 'object' && 'name' in error) {
-      if (error.name === 'JsonWebTokenError') {
-        return c.json(
-          {
-            message: 'Invalid token',
-            code: 'INVALID_TOKEN',
-          } as ErrorResponse,
-          401,
-        )
-      }
-      if (error.name === 'TokenExpiredError') {
-        return c.json(
-          {
-            message: 'Token expired',
-            code: 'TOKEN_EXPIRED',
-          } as ErrorResponse,
-          401,
-        )
-      }
+    const details = (error as { details?: Record<string, unknown> }).details
+    if (details && typeof details === 'object' && Object.keys(details).length > 0) {
+      response.details = details
     }
 
-    // 未知错误
-    const message =
-      process.env.NODE_ENV === 'production' ? 'Internal Server Error' : (error as Error).message || 'Unknown error'
+    if (process.env.NODE_ENV !== 'production' && error.stack) {
+      response.stack = error.stack
+    }
+
+    return c.json(response, error.statusCode as ContentfulStatusCode)
+  }
+
+  if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
+    const zodError = error as {
+      issues?: Array<{ path: (string | number)[]; message: string }>
+    }
+    const issues = zodError.issues?.map(issue => ({
+      path: issue.path.join('.'),
+      message: issue.message,
+    }))
 
     return c.json(
       {
-        message,
-        code: 'INTERNAL_SERVER_ERROR',
-        ...(process.env.NODE_ENV !== 'production' && { stack: (error as Error).stack }),
+        message: 'Validation failed',
+        code: 'VALIDATION_ERROR',
+        issues,
       } as ErrorResponse,
-      500,
+      400,
     )
   }
+
+  if (error && typeof error === 'object' && 'name' in error) {
+    if (error.name === 'JsonWebTokenError') {
+      return c.json(
+        {
+          message: 'Invalid token',
+          code: 'INVALID_TOKEN',
+        } as ErrorResponse,
+        401,
+      )
+    }
+    if (error.name === 'TokenExpiredError') {
+      return c.json(
+        {
+          message: 'Token expired',
+          code: 'TOKEN_EXPIRED',
+        } as ErrorResponse,
+        401,
+      )
+    }
+  }
+
+  const message =
+    process.env.NODE_ENV === 'production' ? 'Internal Server Error' : error.message || 'Unknown error'
+
+  return c.json(
+    {
+      message,
+      code: 'INTERNAL_SERVER_ERROR',
+      ...(process.env.NODE_ENV !== 'production' && error.stack ? { stack: error.stack } : {}),
+    } as ErrorResponse,
+    500,
+  )
 }
 
 /**

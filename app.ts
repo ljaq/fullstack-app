@@ -7,29 +7,33 @@ import { prettyJSON } from 'hono/pretty-json'
 import path from 'path'
 import qs from 'querystring'
 import { compileHtml } from './scripts/compileHtml.js'
+import { injectPublicRuntimeEnv } from 'utils/public-runtime-env'
 import { verifyRequestSignature } from 'server/middleware/verify-request-signature'
-import { errorHandler } from 'server/errors/error-handler'
+import { appOnError } from 'server/errors/error-handler'
 import { registerServices } from 'server/container/register-services'
 import route from 'server/routes/_route.gen'
 
 const isDev = import.meta.env.DEV
 const isServer = import.meta.env.MODE === 'server'
-dotenv.config({ path: `.env.${isServer ? process.env.mode : import.meta.env.MODE}` })
+const mode = isServer ? process.env.mode : import.meta.env.MODE
+dotenv.config({ path: `.env.${mode}` })
+dotenv.config({ path: '.env.local', override: true })
 
-const isHttps = process.env.VITE_SSL_KEY_FILE && process.env.VITE_SSL_CRT_FILE
+const CACHE_HTML = 'no-cache'
+const CACHE_STATIC = 'public, max-age=31536000, immutable'
 let pages: string[] = []
 const app = new Hono()
 
 // 注册服务容器
 registerServices()
 
-// 全局错误处理
-app.use('*', errorHandler)
+// 路由/中间件抛错由 Hono compose 接住并调用 app.onError；外层 app.use try/catch 拿不到这类异常
+app.onError(appOnError)
 
 app.use(prettyJSON())
 app.use(verifyRequestSignature)
 
-const routes = app.route('/', route)
+app.route('/', route)
 
 const proxyConf = {
   '/api/*': {
@@ -73,12 +77,21 @@ if (isDev) {
     (app, page) =>
       app.get(`/${page}/*`, async c => {
         const htmlPath = path.join(projectRoot, 'client/pages', page, 'index.html')
-        return c.html(compileHtml(readFileSync(htmlPath, 'utf-8'), { ...process.env }))
+        const compiled = compileHtml(readFileSync(htmlPath, 'utf-8'), { ...process.env })
+        return c.html(injectPublicRuntimeEnv(compiled, process.env))
       }),
     app,
   )
 } else {
-  app.get('/*', serveStatic({ root: 'build/public' }))
+  app.get(
+    '/*',
+    serveStatic({
+      root: 'build/public',
+      onFound: (filePath, c) => {
+        c.header('Cache-Control', filePath.endsWith('.html') ? CACHE_HTML : CACHE_STATIC)
+      },
+    }),
+  )
   pages = readdirSync(path.join(import.meta.dirname, 'public'))
     .filter(item => item.endsWith('.html'))
     .map(item => item.replace(/\.html$/, ''))
@@ -86,7 +99,8 @@ if (isDev) {
     (app, page) =>
       app.get(`/${page}/*`, async c => {
         const htmlPath = path.join(projectRoot, 'build/public', `${page}.html`)
-        return c.html(readFileSync(htmlPath, 'utf-8'))
+        c.header('Cache-Control', CACHE_HTML)
+        return c.html(injectPublicRuntimeEnv(readFileSync(htmlPath, 'utf-8'), process.env))
       }),
     app,
   )

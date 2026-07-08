@@ -5,3 +5,4 @@ import type { AppType } from 'api/app-type'
 const request = createApiProxy<AppType, typeof api>(api)
 
 export { Fetch, request }
+export { registerAuthRefresh, clearAuthRefresh } from './auth-refresh'

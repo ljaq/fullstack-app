@@ -68,7 +68,13 @@ export function getPlugins(mode: string, env: Record<string, string>, pages: str
       outputDir: './build',
       minify: false,
       port,
-      external: ['art-template'],
+      external: ['art-template', 'better-sqlite3'],
+      /** 在虚拟入口里于 `mainApp` 就绪后 `serve`；端口与 `injectPublicRuntimeEnv` 同源，从 `process.env` 解析（`resolveHttpListenPort`）。 */
+      entryContentAfterHooks: [
+        async appName => `import { serve } from '@hono/node-server'
+import { resolveHttpListenPort } from './utils/public-runtime-env'
+serve({ fetch: ${appName}.fetch, port: resolveHttpListenPort(process.env) })`,
+      ],
     })
   ]
 

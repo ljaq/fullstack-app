@@ -26,7 +26,7 @@ server/
 │   └── service-helpers.ts    # 服务访问辅助函数
 ├── errors/                # 错误处理
 │   ├── app-error.ts      # 自定义错误类
-│   └── error-handler.ts  # 错误处理中间件
+│   └── error-handler.ts  # app.onError 全局错误映射
 ├── repositories/          # 数据访问层
 │   ├── user.repository.ts
 │   └── role.repository.ts
@@ -56,7 +56,7 @@ const user = await service.user.getUserById(id)
 
 ### 2. 统一错误处理
 
-使用自定义错误类和全局错误处理中间件：
+使用自定义错误类，在 `app.ts` 通过 **`app.onError(appOnError)`** 映射 HTTP 响应（Hono 路由内抛错不会冒泡到外层 `app.use` try/catch）：
 
 ```typescript
 import { NotFoundError, BusinessError } from 'server/errors/app-error'
@@ -65,8 +65,22 @@ import { NotFoundError, BusinessError } from 'server/errors/app-error'
 throw new NotFoundError('用户')
 throw new BusinessError('用户名已存在', 'USERNAME_EXISTS')
 
-// 错误会自动被错误处理中间件捕获并转换为适当的 HTTP 响应
+// 错误由 appOnError 转换为 JSON { message, code, issues? }
 ```
+
+生产构建（Rolldown）可能出现多份 `app-error` 模块，`appOnError` 对 `AppError` 使用结构化兜底，避免误走 500。
+
+### 2.1 数据库
+
+- 驱动：**better-sqlite3**（`server/db.ts`），文件 `dev.db` / `prod.db`
+- `resolveSqliteDatabasePath()` 供 seed/脚本统一路径
+- 模板阶段 `synchronize: true`；生产环境建议迁移策略
+
+### 2.2 运行时环境变量（Web）
+
+- `utils/public-runtime-env.ts`：白名单 `VITE_*` 由 Node 注入 HTML（`window.__VITE_PUBLIC_ENV__`）
+- 客户端通过 `api/runtime-env.ts` 的 `getPublicEnv()` 读取，构建后仍可改签名密钥等
+- 生产监听端口：`resolveHttpListenPort(process.env)`（非构建固化）
 
 ### 3. Repository 层
 

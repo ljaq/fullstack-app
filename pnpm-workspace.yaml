@@ -2,7 +2,4 @@ packages:
   - 'mini-program'
 
 allowBuilds:
-  '@prisma/client': true
-  '@prisma/engines': true
-  prisma: true
-  sqlite3: true
+  better-sqlite3: true

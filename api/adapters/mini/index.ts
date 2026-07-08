@@ -71,26 +71,36 @@ function miniRequestUrl(path: string): string {
   return `${origin}${path.startsWith('/') ? path : `/${path}`}`
 }
 
+/** 模块级 read-through cache，多 MiniStorage 实例共享 */
+const syncStorageCache = new Map<string, string | null>()
+
 /**
  * 小程序存储适配器
  * 使用 uni.getStorageSync / uni.setStorageSync / uni.removeStorageSync
  */
 class MiniStorage implements IStorage {
   getItem(key: string): string | null {
+    if (syncStorageCache.has(key)) {
+      return syncStorageCache.get(key) ?? null
+    }
     try {
       const value = uni.getStorageSync(key)
-      // uni-app 返回空字符串表示不存在
-      return value !== '' ? value : null
+      const normalized = value !== '' ? String(value) : null
+      syncStorageCache.set(key, normalized)
+      return normalized
     } catch {
+      syncStorageCache.set(key, null)
       return null
     }
   }
 
   setItem(key: string, value: string): void {
+    syncStorageCache.set(key, value)
     uni.setStorageSync(key, value)
   }
 
   removeItem(key: string): void {
+    syncStorageCache.set(key, null)
     uni.removeStorageSync(key)
   }
 }

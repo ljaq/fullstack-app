@@ -15,7 +15,6 @@ export default defineConfig(({ mode }): UserConfig => {
         types: resolve(__dirname, '../types'),
         utils: resolve(__dirname, '../utils'),
         server: resolve(__dirname, '../server'),
-        storages: resolve(__dirname, '../client/storages'),
         hooks: resolve(__dirname, 'src/hooks'),
         stores: resolve(__dirname, 'src/stores'),
         components: resolve(__dirname, 'src/components'),

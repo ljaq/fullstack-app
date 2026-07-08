@@ -1,15 +1,34 @@
 import { Client, MergeClientWithApi, Methods, RequestConfig, THIRD_API, UnionToIntersection } from './types'
 import { RequestBuilder, ResponseHandler, UrlProcessor } from './utils'
 import { platformAdapter } from 'api/adapters'
+import { scheduleAuthRefresh, shouldSilent401Refresh } from './auth-refresh'
 
-export const Fetch = async <F = any, T = any>(config: RequestConfig<F>): Promise<T> => {
+/** 链式 `_id`、`_posterId` 等与路径模板里的 `:id`、`:posterId` 对齐。 */
+function normalizePathSegment(seg: string): string {
+  if (seg.startsWith('_') && seg.length > 1 && /^_[a-zA-Z][a-zA-Z0-9]*$/.test(seg)) {
+    return `:${seg.slice(1)}`
+  }
+  return seg
+}
+
+export const Fetch = async <F = any, T = any>(config: RequestConfig<F>, is401Retry = false): Promise<T> => {
   const url = UrlProcessor.build(config)
   const response = await platformAdapter.fetch.fetch(url, await RequestBuilder.buildRequestInit(config, url))
 
-  // 响应处理管道
-  return response.ok
-    ? ResponseHandler.handleSuccess(response, config.options)
-    : ResponseHandler.handleError(response, config.options)
+  if (response.ok) {
+    return ResponseHandler.handleSuccess(response, config.options) as Promise<T>
+  }
+
+  if (response.status === 401 && !is401Retry && shouldSilent401Refresh(url, config)) {
+    try {
+      await scheduleAuthRefresh()
+    } catch {
+      return ResponseHandler.handleError(response, config.options) as Promise<T>
+    }
+    return Fetch(config, true)
+  }
+
+  return ResponseHandler.handleError(response, config.options) as Promise<T>
 }
 
 export function createApiProxy<T, K = Record<string, never>>(
@@ -48,7 +67,7 @@ export function createApiProxy<T, K = Record<string, never>>(
         return (cb: any) => (promise as any)[prop](cb)
       }
 
-      const newPath = [...basePath, String(prop)]
+      const newPath = [...basePath, normalizePathSegment(String(prop))]
       return createApiProxy(baseApi, newPath, baseConfig)
     },
     apply(_, __, args) {

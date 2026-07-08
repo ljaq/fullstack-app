@@ -56,7 +56,7 @@ export const useUserStore = defineStore('user', () => {
       /* noop */
     }
     if (redirect) {
-      uni.reLaunch({ url: '/pages/index/index' })
+      uni.reLaunch({ url: '/pages/login/index' })
     }
   }
 

@@ -13,6 +13,7 @@ import type {
   IRouter,
   IPlatformAdapter,
 } from '../platform.interface'
+import { createInsecureContextSubtle } from './insecure-context-crypto'
 
 /**
  * Web 存储适配器
@@ -64,14 +65,19 @@ class WebMessage implements IMessage {
 }
 
 /**
- * Web 加密适配器
- * 使用浏览器的 Web Crypto API
+ * Web 加密适配器：优先 Web Crypto API；HTTP 等非安全上下文无 `subtle` 时回退 crypto-js。
  */
 class WebCrypto implements ICrypto {
-  subtle = {
-    digest: crypto.subtle.digest.bind(crypto.subtle),
-    importKey: crypto.subtle.importKey.bind(crypto.subtle),
-    sign: crypto.subtle.sign.bind(crypto.subtle),
+  readonly subtle: ICrypto['subtle']
+  constructor() {
+    const s = globalThis.crypto?.subtle
+    this.subtle = s
+      ? {
+          digest: s.digest.bind(s),
+          importKey: s.importKey.bind(s),
+          sign: s.sign.bind(s),
+        }
+      : createInsecureContextSubtle()
   }
 }
 

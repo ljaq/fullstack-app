@@ -1,14 +1,11 @@
-import { ConfigProvider, App as AntdApp } from 'antd'
-import zh_CN from 'antd/locale/zh_CN'
-import { useUser } from 'client/contexts/useUser'
-import EasyModal from 'client/utils/easyModal'
 import { lazy, useEffect, useMemo } from 'react'
 import { createBrowserRouter, RouteObject, RouterProvider } from 'react-router'
 import cmsRoutes from 'client/pages/cms/routes/_route.gen'
 import { useAuthorityRoutes } from 'client/hooks/useAuthorityRoutes'
+import { useUser } from 'client/contexts/useUser'
+import AntdProvider from 'client/components/AntdProvider'
+import EasyModal from 'client/utils/easyModal'
 import Layout from './components/Layout/index'
-import RoseCurveLoading from 'client/components/RoseCurveLoading'
-import { themeToken } from 'client/utils/theme'
 
 const NotFound = lazy(() => import('client/pages/404/routes/index'))
 
@@ -29,20 +26,18 @@ const routes = [
 function App() {
   const [_, { getUser }] = useUser()
   const authorityRoutes = useAuthorityRoutes(routes)
-
   const router = useMemo(() => createBrowserRouter(authorityRoutes), [authorityRoutes])
 
   useEffect(() => {
     getUser()
   }, [])
+
   return (
-    <ConfigProvider locale={zh_CN} theme={themeToken} spin={{ indicator: <RoseCurveLoading /> }}>
-      <AntdApp>
-        <EasyModal.Provider>
-          <RouterProvider router={router} />
-        </EasyModal.Provider>
-      </AntdApp>
-    </ConfigProvider>
+    <AntdProvider>
+      <EasyModal.Provider>
+        <RouterProvider router={router} />
+      </EasyModal.Provider>
+    </AntdProvider>
   )
 }
 

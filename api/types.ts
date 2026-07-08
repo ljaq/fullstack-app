@@ -12,6 +12,8 @@ export interface RequestConfig<T = any> {
   headers?: { [key: string]: string }
   options?: {
     autoRedirect?: boolean
+    /** 为 true 时跳过 401 静默刷新（仅当已注册 `registerAuthRefresh` 时有效） */
+    skipAuthRetry?: boolean
   }
 }
 

@@ -9,7 +9,7 @@
  * - plugins.ts    插件列表（按 mode 条件启用）
  */
 
-export { getEnv, getPageDirs, isHttps, rootDir } from './env'
+export { envKeysSafeForImportMetaDefine, getEnv, getPageDirs, isHttps, rootDir } from './env'
 export { getSharedResolve } from './shared'
 export { getServerConfig } from './server'
 export { getClientBuildConfig } from './build-client'

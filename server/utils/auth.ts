@@ -119,3 +119,14 @@ export function requirePermission(code: BtnPermissionCode) {
     await next()
   }
 }
+
+export async function requireAdmin(c: Context, next: () => Promise<void>) {
+  const user = c.get('user') as CurrentUser | undefined
+  if (!user) {
+    throw new UnauthorizedError('用户未登录')
+  }
+  if (!user.roles?.includes('admin')) {
+    throw new ForbiddenError('需要管理员权限')
+  }
+  await next()
+}

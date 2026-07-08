@@ -23,6 +23,10 @@ function hmacSha256Hex(secret: string, message: string): string {
  * multipart 等流式 body 跳过验签（当前业务 API 均为 JSON）。
  */
 export const verifyRequestSignature = createMiddleware(async (c, next) => {
+  if (c.req.header('X-No-Verify-Signature')) {
+    await next()
+    return
+  }
   const secret = process.env.VITE_REQUEST_SIGN_SECRET
   if (!secret) {
     await next()

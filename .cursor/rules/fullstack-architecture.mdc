@@ -8,7 +8,7 @@ alwaysApply: true
 ## 技术栈
 
 - **运行时**：Vite 8、`@hono/vite-dev-server` / `@hono/vite-build`，开发时入口为根目录 `app.ts`。
-- **后端**：Hono 4、TypeORM、SQLite（`dev.db` / `prod.db`），环境变量来自 `.env.${mode}`。（仓库中另有 `Prisma` 依赖与 `server/prismaClient.ts`，与当前主业务入口 `getDataSource()` 并存，以代码为准。）
+- **后端**：Hono 4、TypeORM、better-sqlite3（`dev.db` / `prod.db`），环境变量来自 `.env.${mode}` 与可选 `.env.local`。
 - **前端**：React 18、Ant Design、React Router 7、`@tanstack/react-query`。
 
 ## 目录约定

@@ -16,7 +16,8 @@ export function registerServices() {
   // 注册 Service 层（单例）
   container.registerSingleton(ServiceTokens.AuthService, () => {
     const userRepo = container.resolve<UserRepository>(ServiceTokens.UserRepository)
-    return new AuthService(userRepo)
+    const roleRepo = container.resolve<RoleRepository>(ServiceTokens.RoleRepository)
+    return new AuthService(userRepo, roleRepo)
   })
 
   container.registerSingleton(ServiceTokens.UserService, () => {
