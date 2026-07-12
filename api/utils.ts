@@ -14,8 +14,12 @@ export const UrlProcessor = {
       .reduce((acc, [key, value]) => acc.replace(new RegExp(`/:${key}`, 'g'), `/${value}`), url)
       .replace(/\/:[\w\W]+/g, ''),
   // 查询参数 ?id=1 -> 添加查询参数
-  addQuery: (url: string, query?: Record<string, any>) =>
-    query ? `${url}${url.includes('?') ? '&' : '?'}${querystring.stringify(query)}` : url,
+  addQuery: (url: string, query?: Record<string, any>) => {
+    if (!query) return url
+    const qs = querystring.stringify(query)
+    if (!qs) return url
+    return `${url}${url.includes('?') ? '&' : '?'}${qs}`
+  },
 
   // 组合所有URL处理步骤
   build: (options: RequestConfig) => {
@@ -116,8 +120,12 @@ export const ResponseHandler = {
 
   handleSuccess: async (response: Response, _options: RequestConfig['options']): Promise<any> => {
     // 根据响应头自动判断是否为文件下载
-    const contentDisposition = response.headers.get('Content-Disposition')
-    const contentType = response.headers.get('Content-Type') || ''
+    const contentDisposition = response.headers.get?.('Content-Disposition') || response.headers['Content-Disposition']
+    const contentType =
+      response.headers.get?.('Content-Type') ||
+      response.headers['Content-Type'] ||
+      response.headers['content-type'] ||
+      ''
 
     // 判断是否为文件下载：有 Content-Disposition 且为 attachment，或 Content-Type 为二进制类型
     const isFileDownload =

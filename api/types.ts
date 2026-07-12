@@ -94,6 +94,8 @@ type ConfigForMethod<S extends Record<string, Endpoint>, M extends string> = S[`
         query?: QueryOf<E>
         body?: E['input'] extends { json?: infer J } ? J : E['input'] extends { form?: infer F } ? F : never
         params?: E['input'] extends { param?: infer P } ? P : never
+        /** 与 `RequestConfig.options` 一致，传入 `Fetch`（如 401 时是否 `autoRedirect`） */
+        options?: RequestConfig['options']
       }
     : never
   : never
@@ -129,6 +131,7 @@ export interface ReqMethod<E extends Endpoint = Endpoint> extends Promise<Method
     query?: QueryOf<E>
     body?: BodyOf<E>
     params?: ParamsOf<E>
+    options?: RequestConfig['options']
   }): Promise<MethodOutput<E>>
 }
 
@@ -171,17 +174,19 @@ export type THIRD_API<T> = {
 }
 
 // --- PathToChain: path string -> nested object, leaf = RequestNode from Schema[path] ---
+/** 动态段 `:id` 等价于 `_id`（点在链上也可写、`createApiProxy` 会把 `_*` 规整成 `:*` 参与 URL）。 */
+type DynamicAliasesForSegment<P extends string, Leaf> = P extends `:${infer Name}`
+  ? { [K in P]: Leaf } & { [_K in `_${Name}`]: Leaf }
+  : { [K in P]: Leaf }
+
 type PathToChain<Path extends string, E extends Schema, Original extends string = Path> = Path extends `/${infer P}`
   ? PathToChain<P, E, Original>
   : Path extends `${infer P}/${infer R}`
-    ? {
-        [K in P]: PathToChain<R, E, Original>
-      }
-    : {
-        [K in Path extends '' ? 'index' : Path]: E[Original] extends Record<string, Endpoint>
-          ? RequestNodeWithMethods<E[Original]>
-          : API_REQ_FUNCTION
-      }
+    ? DynamicAliasesForSegment<P, PathToChain<R, E, Original>>
+    : DynamicAliasesForSegment<
+        Path extends '' ? 'index' : Path,
+        E[Original] extends Record<string, Endpoint> ? RequestNodeWithMethods<E[Original]> : API_REQ_FUNCTION
+      >
 
 export type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never
 

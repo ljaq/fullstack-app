@@ -7,11 +7,11 @@ import * as auth_login from 'server/routes/auth/login.ts'
 import * as auth_logout from 'server/routes/auth/logout.ts'
 import * as auth_me from 'server/routes/auth/me.ts'
 import * as auth_register from 'server/routes/auth/register.ts'
+import * as roles from 'server/routes/roles/index.ts'
+import * as users from 'server/routes/users/index.ts'
 import * as roles_id from 'server/routes/roles/[id]/index.ts'
 import * as roles_id_menus from 'server/routes/roles/[id]/menus.ts'
-import * as roles from 'server/routes/roles/index.ts'
 import * as users_id from 'server/routes/users/[id].ts'
-import * as users from 'server/routes/users/index.ts'
 
 const route = new Hono()
   .basePath('/app')
@@ -19,17 +19,17 @@ const route = new Hono()
   .post('/auth/logout', ...auth_logout.POST)
   .get('/auth/me', ...auth_me.GET)
   .post('/auth/register', ...auth_register.POST)
+  .get('/roles', ...roles.GET)
+  .post('/roles', ...roles.POST)
+  .get('/users', ...users.GET)
+  .post('/users', ...users.POST)
   .get('/roles/:id', ...roles_id.GET)
   .put('/roles/:id', ...roles_id.PUT)
   .delete('/roles/:id', ...roles_id.DELETE)
   .get('/roles/:id/menus', ...roles_id_menus.GET)
   .put('/roles/:id/menus', ...roles_id_menus.PUT)
-  .get('/roles', ...roles.GET)
-  .post('/roles', ...roles.POST)
   .get('/users/:id', ...users_id.GET)
   .put('/users/:id', ...users_id.PUT)
   .delete('/users/:id', ...users_id.DELETE)
-  .get('/users', ...users.GET)
-  .post('/users', ...users.POST)
 
 export default route

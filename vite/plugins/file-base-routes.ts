@@ -14,6 +14,9 @@ export interface IRouteItem {
   filePath?: string
   relativePath?: string
   children?: IRouteItem[]
+  /** 目录下 layout.tsx 生成的无 path 层（React Router layout route） */
+  isPathlessLayout?: boolean
+  layoutRef?: string
 }
 
 type ParsedSegment =
@@ -67,6 +70,41 @@ function isIgnored(relativePath: string, ignorePatterns: string[]): boolean {
 }
 
 /**
+ * 是否为目录下的 layout 根文件（layout.tsx / layout.jsx …），不作为 URL 片段
+ */
+function isLayoutRootFile(node: IRouteItem): boolean {
+  if (!node.relativePath) return false
+  const file = path.basename(node.relativePath)
+  if (!isPageFile(file)) return false
+  const stem = path.basename(file, path.extname(file))
+  return stem === 'layout'
+}
+
+/**
+ * 从同一目录的节点列表中拆出 layout 文件，剩余节点作为子路由
+ */
+function wrapWithPathlessLayoutIfNeeded(
+  routeName: string,
+  subChildren: IRouteItem[],
+): IRouteItem[] {
+  const layoutIdx = subChildren.findIndex(isLayoutRootFile)
+  if (layoutIdx < 0) return subChildren
+
+  const layoutNode = subChildren[layoutIdx]
+  const rest = subChildren.filter((_, i) => i !== layoutIdx)
+
+  const wrapper: IRouteItem = {
+    name: `${routeName}_pathless_layout`,
+    segment: '',
+    type: 'static',
+    isPathlessLayout: true,
+    layoutRef: layoutNode.name,
+    children: rest,
+  }
+  return [wrapper]
+}
+
+/**
  * 递归扫描 pages 目录
  * @param dirPath - 当前目录绝对路径
  * @param parentRoute - 父级路由
@@ -109,7 +147,8 @@ function scanPagesDir(
       }
 
       const subRoute = parentRoute ? `${parentRoute}/${segment}` : `/${segment}`
-      dirNode.children = scanPagesDir(fullPath, subRoute, relativePath, flatList, ignorePatterns)
+      const subChildren = scanPagesDir(fullPath, subRoute, relativePath, flatList, ignorePatterns)
+      dirNode.children = wrapWithPathlessLayoutIfNeeded(routeName, subChildren)
       children.push(dirNode)
     } else if (entry.isFile() && isPageFile(entry.name)) {
       // 检查是否被忽略模式排除

@@ -8,7 +8,7 @@ import clientRoute from '../plugins/vite-plugin-client-route'
 import skeletonTransform from '../plugins/vite-plugin-skeleton/index'
 import { isHttps } from './env'
 
-export function getPlugins(mode: string, env: Record<string, string>, pages: string[]): PluginOption[] {
+export function getPlugins(_mode: string, env: Record<string, string>, pages: string[]): PluginOption[] {
   const port = Number(env.VITE_PORT)
   const apiSnapshotPluginEnabled = env.VITE_API_DEV_SNAPSHOT !== '0' && env.VITE_API_DEV_SNAPSHOT !== 'false'
 
@@ -49,6 +49,7 @@ export function getPlugins(mode: string, env: Record<string, string>, pages: str
         /.*\.css$/,
         /.*\.less$/,
         /.*\.ts$/,
+        /.*\.js$/,
         /.*\.tsx$/,
         /.*\.png$/,
         /.*\.ttf$/,
@@ -75,7 +76,7 @@ export function getPlugins(mode: string, env: Record<string, string>, pages: str
 import { resolveHttpListenPort } from './utils/public-runtime-env'
 serve({ fetch: ${appName}.fetch, port: resolveHttpListenPort(process.env) })`,
       ],
-    })
+    }),
   ]
 
   return base.filter((v): v is PluginOption => Boolean(v))

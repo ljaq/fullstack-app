@@ -10,7 +10,8 @@ export function getServerBuildConfig(): BuildOptions {
   return {
     copyPublicDir: false,
     rollupOptions: {
-      external: ['dotenv'],
+      /** 含原生绑定或大型运行时依赖，不可打进单文件 bundle */
+      external: ['dotenv', 'better-sqlite3', 'canvas', 'cesium', 'three', 'draco3d'],
       output: {
         banner: esmDirnameShim,
       },

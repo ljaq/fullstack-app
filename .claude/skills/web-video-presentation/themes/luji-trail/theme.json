@@ -1,0 +1,28 @@
+{
+  "id": "luji-trail",
+  "name": "Luji Trail",
+  "nameZh": "路迹",
+  "description": "Warm paper + charcoal ink + forest-green accent — matches the 出门玩儿 / luji-app brand (#383a40, #2e7d32, #faf9f7). Inter + Noto Sans SC, soft grid, product-demo calm.",
+  "descriptionZh": "暖纸底 + 炭灰墨 + 森林绿强调 —— 与出门玩儿 / luji-app 品牌色一致（#383a40、#2e7d32、#faf9f7）。Inter + Noto Sans SC，淡网格，产品演示气质，适合视频号竖屏。",
+  "mood": [
+    "light",
+    "warm",
+    "product",
+    "travel",
+    "grounded",
+    "calm"
+  ],
+  "bestFor": [
+    "出门玩儿 / 路迹产品演示",
+    "出行 / 旅行 / 户外",
+    "微信视频号 / 小程序推广",
+    "品牌故事 / 功能讲解",
+    "9:16 竖屏口播"
+  ],
+  "preview": {
+    "shell": "#f0eeeb",
+    "surface": "#faf9f7",
+    "text": "#1a1c1e",
+    "accent": "#2e7d32"
+  }
+}

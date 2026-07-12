@@ -19,5 +19,14 @@ export function buildCanonicalRequest(
   timestamp: string,
   bodySha256Hex: string,
 ): string {
-  return [method.toUpperCase(), pathWithQuery, timestamp, bodySha256Hex].join('\n')
+  return [method.toUpperCase(), normalizePathWithQuery(pathWithQuery), timestamp, bodySha256Hex].join('\n')
+}
+
+/** 去掉无参数的尾随 `?`，避免客户端 URL 拼接与服务端 URL 解析不一致导致验签失败 */
+export function normalizePathWithQuery(pathWithQuery: string): string {
+  const q = pathWithQuery.indexOf('?')
+  if (q === -1) return pathWithQuery
+  const search = pathWithQuery.slice(q + 1)
+  if (search === '') return pathWithQuery.slice(0, q)
+  return pathWithQuery
 }

@@ -12,7 +12,17 @@ interface IServerRouteConfig {
   exclude?: string[]
 }
 
+function sortRoutesByStaticFirst(routes: IRouteItem[]) {
+  return [...routes].sort((a, b) => {
+    const sa = (a.route?.match(/:/g) ?? []).length
+    const sb = (b.route?.match(/:/g) ?? []).length
+    if (sa !== sb) return sa - sb
+    return (a.route ?? '').localeCompare(b.route ?? '')
+  })
+}
+
 async function writeRoutes(dir: string, baseRoute: string, routes: IRouteItem[]) {
+  routes = sortRoutesByStaticFirst(routes)
   routes.map(item => {
     let methods = []
     const code = fs.readFileSync(item.filePath).toString()

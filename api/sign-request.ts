@@ -1,25 +1,57 @@
-import { buildCanonicalRequest, EMPTY_BODY_SHA256, SIGNATURE_HEADER, TIMESTAMP_HEADER } from 'utils/request-signature'
 import { getPublicEnv } from 'api/runtime-env'
+import {
+  buildCanonicalRequest,
+  EMPTY_BODY_SHA256,
+  normalizePathWithQuery,
+  SIGNATURE_HEADER,
+  TIMESTAMP_HEADER,
+} from 'utils/request-signature'
 import type { ICrypto } from './adapters/platform.interface'
 
+/** 部分小程序/旧 WebView 无 `TextEncoder`，与 `TextEncoder#encode` 等价的 UTF-8 字节 */
+function utf8Bytes(str: string): Uint8Array {
+  if (typeof TextEncoder !== 'undefined') {
+    return new TextEncoder().encode(str)
+  }
+  const out: number[] = []
+  for (let i = 0; i < str.length; i++) {
+    let c = str.charCodeAt(i)
+    if (c < 0x80) {
+      out.push(c)
+    } else if (c < 0x800) {
+      out.push(0xc0 | (c >> 6), 0x80 | (c & 0x3f))
+    } else if (c < 0xd800 || c >= 0xe000) {
+      out.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 0x3f), 0x80 | (c & 0x3f))
+    } else {
+      i++
+      c = 0x10000 + (((c & 0x3ff) << 10) | (str.charCodeAt(i) & 0x3ff))
+      out.push(
+        0xf0 | (c >> 18),
+        0x80 | ((c >> 12) & 0x3f),
+        0x80 | ((c >> 6) & 0x3f),
+        0x80 | (c & 0x3f),
+      )
+    }
+  }
+  return new Uint8Array(out)
+}
+
 async function sha256HexUtf8(text: string, crypto: ICrypto): Promise<string> {
-  const enc = new TextEncoder()
-  const buf = await crypto.subtle.digest('SHA-256', enc.encode(text))
+  const buf = await crypto.subtle.digest('SHA-256', utf8Bytes(text))
   return Array.from(new Uint8Array(buf))
     .map(b => b.toString(16).padStart(2, '0'))
     .join('')
 }
 
 async function hmacSha256Hex(secret: string, message: string, crypto: ICrypto): Promise<string> {
-  const enc = new TextEncoder()
   const key = await crypto.subtle.importKey(
     'raw',
-    enc.encode(secret),
+    utf8Bytes(secret),
     { name: 'HMAC', hash: 'SHA-256' },
     false,
     ['sign'],
   )
-  const sig = await crypto.subtle.sign({ name: 'HMAC' }, key, enc.encode(message))
+  const sig = await crypto.subtle.sign({ name: 'HMAC' }, key, utf8Bytes(message))
   return Array.from(new Uint8Array(sig))
     .map(b => b.toString(16).padStart(2, '0'))
     .join('')
@@ -28,7 +60,7 @@ async function hmacSha256Hex(secret: string, message: string, crypto: ICrypto): 
 /**
  * ## 签名规则
  *
- * **密钥**：`VITE_REQUEST_SIGN_SECRET`，构建时经 `import.meta.env` 注入；生产环境也可由服务端 HTML 注入 `window.__VITE_PUBLIC_ENV__`（见 `utils/public-runtime-env.ts`）。与 Node 验签时 `process.env.VITE_REQUEST_SIGN_SECRET` 保持一致即可。未配置时不加签名。
+ * **密钥**：`VITE_REQUEST_SIGN_SECRET`，由 Node 在返回 HTML 时写入 `window.__VITE_PUBLIC_ENV__`（与 `process.env` 同源）；与验签中间件读取的 `process.env.VITE_REQUEST_SIGN_SECRET` 一致即可。未配置时不加签名。
  *
  * **新增请求头**
  * - `X-Request-Timestamp`：毫秒时间戳字符串（`Date.now().toString()`）
@@ -57,14 +89,16 @@ export async function signAppRequestHeaders(
     return {}
   }
 
-  const pathWithQuery = (() => {
-    try {
-      const u = new URL(fullUrl, typeof window !== 'undefined' ? window.location.origin : 'http://localhost')
-      return u.pathname + u.search
-    } catch {
-      return fullUrl.split('?')[0] + (fullUrl.includes('?') ? '?' + fullUrl.split('?').slice(1).join('?') : '')
-    }
-  })()
+  const pathWithQuery = normalizePathWithQuery(
+    (() => {
+      try {
+        const u = new URL(fullUrl, typeof window !== 'undefined' ? window.location.origin : 'http://localhost')
+        return u.pathname + u.search
+      } catch {
+        return fullUrl
+      }
+    })(),
+  )
 
   const ts = Date.now().toString()
   const bodySha =

@@ -44,11 +44,9 @@ function uniRequestData(body: BodyInit | null | undefined, headers: HeadersInit 
     return undefined
   }
   let contentType = ''
-  if (headers && typeof headers === 'object' && !(headers instanceof Headers)) {
+  if (headers && typeof headers === 'object') {
     const h = headers as Record<string, string>
     contentType = (h['Content-Type'] ?? h['content-type'] ?? '').toLowerCase()
-  } else if (headers instanceof Headers) {
-    contentType = (headers.get('Content-Type') ?? '').toLowerCase()
   }
   if (typeof body === 'string' && contentType.includes('application/json')) {
     try {
@@ -64,7 +62,7 @@ function miniRequestUrl(path: string): string {
   if (/^https?:\/\//i.test(path)) return path
   const raw = (import.meta as ImportMeta & { env: Record<string, string | undefined> }).env
     ?.VITE_MINI_API_ORIGIN
-  const origin = (typeof raw === 'string' && raw.length > 0 ? raw : 'http://127.0.0.1:3606').replace(
+  const origin = (typeof raw === 'string' && raw.length > 0 ? raw : 'http://192.168.0.12:3606').replace(
     /\/$/,
     '',
   )
@@ -85,6 +83,7 @@ class MiniStorage implements IStorage {
     }
     try {
       const value = uni.getStorageSync(key)
+      // uni-app 返回空字符串表示不存在
       const normalized = value !== '' ? String(value) : null
       syncStorageCache.set(key, normalized)
       return normalized
@@ -166,7 +165,7 @@ class MiniFetch implements IFetch {
         url: miniRequestUrl(url),
         method: (init.method?.toUpperCase() as any) || 'GET',
         data: uniRequestData(init.body, init.headers),
-        header: init.headers as Record<string, string>,
+        header: init.headers as Record<string, string> || {},
         success: (res: any) => {
           // 构造兼容 Web Response 接口的对象
           resolve({
@@ -186,6 +185,7 @@ class MiniFetch implements IFetch {
           } as unknown as Response)
         },
         fail: (err: any) => {
+          console.log('error', err)
           reject(err)
         },
       })
@@ -216,6 +216,7 @@ class MiniFetch implements IFetch {
  */
 class MiniMessage implements IMessage {
   error(message: string): void {
+    console.log('error', message)
     uni.showToast({
       title: message,
       icon: 'none',
@@ -270,7 +271,7 @@ class MiniRouter implements IRouter {
   }
 
   redirectToLogin(): void {
-    uni.navigateTo({ url: '/pages/login/index' })
+    // uni.navigateTo({ url: '/pages/login/index' })
   }
 }
 

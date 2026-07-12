@@ -1,0 +1,16 @@
+# Local knowledge base records are generated during operation and should stay local.
+knowledge-base/**
+!knowledge-base/
+!knowledge-base/README.md
+!knowledge-base/accounts/
+!knowledge-base/accounts/.gitkeep
+!knowledge-base/topics/
+!knowledge-base/topics/.gitkeep
+!knowledge-base/patterns/
+!knowledge-base/patterns/.gitkeep
+!knowledge-base/actions/
+!knowledge-base/actions/.gitkeep
+!knowledge-base/reviews/
+!knowledge-base/reviews/.gitkeep
+
+output

@@ -15,9 +15,19 @@ interface IServerRouteConfig {
 async function writeRoutes(dir: string, baseRoute: string, flatRoutes: IRouteItem[], treeRoutes: IRouteItem[]) {
   const handleExtractTree = (routes: IRouteItem[]) => {
     return routes.map(item => {
+      if (item.isPathlessLayout && item.layoutRef) {
+        const nested = item.children && item.children.length > 0 ? handleExtractTree(item.children) : []
+        /** name / children 在前，element 最后，避免 JSON replace 展开 element 后与后面的 name 之间出现双逗号 */
+        const res: Record<string, unknown> = {}
+        if (item.name) res.name = item.name
+        res.children = nested
+        res.element = `React.createElement(${item.layoutRef})`
+        return res
+      }
+
       const { segment, name, children, relativePath } = item
-      const res: any = {
-        name: name,
+      const res: Record<string, unknown> = {
+        name,
         path: segment,
         children: children && children.length > 0 ? handleExtractTree(children) : [],
       }

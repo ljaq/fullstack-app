@@ -274,8 +274,8 @@ await request.app.auth.login.post({ body: { username, password } })
 // 带 query 的 GET 请求
 await request.app.roles.index.get({ query: { page: 1, pageSize: 10 } })
 
-// 动态参数
-await request.app.users.id({ id: '123' }).get()
+// 动态参数（以 _ 前缀标识，如 ._id）
+await request.app.users._id.get({ params: { id: '123' } })
 ```
 
 **第三方 API**：使用 `authority` 命名空间（代理到 `/api/*`）：
