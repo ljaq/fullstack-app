@@ -10,7 +10,6 @@ import { compileHtml } from './scripts/compileHtml.js'
 import { injectPublicRuntimeEnv } from 'utils/public-runtime-env'
 import { verifyRequestSignature } from 'server/middleware/verify-request-signature'
 import { appOnError } from 'server/errors/error-handler'
-import { registerServices } from 'server/container/register-services'
 import route from 'server/routes/_route.gen'
 
 const isDev = import.meta.env.DEV
@@ -23,9 +22,6 @@ const CACHE_HTML = 'no-cache'
 const CACHE_STATIC = 'public, max-age=31536000, immutable'
 let pages: string[] = []
 const app = new Hono()
-
-// 注册服务容器
-registerServices()
 
 // 路由/中间件抛错由 Hono compose 接住并调用 app.onError；外层 app.use try/catch 拿不到这类异常
 app.onError(appOnError)

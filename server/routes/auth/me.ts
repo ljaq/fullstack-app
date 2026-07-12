@@ -1,6 +1,6 @@
 import { createFactory } from 'hono/factory'
 import { getUserIdFromToken } from 'server/utils/auth'
-import { getService } from 'server/container/service-helpers'
+import { authService } from 'server/services/auth.service'
 
 const factory = createFactory()
 
@@ -10,7 +10,6 @@ export const GET = factory.createHandlers(async c => {
   if (!userId) {
     return c.json({ message: 'Unauthorized' }, 401)
   }
-  const service = getService()
-  const user = await service.auth.getUserViewById(userId)
+  const user = await authService.getUserViewById(userId)
   return c.json(user)
 })

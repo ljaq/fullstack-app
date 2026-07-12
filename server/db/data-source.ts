@@ -3,8 +3,7 @@ import { createRequire } from 'node:module'
 import path from 'node:path'
 import type { DataSourceOptions } from 'typeorm'
 import { DataSource } from 'typeorm'
-import { UserEntity } from './entities/User'
-import { RoleEntity } from './entities/Role'
+import { entities } from './entities'
 
 const isProd = process.env.mode === 'production' || process.env.NODE_ENV === 'production'
 const database = isProd ? 'prod.db' : 'dev.db'
@@ -16,7 +15,7 @@ export function resolveSqliteDatabasePath(): string {
 
 /** 从项目根解析原生模块，避免 pnpm 嵌套下 TypeORM 内置 require 找不到 better-sqlite3 */
 function loadBetterSqlite3Driver() {
-  const rootPkg = path.resolve(import.meta.dirname, '..', 'package.json')
+  const rootPkg = path.resolve(import.meta.dirname, '..', '..', 'package.json')
   try {
     return createRequire(rootPkg)('better-sqlite3')
   } catch (err) {
@@ -40,7 +39,7 @@ export async function getDataSource() {
     type: 'better-sqlite3',
     database: dbPath,
     driver: loadBetterSqlite3Driver(),
-    entities: [UserEntity, RoleEntity],
+    entities,
     synchronize: true,
     logging: false,
   }

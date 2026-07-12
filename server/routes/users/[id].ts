@@ -2,7 +2,7 @@ import { zValidator } from 'server/utils/zod-validator'
 import { createFactory } from 'hono/factory'
 import { getCurrentUser, requireAuth, requirePermission } from 'server/utils/auth'
 import { BTN } from 'types/permissions'
-import { getService } from 'server/container/service-helpers'
+import { userService } from 'server/services/user.service'
 import { paramSchema, updateBody } from './[id].schema'
 
 const factory = createFactory()
@@ -13,9 +13,7 @@ export const GET = factory.createHandlers(
   zValidator('param', paramSchema),
   async c => {
     const { id } = c.req.valid('param')
-    const service = getService()
-
-    const user = await service.user.getUserById(id)
+    const user = await userService.getUserById(id)
     return c.json(user)
   }
 )
@@ -29,9 +27,7 @@ export const PUT = factory.createHandlers(
   async c => {
     const { id } = c.req.valid('param')
     const body = c.req.valid('json')
-    const service = getService()
-
-    const user = await service.user.updateUser(id, body)
+    const user = await userService.updateUser(id, body)
     return c.json(user)
   }
 )
@@ -43,9 +39,7 @@ export const DELETE = factory.createHandlers(
   async c => {
     const { id } = c.req.valid('param')
     const current = await getCurrentUser(c)
-    const service = getService()
-
-    await service.user.deleteUser(id, current?.id)
+    await userService.deleteUser(id, current?.id)
     return c.json({ message: '用户删除成功' }, 200)
   }
 )

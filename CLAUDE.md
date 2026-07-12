@@ -58,9 +58,9 @@ bash scripts/server-deploy.sh fullstack-app-dev start:test
    - 后端：`server/routes/**/*.ts` → 通过 `vite-plugin-server-route` 生成 HTTP 路由
    - 前端：`client/pages/<page>/routes/**/*.tsx` → 通过 `vite-plugin-client-route` 生成 React Router 路由
 
-### 服务端架构：三层模式 + 依赖注入
+### 服务端架构：Route → Service → TypeORM
 
-约定以 **`server/ARCHITECTURE.md`** 为准：**业务与数据访问**在 `server/services/`、`server/repositories/`；`server/routes/**` 仅处理 HTTP、Zod 与 `getService()` 调用，**不在路由目录下新增业务 `*.service.ts`**（构建仍会排除 `**/*.service.ts` 以防误扫成路由）。
+约定以 **`server/ARCHITECTURE.md`** 为准：**业务逻辑**在 `server/services/`（导出模块单例）；`server/routes/**` 仅处理 HTTP、Zod 与 Service 调用，**不在路由目录下新增业务 `*.service.ts`**（构建仍会排除 `**/*.service.ts` 以防误扫成路由）。
 
 ```
 ├── app.ts                          # HTTP 入口：路由、HTML、静态资源、代理
@@ -68,25 +68,22 @@ bash scripts/server-deploy.sh fullstack-app-dev start:test
 │   ├── routes/                     # 基于文件的后端路由（基础路径：/app）
 │   │   **/xxx.schema.ts            # Zod（排除路由扫描）
 │   │   **/xxx.snapshot.ts         # 开发 API 快照（排除）
-│   │   **/xxx.ts                  # 控制器：仅鉴权、校验、getService、响应
-│   ├── services/                   # 业务逻辑层（Service）
-│   │   ├── auth.service.ts         # 认证服务
-│   │   ├── user.service.ts         # 用户服务
-│   │   └── role.service.ts         # 角色服务
-│   ├── repositories/               # 数据访问层（Repository）
-│   │   ├── user.repository.ts      # 用户数据访问
-│   │   └── role.repository.ts      # 角色数据访问
-│   ├── container/                  # 依赖注入容器
-│   │   ├── container.ts            # DI 容器实现
-│   │   ├── register-services.ts    # 服务注册
-│   │   └── service-helpers.ts      # 服务访问辅助函数
-│   ├── errors/                     # 错误处理
-│   │   ├── app-error.ts            # 自定义错误类
-│   │   └── error-handler.ts        # 全局错误处理中间件
-│   ├── entities/                   # TypeORM 实体
-│   ├── middleware/                 # 中间件
-│   ├── db.ts                       # 数据库连接
-│   └── utils/                      # 共享工具（auth、zod-validator 等）
+│   │   **/xxx.ts                  # 控制器：鉴权、校验、调用 Service、响应
+│   ├── services/                   # 业务逻辑层（export const xxxService）
+│   │   ├── auth.service.ts
+│   │   ├── user.service.ts
+│   │   └── role.service.ts
+│   ├── db/                         # 数据访问辅助
+│   │   ├── entities.ts             # 实体自动发现
+│   │   ├── get-repo.ts             # getRepo(Entity)
+│   │   └── query-helpers.ts        # paginate、existsBy 等
+│   ├── errors/
+│   │   ├── app-error.ts
+│   │   └── error-handler.ts
+│   ├── entities/                   # TypeORM EntitySchema
+│   ├── middleware/
+│   ├── db.ts                       # DataSource 连接
+│   └── utils/                      # auth、password、zod-validator 等
 ├── client/
 │   └── pages/                      # 多页应用（每个都是独立的 SPA）
 │       └── <page>/                 # 例如：cms、login、404
@@ -103,15 +100,13 @@ bash scripts/server-deploy.sh fullstack-app-dev start:test
 
 ### 架构设计原则
 
-**三层架构（详见 `server/ARCHITECTURE.md`）：**
-- **Controller（路由层）**：`server/routes/**` 处理 HTTP、Zod、调用 `getService()`，**不**在路由目录中实现业务 Service
-- **Service（服务层）**：`server/services/` 业务逻辑、事务、调用 Repository
-- **Repository（数据层）**：`server/repositories/` 与数据库交互
+**两层业务架构（详见 `server/ARCHITECTURE.md`）：**
+- **Controller（路由层）**：`server/routes/**` 处理 HTTP、Zod、直接 import Service 单例
+- **Service（服务层）**：`server/services/` 业务逻辑 + `getRepo()` 数据访问
 
-**依赖注入：**
-- 使用轻量级 DI 容器管理服务生命周期
-- 所有服务通过容器注册和解析
-- 降低耦合，提升可测试性
+**Service 模块单例：**
+- 每个 Service 文件 `export const xxxService = new XxxService()`
+- 路由 `import { userService } from 'server/services/user.service'`
 
 **统一错误处理：**
 - 自定义错误类型（NotFoundError、BusinessError 等）
@@ -120,71 +115,49 @@ bash scripts/server-deploy.sh fullstack-app-dev start:test
 
 ## 后端开发
 
-### 三层架构开发模式
+### 开发模式
 
-**1. Repository 层（数据访问）**
-
-```ts
-// server/repositories/user.repository.ts
-export class UserRepository {
-  async findById(id: number): Promise<User | null> {
-    const repo = await this.getRepo()
-    return repo.findOne({ where: { id } })
-  }
-
-  async findByUsername(username: string): Promise<User | null> {
-    const repo = await this.getRepo()
-    return repo.findOne({ where: { username } })
-  }
-
-  // 更多数据访问方法...
-}
-```
-
-**2. Service 层（业务逻辑）**
+**1. Service 层（业务逻辑 + 数据访问）**
 
 ```ts
 // server/services/user.service.ts
-export class UserService {
-  constructor(
-    private userRepo: UserRepository,
-    private roleRepo: RoleRepository
-  ) {}
+import { getRepo } from 'server/db/get-repo'
+import { existsBy } from 'server/db/query-helpers'
+import { hashPassword } from 'server/utils/password'
+import { UserEntity } from 'server/entities/User'
+import { BusinessError } from 'server/errors/app-error'
 
+class UserService {
   async createUser(input: CreateUserInput): Promise<UserView> {
-    // 业务验证
-    const exists = await this.userRepo.existsByUsername(input.username)
+    const userRepo = await getRepo(UserEntity)
+    const exists = await existsBy(userRepo, 'username', input.username)
     if (exists) {
       throw new BusinessError('用户名已存在', 'USERNAME_EXISTS')
     }
 
-    // 创建用户
     const passwordHash = await hashPassword(input.password)
-    const user = await this.userRepo.create({
-      username: input.username,
-      passwordHash,
-      roles: input.roles || [],
-    })
-
+    const user = await userRepo.save(
+      userRepo.create({ username: input.username, passwordHash, roles: input.roles || [] }),
+    )
     return this.mapToView(user)
   }
 }
+
+export const userService = new UserService()
 ```
 
-**3. Controller 层（路由处理）**
+**2. Controller 层（路由处理）**
 
 ```ts
 // server/routes/users/index.ts
-import { getService } from 'server/container/service-helpers'
+import { userService } from 'server/services/user.service'
 
 export const POST = factory.createHandlers(
   requireAuth,
   zValidator('json', createBody),
   async c => {
     const { username, password, roles = [] } = c.req.valid('json')
-    const service = getService()
-
-    const user = await service.user.createUser({ username, password, roles })
+    const user = await userService.createUser({ username, password, roles })
     return c.json(user, 201)
   }
 )
@@ -199,19 +172,17 @@ export const POST = factory.createHandlers(
 // server/routes/feature/action.ts
 import { zValidator } from 'server/utils/zod-validator'
 import { createFactory } from 'hono/factory'
-import { getService } from 'server/container/service-helpers'
+import { productService } from 'server/services/product.service'
 import { actionBody } from './action.schema'
 
 const factory = createFactory()
 
 export const POST = factory.createHandlers(
-  requireAuth,              // 可选：认证中间件
-  zValidator('json', actionBody),  // 请求校验
+  requireAuth,
+  zValidator('json', actionBody),
   async c => {
     const data = c.req.valid('json')
-    const service = getService()
-    // 调用服务层处理业务逻辑
-    const result = await service.feature.action(data)
+    const result = await productService.action(data)
     return c.json(result)
   }
 )

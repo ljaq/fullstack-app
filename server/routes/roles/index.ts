@@ -1,7 +1,7 @@
 import { zValidator } from 'server/utils/zod-validator'
 import { createFactory } from 'hono/factory'
 import { requireAuth } from 'server/utils/auth'
-import { getService } from 'server/container/service-helpers'
+import { roleService } from 'server/services/role.service'
 import { roleBody } from './index.schema'
 
 const factory = createFactory()
@@ -12,8 +12,7 @@ export const GET = factory.createHandlers(requireAuth, async c => {
   const page = parseInt(c.req.query('page') || '1')
   const pageSize = parseInt(c.req.query('pageSize') || '10')
 
-  const service = getService()
-  const result = await service.role.listRoles({ page, pageSize, name })
+  const result = await roleService.listRoles({ page, pageSize, name })
   return c.json(result)
 })
 
@@ -23,9 +22,7 @@ export const POST = factory.createHandlers(
   zValidator('json', roleBody),
   async c => {
     const body = c.req.valid('json')
-    const service = getService()
-
-    const role = await service.role.createRole({
+    const role = await roleService.createRole({
       roleName: body.roleName,
       role: body.role,
       description: body.description,

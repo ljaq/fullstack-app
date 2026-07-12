@@ -1,6 +1,6 @@
-import { getDataSource } from '../db'
+import { getDataSource } from '../db/data-source'
 import { UserEntity } from '../entities/User'
-import { signAuthTokenForDevSnapshot } from '../utils/auth'
+import { signAuthTokenForDevSnapshot } from '../utils/jwt'
 
 export type MintAuthBearerResult =
   | { ok: true; authorizationHeader: string }

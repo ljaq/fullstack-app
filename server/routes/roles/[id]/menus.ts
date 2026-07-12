@@ -2,7 +2,7 @@ import { zValidator } from 'server/utils/zod-validator'
 import { createFactory } from 'hono/factory'
 import { requireAuth, requirePermission } from 'server/utils/auth'
 import { BTN } from 'types/permissions'
-import { getService } from 'server/container/service-helpers'
+import { roleService } from 'server/services/role.service'
 import { menusBody, paramSchema } from './menus.schema'
 
 const factory = createFactory()
@@ -13,9 +13,7 @@ export const GET = factory.createHandlers(
   zValidator('param', paramSchema),
   async c => {
     const { id } = c.req.valid('param')
-    const service = getService()
-
-    const menus = await service.role.getRoleMenus(id)
+    const menus = await roleService.getRoleMenus(id)
     return c.json({ pageKeys: menus.pageKeys, buttons: menus.buttons })
   }
 )
@@ -29,9 +27,7 @@ export const PUT = factory.createHandlers(
   async c => {
     const { id } = c.req.valid('param')
     const { pageKeys, buttons } = c.req.valid('json')
-    const service = getService()
-
-    await service.role.updateRoleMenus(id, { pageKeys, buttons: buttons || [] })
+    await roleService.updateRoleMenus(id, { pageKeys, buttons: buttons || [] })
     return c.json({ success: true })
   }
 )

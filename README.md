@@ -1,6 +1,6 @@
 # Fullstack App
 
-基于 Vite 8 + Hono + React 的全栈一体化 monorepo 项目，采用三层架构模式和依赖注入设计。
+基于 Vite 8 + Hono + React 的全栈一体化 monorepo 项目，采用 Route → Service → TypeORM 架构。
 
 ## 📚 文档
 
@@ -66,7 +66,7 @@ bash scripts/server-deploy.sh fullstack-app-dev start:test
 
 ### 目录结构
 
-约定以 [**server/ARCHITECTURE.md**](server/ARCHITECTURE.md) 为准：业务在 `server/services/`、`server/repositories/`，`server/routes/**` 只做 HTTP、Zod 与 `getService()` 调用，**不在路由目录下新增业务 `*.service.ts`**。
+约定以 [**server/ARCHITECTURE.md**](server/ARCHITECTURE.md) 为准：业务在 `server/services/`（模块单例），`server/routes/**` 只做 HTTP、Zod 与 Service 调用，**不在路由目录下新增业务 `*.service.ts`**。
 
 ```
 ├── app.ts                          # HTTP 入口：路由、HTML、静态资源、代理
@@ -74,25 +74,20 @@ bash scripts/server-deploy.sh fullstack-app-dev start:test
 │   ├── routes/                     # 基于文件的后端路由（基础路径：/app）
 │   │   **/xxx.schema.ts            # Zod（排除路由扫描）
 │   │   **/xxx.snapshot.ts         # 开发 API 快照（排除）
-│   │   **/xxx.ts                  # 控制器：鉴权、校验、getService、响应
-│   ├── services/                   # 业务逻辑层（Service）
-│   │   ├── auth.service.ts         # 认证服务
-│   │   ├── user.service.ts         # 用户服务
-│   │   └── role.service.ts         # 角色服务
-│   ├── repositories/               # 数据访问层（Repository）
-│   │   ├── user.repository.ts      # 用户数据访问
-│   │   └── role.repository.ts      # 角色数据访问
-│   ├── container/                  # 依赖注入容器
-│   │   ├── container.ts            # DI 容器实现
-│   │   ├── register-services.ts    # 服务注册
-│   │   └── service-helpers.ts      # 服务访问辅助函数
-│   ├── errors/                     # 错误处理
-│   │   ├── app-error.ts            # 自定义错误类
-│   │   └── error-handler.ts        # 全局错误处理中间件
-│   ├── entities/                   # TypeORM 实体
-│   ├── middleware/                 # 中间件
-│   ├── db.ts                       # 数据库连接
-│   └── utils/                      # 共享工具（auth、zod-validator 等）
+│   │   **/xxx.ts                  # 控制器：鉴权、校验、调用 Service、响应
+│   ├── services/                   # 业务逻辑层（export const xxxService）
+│   │   ├── auth.service.ts
+│   │   ├── user.service.ts
+│   │   └── role.service.ts
+│   ├── db/                         # 数据访问辅助
+│   │   ├── entities.ts             # 实体自动发现
+│   │   ├── get-repo.ts
+│   │   └── query-helpers.ts
+│   ├── errors/
+│   ├── entities/                   # TypeORM EntitySchema
+│   ├── middleware/
+│   ├── db.ts                       # DataSource 连接
+│   └── utils/                      # auth、password、zod-validator 等
 ├── client/
 │   └── pages/                      # 多页应用（每个都是独立的 SPA）
 │       └── <page>/                 # 例如：cms、login、404
@@ -109,15 +104,13 @@ bash scripts/server-deploy.sh fullstack-app-dev start:test
 
 ### 服务端架构特点
 
-**三层架构模式（细则见 [server/ARCHITECTURE.md](server/ARCHITECTURE.md)）：**
-- **Controller（路由层）**：`server/routes/**` 处理 HTTP、Zod、调用 `getService()`，**不**在路由目录中实现业务 Service
-- **Service（服务层）**：`server/services/` 业务逻辑、事务、调用 Repository
-- **Repository（数据层）**：`server/repositories/` 与数据库交互
+**两层业务架构（细则见 [server/ARCHITECTURE.md](server/ARCHITECTURE.md)）：**
+- **Controller（路由层）**：`server/routes/**` 处理 HTTP、Zod、直接 import Service 单例
+- **Service（服务层）**：`server/services/` 业务逻辑 + `getRepo()` 数据访问
 
-**依赖注入容器：**
-- 轻量级 DI 容器管理服务生命周期
-- 降低耦合，提升可测试性
-- 统一的服务注册和解析机制
+**Service 模块单例：**
+- 每个 Service 文件 `export const xxxService = new XxxService()`
+- 路由 `import { userService } from 'server/services/user.service'`
 
 **统一错误处理：**
 - 自定义错误类型（NotFoundError、BusinessError 等）
@@ -126,73 +119,23 @@ bash scripts/server-deploy.sh fullstack-app-dev start:test
 
 ### 架构优势
 
-1. **清晰的分层架构** - 每层职责明确，易于理解和维护
-2. **依赖注入** - 降低耦合，提升可测试性
+1. **清晰的分层架构** - 路由薄、Service 承载业务与数据访问
+2. **低样板代码** - 新增功能只需 Entity + Service + Route
 3. **统一错误处理** - 错误处理一致且优雅
 4. **类型安全** - 完整的 TypeScript 支持
 5. **易于扩展** - 新增功能遵循相同模式即可
-6. **测试友好** - 通过依赖注入，易于 mock 和测试
 
 ## 后端开发
 
-### 三层架构开发指南
+### 开发指南
 
 **创建新功能的步骤：**
 
-1. **定义 Repository**（数据访问层）
-```ts
-// server/repositories/product.repository.ts
-export class ProductRepository {
-  async findById(id: number) {
-    const repo = await this.getRepo()
-    return repo.findOne({ where: { id } })
-  }
-}
-```
+1. **定义实体**（`server/entities/product.ts`）
+2. **定义 Service**（`server/services/product.service.ts`，导出 `productService` 单例）
+3. **创建路由**（`server/routes/products/...`）
 
-2. **定义 Service**（业务逻辑层）
-```ts
-// server/services/product.service.ts
-export class ProductService {
-  constructor(private productRepo: ProductRepository) {}
-
-  async getProduct(id: number) {
-    const product = await this.productRepo.findById(id)
-    if (!product) {
-      throw new NotFoundError('产品')
-    }
-    return product
-  }
-}
-```
-
-3. **注册服务**（依赖注入）
-```ts
-// server/container/register-services.ts
-container.registerSingleton(ServiceTokens.ProductRepository, () =>
-  new ProductRepository()
-)
-container.registerSingleton(ServiceTokens.ProductService, () => {
-  const productRepo = container.resolve<ProductRepository>(
-    ServiceTokens.ProductRepository
-  )
-  return new ProductService(productRepo)
-})
-```
-
-4. **创建路由**（控制器层）
-```ts
-// server/routes/products/[id].ts
-import { getService } from 'server/container/service-helpers'
-
-export const GET = factory.createHandlers(async c => {
-  const { id } = c.req.param()
-  const service = getService()
-
-  const product = await service.product.getProduct(Number(id))
-  return c.json(product)
-})
-```
+详见 [server/ARCHITECTURE.md](server/ARCHITECTURE.md)。
 
 ### 错误处理
 
@@ -213,15 +156,14 @@ throw new UnauthorizedError('登录已过期')
 
 **路由处理器模式：**
 ```ts
-import { getService } from 'server/container/service-helpers'
+import { productService } from 'server/services/product.service'
 
 export const POST = factory.createHandlers(
   requireAuth,
   zValidator('json', createBody),
   async c => {
     const data = c.req.valid('json')
-    const service = getService()
-    const result = await service.feature.action(data)
+    const result = await productService.action(data)
     return c.json(result)
   }
 )
