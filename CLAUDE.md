@@ -66,7 +66,7 @@ bash scripts/server-deploy.sh fullstack-app-dev start:test
 ├── app.ts                          # HTTP 入口：路由、HTML、静态资源、代理
 ├── server/
 │   ├── routes/                     # 基于文件的后端路由（基础路径：/app）
-│   │   **/xxx.schema.ts            # Zod（排除路由扫描）
+│   │   **/xxx.types.ts             # Typia 校验类型（排除路由扫描）
 │   │   **/xxx.snapshot.ts         # 开发 API 快照（排除）
 │   │   **/xxx.ts                  # 控制器：鉴权、校验、调用 Service、响应
 │   ├── services/                   # 业务逻辑层（export const xxxService）
@@ -83,7 +83,7 @@ bash scripts/server-deploy.sh fullstack-app-dev start:test
 │   ├── entities/                   # TypeORM EntitySchema
 │   ├── middleware/
 │   ├── db.ts                       # DataSource 连接
-│   └── utils/                      # auth、password、zod-validator 等
+│   └── utils/                      # auth、password、validate 等
 ├── client/
 │   └── pages/                      # 多页应用（每个都是独立的 SPA）
 │       └── <page>/                 # 例如：cms、login、404
@@ -101,7 +101,7 @@ bash scripts/server-deploy.sh fullstack-app-dev start:test
 ### 架构设计原则
 
 **两层业务架构（详见 `server/ARCHITECTURE.md`）：**
-- **Controller（路由层）**：`server/routes/**` 处理 HTTP、Zod、直接 import Service 单例
+- **Controller（路由层）**：`server/routes/**` 处理 HTTP、Typia 校验、直接 import Service 单例
 - **Service（服务层）**：`server/services/` 业务逻辑 + `getRepo()` 数据访问
 
 **Service 模块单例：**
@@ -154,7 +154,7 @@ import { userService } from 'server/services/user.service'
 
 export const POST = factory.createHandlers(
   requireAuth,
-  zValidator('json', createBody),
+  validate('json', createBody),
   async c => {
     const { username, password, roles = [] } = c.req.valid('json')
     const user = await userService.createUser({ username, password, roles })
@@ -165,21 +165,21 @@ export const POST = factory.createHandlers(
 
 ### 文件路由约定
 
-路由通过 `vite-plugin-server-route` 从 `server/routes/**/*.ts` **自动生成**；`**/*.schema.ts`、`**/*.snapshot.ts` 等被排除。请**不要**手动编辑 `_route.gen.ts`。
+路由通过 `vite-plugin-server-route` 从 `server/routes/**/*.ts` **自动生成**；`**/*.types.ts`、`**/*.snapshot.ts` 等被排除。请**不要**手动编辑 `_route.gen.ts`。
 
 **路由处理器模式：**
 ```ts
 // server/routes/feature/action.ts
-import { zValidator } from 'server/utils/zod-validator'
+import { validate } from 'server/utils/validate'
 import { createFactory } from 'hono/factory'
 import { productService } from 'server/services/product.service'
-import { actionBody } from './action.schema'
+import { actionBody } from './action.types'
 
 const factory = createFactory()
 
 export const POST = factory.createHandlers(
   requireAuth,
-  zValidator('json', actionBody),
+  validate('json', actionBody),
   async c => {
     const data = c.req.valid('json')
     const result = await productService.action(data)
@@ -211,7 +211,7 @@ throw new BusinessError('用户名已存在', 'USERNAME_EXISTS')
 
 ### 校验
 
-在 `*.schema.ts` 文件中使用 Zod 校验模式配合 `server/utils/zod-validator`。校验失败会自动被错误处理中间件捕获。
+在 `*.types.ts` 文件中使用 Typia 接口 + `typia.createValidate()`，配合 `server/utils/validate` 中间件。校验失败会自动被错误处理中间件捕获。
 
 ## 前端开发
 

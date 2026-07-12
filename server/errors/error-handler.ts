@@ -66,25 +66,6 @@ export function appOnError(error: Error, c: Context): Response {
     return c.json(response, error.statusCode as ContentfulStatusCode)
   }
 
-  if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
-    const zodError = error as {
-      issues?: Array<{ path: (string | number)[]; message: string }>
-    }
-    const issues = zodError.issues?.map(issue => ({
-      path: issue.path.join('.'),
-      message: issue.message,
-    }))
-
-    return c.json(
-      {
-        message: 'Validation failed',
-        code: 'VALIDATION_ERROR',
-        issues,
-      } as ErrorResponse,
-      400,
-    )
-  }
-
   if (error && typeof error === 'object' && 'name' in error) {
     if (error.name === 'JsonWebTokenError') {
       return c.json(

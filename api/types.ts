@@ -33,7 +33,7 @@ export type Schema = {
   }
 }
 
-/** Hono + zod-validator types query input as string | string[]; allow number (serialized in URL). */
+/** Hono + typia-validator types query input as string | string[]; allow number (serialized in URL). */
 type QueryClient<Q> = {
   [K in keyof Q]: [Exclude<Q[K], undefined>] extends [string | string[]] ? Q[K] | number : Q[K]
 }

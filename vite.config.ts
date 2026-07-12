@@ -1,3 +1,4 @@
+import UnpluginTypia from '@typia/unplugin/vite'
 import { defineConfig } from 'vite'
 import type { PluginOption } from 'vite'
 import {
@@ -57,6 +58,6 @@ export default defineConfig(({ command, mode }) => {
           return acc
         }, {}),
     },
-    plugins: [...getPlugins(mode, env, pages), ssrTargetNodePlugin()],
+    plugins: [UnpluginTypia({ tsconfig: 'tsconfig.app.json' }), ...getPlugins(mode, env, pages), ssrTargetNodePlugin()],
   }
 })

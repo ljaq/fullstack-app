@@ -30,7 +30,7 @@ export type DevSnapshotConfig = SnapshotMethods & {
 
 /**
  * 为各方法的 `query` / `body` / `params` 提供类型推断；`enabled` 控制是否生成快照文件。
- * 与同目录 `*.schema.ts` 对齐时，可用 `z.infer` + `satisfies`（见各路由 `*.snapshot.ts`）。
+ * 与同目录 `*.types.ts` 对齐时，可用对应接口类型 + `satisfies`（见各路由 `*.snapshot.ts`）。
  */
 export function defineDevSnapshot<const T extends DevSnapshotConfig>(config: T): T {
   return config

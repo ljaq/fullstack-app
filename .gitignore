@@ -26,6 +26,13 @@ mini-program/dist
 # API 开发快照
 **/*.snapshot.json
 
+# tsc emitDeclarationOnly 旁路产物（根目录 vite-env.d.ts、mini-program 内声明文件已入库，不受影响）
+api/**/*.d.ts
+utils/**/*.d.ts
+server/**/*.d.ts
+client/**/*.d.ts
+**/_route.gen.d.ts
+
 # SQLite WAL 侧车（若再次启用 WAL 会生成）
 *.db-wal
 *.db-shm

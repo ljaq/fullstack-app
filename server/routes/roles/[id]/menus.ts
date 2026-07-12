@@ -1,16 +1,16 @@
-import { zValidator } from 'server/utils/zod-validator'
+import { validate, idParam } from 'server/utils/validate'
 import { createFactory } from 'hono/factory'
 import { requireAuth, requirePermission } from 'server/utils/auth'
 import { BTN } from 'types/permissions'
 import { roleService } from 'server/services/role.service'
-import { menusBody, paramSchema } from './menus.schema'
+import { menusBody } from './menus.types'
 
 const factory = createFactory()
 
 /** 获取角色菜单 */
 export const GET = factory.createHandlers(
   requireAuth,
-  zValidator('param', paramSchema),
+  validate('param', idParam),
   async c => {
     const { id } = c.req.valid('param')
     const menus = await roleService.getRoleMenus(id)
@@ -22,8 +22,8 @@ export const GET = factory.createHandlers(
 export const PUT = factory.createHandlers(
   requireAuth,
   requirePermission(BTN.角色管理.新建),
-  zValidator('param', paramSchema),
-  zValidator('json', menusBody),
+  validate('param', idParam),
+  validate('json', menusBody),
   async c => {
     const { id } = c.req.valid('param')
     const { pageKeys, buttons } = c.req.valid('json')

@@ -1,14 +1,14 @@
-import { zValidator } from 'server/utils/zod-validator'
+import { validate } from 'server/utils/validate'
 import { createFactory } from 'hono/factory'
 import { signAuthToken } from 'server/utils/auth'
 import { authService } from 'server/services/auth.service'
-import { registerBody } from './register.schema'
+import { registerBody } from './register.types'
 
 const factory = createFactory()
 
 /** 注册 */
 export const POST = factory.createHandlers(
-  zValidator('json', registerBody),
+  validate('json', registerBody),
   async c => {
     const { username, password } = c.req.valid('json')
     const userView = await authService.register(username, password)

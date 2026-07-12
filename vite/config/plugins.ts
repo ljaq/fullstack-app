@@ -16,13 +16,13 @@ export function getPlugins(_mode: string, env: Record<string, string>, pages: st
     serverRoute({
       dir: 'server/routes',
       baseRoute: '/app',
-      exclude: ['**/*.snapshot.ts', '**/*.service.ts', '**/*.schema.ts'],
+      exclude: ['**/*.snapshot.ts', '**/*.service.ts', '**/*.types.ts'],
     }),
     apiDevSnapshot({
       dir: 'server/routes',
       baseRoute: '/app',
       port,
-      exclude: ['**/*.snapshot.ts', '**/*.service.ts', '**/*.schema.ts'],
+      exclude: ['**/*.snapshot.ts', '**/*.service.ts', '**/*.types.ts'],
       enabled: apiSnapshotPluginEnabled,
       https: isHttps(env),
     }),

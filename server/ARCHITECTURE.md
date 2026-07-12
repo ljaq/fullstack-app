@@ -28,7 +28,7 @@ server/
 ├── routes/
 ├── entities/
 ├── middleware/
-└── utils/                 # auth、jwt、password、zod-validator
+└── utils/                 # auth、jwt、password、validate
 ```
 
 ## 核心概念
@@ -59,7 +59,7 @@ const userRepo = await getRepo(UserEntity)
 
 1. `server/entities/product.ts` — EntitySchema
 2. `server/services/product.service.ts` — `export const productService`
-3. `server/routes/products/...` — 路由 + schema
+3. `server/routes/products/...` — 路由 + types
 
 ## 注意事项
 

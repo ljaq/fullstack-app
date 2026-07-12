@@ -2,6 +2,7 @@ import type { Context } from 'hono'
 import jwt from 'jsonwebtoken'
 import type { BtnPermissionCode } from '../../types/permissions'
 import { UnauthorizedError, ForbiddenError } from '../errors/app-error'
+import { authService } from '../services/auth.service'
 import { getAuthSecret } from './jwt'
 
 export { signAuthToken, signAuthTokenForDevSnapshot } from './jwt'
@@ -30,7 +31,6 @@ export async function getCurrentUser(c: Context) {
   if (!userId) return null
 
   try {
-    const { authService } = await import('../services/auth.service')
     return await authService.loadSession(userId)
   } catch (error) {
     console.log('Error getting current user:', error)

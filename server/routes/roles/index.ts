@@ -1,8 +1,8 @@
-import { zValidator } from 'server/utils/zod-validator'
+import { validate } from 'server/utils/validate'
 import { createFactory } from 'hono/factory'
 import { requireAuth } from 'server/utils/auth'
 import { roleService } from 'server/services/role.service'
-import { roleBody } from './index.schema'
+import { roleBody } from './index.types'
 
 const factory = createFactory()
 
@@ -19,7 +19,7 @@ export const GET = factory.createHandlers(requireAuth, async c => {
 /** 创建角色 */
 export const POST = factory.createHandlers(
   requireAuth,
-  zValidator('json', roleBody),
+  validate('json', roleBody),
   async c => {
     const body = c.req.valid('json')
     const role = await roleService.createRole({
